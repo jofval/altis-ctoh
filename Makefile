@@ -12,11 +12,11 @@ develop:
 
 # The minus sign means ignore any errors (e.g. if there is nothing to uninstall)
 install:
-	-pip uninstall maps
+	-pip uninstall altis
 	pip install ./
 
 uninstall:
-	-pip uninstall maps
+	-pip uninstall altis
 
 clean:
 	\rm -rf build _*.so

@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+# ----------------------------------------------------------------------
+#
+# 
+# GUI configuration parameter for AlTiS Software.
+#
+# Created by Fabien Blarel on 2019-04-19. 
+# ----------------------------------------------------------------------
+
+mission :
+    - j2D
+    - j3Ds
+    - envisat.v21
+    - saral.s
+    - ers2.c.v1
+    - j1E
+    - s3lanOT
+    
+    
+surface_types :
+    - RiversLakes
+    - GreatLakes
+    - Ocean
+wmts:   # Web Map Tile Service
+    ground_map :
+        # Global Imagery Browse Services (GIBS)
+        url : https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/wmts.cgi
+        layer : Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual # Landsat 30 m resol
+        
+    

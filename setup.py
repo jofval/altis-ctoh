@@ -12,7 +12,7 @@ import sys, os
 import numpy
 import vcversioner
 
-package_name='maps'
+package_name='altis'
 
 from setuptools.command.install import install
 
@@ -36,7 +36,7 @@ with open("README.md", "r") as fh:
 
 setup(name=package_name,
       version=version,
-      description="Multi-mission Altimetry Processing Software (MAPS)",
+      description="Altimetry Times Series Software (AlTiS Software)",
       long_description=long_description,
       classifiers=[
                 "Topic :: Scientific/Engineering :: Physics",
@@ -46,8 +46,8 @@ setup(name=package_name,
                 "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
                 "Operating System :: OS Independent",
                 ], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-      keywords='radar altimetry, waveform, dielectric permittivity, soil moisture',
-      author='...',
+      keywords='radar altimetry, time series, hydrology, ',
+      author='CTOH',
       author_email='frappart@legos.obs-mip.fr, \
                     ctoh_products@legos.obs-mip.fr',
       url='http://ctoh.legos.obs-mip.fr/land_surfaces/softwares/...',
@@ -59,15 +59,16 @@ setup(name=package_name,
       setup_requires=['vcversioner'],
       vcversioner={'version_module_paths': ['%s/_version.py' % package_name]},
       #cmdclass={'install': CustomInstall},
-      install_requires=[
-          "numpy>=1.8",
-          "configobj>5",
+#      install_requires=[
+#          "numpy>=1.8",
+#          "configobj>5",
           # -*- Extra requirements: -*-
-      ],
+#      ],
       python_requires='>=3',
       entry_points={
           'console_scripts': [
-               'maps = %s.maps:main' % package_name,
+               'altis_gui = %s.altis_gui:main' % package_name,
+               'normpass = %s.track:main' % package_name,
         ]
       },)
 

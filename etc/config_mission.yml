@@ -1,0 +1,499 @@
+# -*- coding: utf-8 -*-
+# ----------------------------------------------------------------------
+#
+# 
+# Altimetric mission configuration parameter for AlTiS Software.
+#
+# Created by Fabien Blarel on 2019-04-19. 
+# ----------------------------------------------------------------------
+
+
+
+# Jason-1
+j1E :
+    filename_pattern : 2PeP\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    track_pattern : (_)(\d{3})(_)
+    cycle_pattern : (P)(\d{3})(_)
+    surf_type :
+        - RiversLakes
+#        - GreatLakes
+#        - Ocean
+    
+    retracker :
+        - ice1
+        - mle3
+        - ocean
+
+    band : 
+        - ku
+#        - c
+    
+    freq : 20.0
+    
+    track : 254
+    
+    param :
+        # Coordinates
+        time_lf : time
+        time_hf : time_20hz
+        lon_hf : lon_20hz    
+        lat_hf : lat_20hz
+        
+        # Index of normalized pass
+        norm_index_hf : norm_index_20hz
+        
+        # Altitude
+        alt_hf : alt_20hz
+        
+        # Range (Ice-1 (OCOG) retracker)
+        ice1_range_ku : ice_range_20hz_ku
+        # Range (MLE-3 retracker)
+        mle3_range_ku : range_20hz_ku_mle3
+        # Range (Oean retracker)
+        ocean_range_ku : range_20hz_ku
+        
+        # Range Corrections
+        model_wet_tropo_corr : model_wet_tropo_corr
+        model_dry_tropo_corr : model_dry_tropo_corr
+        iono_corr_gim_ku : iono_corr_gim_ku
+        solid_earth_tide : solid_earth_tide
+        pole_tide : pole_tide
+
+        # Geoid correction (for RiversLakes, GreatLakes Surface Type)
+        geoid : geoid_egm08
+
+        # Backscatter
+        ice1_sig0_ku : ice_sig0_20hz_ku
+        ice1_sig0_c : ice_sig0_20hz_c
+        ice1_peakiness_ku : peakiness_20hz_ku
+        ice1_peakiness_c : peakiness_20hz_c
+
+        # Brightness temperature
+        187_brightness_temp : tb_187    
+        238_brightness_temp : tb_238
+        340_brightness_temp : tb_340
+
+# Jason-2
+j2D :
+    filename_pattern : 2PdP\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    track_pattern : (_)(\d{3})(_)
+    cycle_pattern : (P)(\d{3})(_)
+    surf_type :
+        - RiversLakes
+#        - GreatLakes
+#        - Ocean
+    
+    retracker :
+        - ice1
+        - mle3
+        - ocean
+
+    band : 
+        - ku
+#        - c
+    
+    freq : 20.0
+    
+    track : 254
+    
+    param :
+        # Coordinates
+        time_lf : time
+        time_hf : time_20hz
+        lon_hf : lon_20hz    
+        lat_hf : lat_20hz
+        
+        # Index of normalized pass
+        norm_index_hf : norm_index_20hz
+        
+        # Altitude
+        alt_hf : alt_20hz
+        
+        # Range (Ice-1 (OCOG) retracker)
+        ice1_range_ku : ice_range_20hz_ku
+        # Range (MLE-3 retracker)
+        mle3_range_ku : range_20hz_ku_mle3
+        # Range (Oean retracker)
+        ocean_range_ku : range_20hz_ku
+        
+        # Range Corrections
+        model_wet_tropo_corr : model_wet_tropo_corr
+        model_dry_tropo_corr : model_dry_tropo_corr
+        iono_corr_gim_ku : iono_corr_gim_ku
+        solid_earth_tide : solid_earth_tide
+        pole_tide : pole_tide
+
+        # Geoid correction (for RiversLakes, GreatLakes Surface Type)
+        geoid : geoid_egm08
+
+        # Backscatter
+        ice1_sig0_ku : ice_sig0_20hz_ku
+        ice1_sig0_c : ice_sig0_20hz_c
+        ice1_peakiness_ku : peakiness_20hz_ku
+        ice1_peakiness_c : peakiness_20hz_c
+
+        # Brightness temperature
+        187_brightness_temp : tb_187    
+        238_brightness_temp : tb_238
+        340_brightness_temp : tb_340
+        
+# Jason-3
+j3Ds :
+    filename_pattern : 2P.*P\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    track_pattern : (_)(\d{3})(_)
+    cycle_pattern : (P)(\d{3})(_)
+    surf_type :
+        - RiversLakes
+#        - GreatLakes
+#        - Ocean
+    
+    retracker :
+        - ice1
+        - mle3
+        - ocean
+
+    band : 
+        - ku
+#        - c
+    
+    freq : 20.0
+    
+    track : 254
+    
+    param :
+        # Coordinates
+        time_lf : time
+        time_hf : time_20hz
+        lon_hf : lon_20hz    
+        lat_hf : lat_20hz
+        
+        # Index of normalized pass
+        norm_index_hf : norm_index_20hz
+        
+        # Altitude
+        alt_hf : alt_20hz
+        
+        # Range (Ice-1 (OCOG) retracker)
+        ice1_range_ku : ice_range_20hz_ku
+        # Range (MLE-3 retracker)
+        mle3_range_ku : range_20hz_ku_mle3
+        # Range (Oean retracker)
+        ocean_range_ku : range_20hz_ku
+        
+        # Range Corrections
+        model_wet_tropo_corr : model_wet_tropo_corr
+        model_dry_tropo_corr : model_dry_tropo_corr
+        iono_corr_gim_ku : iono_corr_gim_ku
+        solid_earth_tide : solid_earth_tide
+        pole_tide : pole_tide
+
+        # Geoid correction (for RiversLakes, GreatLakes Surface Type)
+        geoid : geoid_egm08
+
+        # Backscatter
+        ice1_sig0_ku : ice_sig0_20hz_ku
+        ice1_sig0_c : ice_sig0_20hz_c
+        ice1_peakiness_ku : peakiness_20hz_ku
+        ice1_peakiness_c : peakiness_20hz_c
+
+        # Brightness temperature
+        187_brightness_temp : tb_187    
+        238_brightness_temp : tb_238
+        340_brightness_temp : tb_340
+        
+        
+# envisat.v21
+envisat.v21 :
+
+    filename_pattern : _\d{3}_\d{4}_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1\.nc 
+    track_pattern : (_)(\d{4})(_)
+    cycle_pattern : (_)(\d{3})(_)
+    surf_type :
+        - RiversLakes
+#        - GreatLakes
+#        - Ocean
+    
+    retracker :
+        - ice1
+        - ice2
+        - seaice
+        - ocean
+
+    band : 
+        - ku
+#        - s
+    
+    freq : 18.0
+    
+    track : 1002
+    
+    param :
+        # Coordinates
+        time_lf : time
+        time_hf : time_hf
+        lon_hf : lon_hf    
+        lat_hf : lat_hf
+        
+        # Index of normalized pass
+        norm_index_hf : norm_index_18hz
+        
+        # Altitude
+        alt_hf : alt_hf
+        
+        # Range (Ice-1 (OCOG) retracker)
+        ice1_range_ku : hz18_ku_ice1
+        # Range (Ice-2 retracker)
+        ice2_range_ku : hz18_ku_ice2
+        # Range (Oean retracker)
+        ocean_range_ku : hz18_ku_band_ocean
+        # Range (SeaIce retracker)
+        seaice_range_ku : hz18_ku_seaice
+        
+        # Range Corrections
+        model_wet_tropo_corr : mod_wet_tropo_corr
+        model_dry_tropo_corr : mod_dry_tropo_corr
+        iono_corr_gim_ku : gim_ku
+        solid_earth_tide : solid_earth_tide_ht
+        pole_tide : geocen_pole_tide_ht
+
+        # Geoid correction (Applied for RiversLakes, GreatLakes Surface Type)
+        geoid : geoid_egm08
+        # 2d Geoid correction (not applied to the surface height compute)
+        geoid_2d_sol : geoid_eigen6c4d
+
+        # Backscatter
+        ice1_sig0_ku : hz18_ku_ice1_bscat
+        ice1_sig0_s : hz18_s_ice1_bscat
+
+        # Brightness temperature
+        238_brightness_temp : interpole_238_temp_mwr
+        365_brightness_temp : interpole_365_temp_mwr
+        
+# ers2 CTOH
+ers2.c.v1 :
+
+    filename_pattern : \d{3}_\d{4}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    track_pattern : (_)(\d{4})(_)
+    cycle_pattern : (\d{3})(_)
+    surf_type :
+        - RiversLakes
+#        - GreatLakes
+#        - Ocean
+    
+    retracker :
+        - ice1
+        - ice2
+
+    band : 
+        - ku
+    
+    freq : 20.0
+    
+    track : 1002
+    
+    param :
+    
+        # Coordinates
+        time_lf : time
+        time_hf : time_20hz
+        lon_hf : lon_20hz    
+        lat_hf : lat_20hz
+        
+        # Index of normalized pass
+        norm_index_hf : norm_index_20hz
+        
+        # Altitude
+        alt_hf : alt_20hz
+        
+        # Range (Ice-1 (OCOG) retracker)
+        ice1_range_ku : ice1_range_20hz
+        # Range (Ice-2 retracker)
+        ice2_range_ku : ice2_range_20hz
+        # Range (Ice-1 medium retracker)
+        medium_ice1_range_ku : ice1_range_high_20hz
+        # Range (Ice-1 high retracker)
+        high_ice1_range_ku : ice1_range_medium_20hz
+        
+        # Range Corrections
+        model_wet_tropo_corr : model_wet_tropo_corr_reaper
+        model_dry_tropo_corr : model_dry_tropo_corr_20hz
+        iono_corr_gim_ku : gim_ku
+        solid_earth_tide : solid_earth_tide
+        pole_tide : pole_tide_reaper
+
+        # 2d iono corr (not applied to the surface height compute)
+        iono_corr_gim_ku : iono_nic09
+
+        # Geoid correction (for RiversLakes, GreatLakes Surface Type)
+        geoid : geoid_egm08
+        # 2d Geoid correction (not applied to the surface height compute)
+        geoid_2d_sol : geoid_eigen6c3
+
+        # Backscatter
+        ice1_sig0_ku : ice1_sig0_20hz
+
+        # Brightness temperature
+        238_brightness_temp : tb_238_reaper
+        365_brightness_temp : tb_365_reaper
+        
+        
+# saral
+saral.s :
+
+    filename_pattern : 2PTP\d{3}_\d{4}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d.CNES\.nc
+    track_pattern : (_)(\d{4})(_)
+    cycle_pattern : (P)(\d{3})(_)
+    surf_type :
+        - RiversLakes
+#        - GreatLakes
+#        - Ocean
+    
+    retracker :
+        - ice1
+        - ice2
+        - seaice
+        - ocean
+
+    band : 
+        - ka
+    
+    freq : 40.0
+    
+    track : 1002
+    
+    param :
+        # Coordinates
+        time_lf : time
+        time_hf : time_40hz
+        lon_hf : lon_40hz    
+        lat_hf : lat_40hz
+        
+        # Index of normalized pass
+        norm_index_hf : norm_index_40hz
+        
+        # Altitude
+        alt_hf : alt_40hz
+        
+        # Range (Ice-1 (OCOG) retracker)
+        ice1_range_ka : ice1_range_40hz
+        # Range (Ice-2 retracker)
+        ice2_range_ka : ice2_range_40hz
+        # Range (Ocean retracker)
+        ocean_range_ka : range_40hz
+        # Range (SeaIce retracker)
+        seaice_range_ka : seaice_range_40hz
+        
+        # Range Corrections
+        model_wet_tropo_corr : model_wet_tropo_corr
+        model_dry_tropo_corr : model_dry_tropo_corr
+        iono_corr_gim_ka : iono_corr_gim
+        solid_earth_tide : solid_earth_tide
+        pole_tide : pole_tide
+
+        # Geoid correction (for RiversLakes, GreatLakes Surface Type)
+        geoid : geoid_egm08
+        # 2d Geoid correction (not applied to the surface height compute)
+        geoid_2d_sol : geoid_eigen6c4d
+
+        # Backscatter
+        ice1_sig0_ka : ice1_sig0_40hz
+        ice1_peakiness_ka : peakiness_40hz
+
+        # Brightness temperature
+        k_brightness_temp : tb_k
+        ka_brightness_temp : tb_ka
+        
+
+
+
+# Sentinel-3
+s3lanOT :
+
+    filename_pattern : _\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_.*T.*_.*_C\d{3}_P\d{3}_L.*_.*_NT_.*\.nc
+    track_pattern : (P)(\d{3})(_)
+    cycle_pattern : (C)(\d{3})(_)
+    surf_type :
+        - RiversLakes
+#        - GreatLakes
+#        - Ocean
+    
+    retracker :
+        - ice1
+        - ice2
+        - ice2-sar
+        - ocean
+        - ocean-sar
+        - seaice
+
+    band : 
+        - ku
+#        - c
+    
+    freq : 20.0
+    
+    track : 770
+    
+    param :
+    
+        # Coordinates
+        time_lf : time_01
+        time_hf : time_20_ku
+        lon_hf : lon_20_ku    
+        lat_hf : lat_20_ku
+        
+        # Index of normalized pass
+        norm_index_hf : norm_index_20hz
+        
+        # Altitude
+        alt_hf : alt_20_ku
+        
+        # Range (Ice-1 plrm (OCOG) retracker)
+        ice1_range_ku : range_ocog_20_ku
+        # Range (Ice-2 plrm (OCOG) retracker)
+        ice2_range_ku : range_ice_20_plrm_ku
+        # Range (Ice-2 SAR (OCOG) retracker)
+        ice2-sar_range_ku : range_ice_20_ku
+        # Range (Oean retracker)
+        ocean_range_ku : range_ocean_20_plrm_ku
+        # Range (Ocean SAR retracker)
+        ocean-sar_range_ku : range_ocean_20_ku
+        # Range (SeaIce retracker)
+        seaice_range_ku : range_sea_ice_20_ku
+        
+        # Range Corrections
+        model_wet_tropo_corr : mod_wet_tropo_cor_meas_altitude_01
+        model_dry_tropo_corr : mod_dry_tropo_cor_meas_altitude_01
+        iono_corr_gim_ku : iono_cor_gim_01_ku
+        solid_earth_tide : solid_earth_tide_01
+        pole_tide : pole_tide_01
+
+        # Geoid correction (for RiversLakes, GreatLakes Surface Type)
+        geoid : geoid_01
+        # 2d Geoid correction (not applied to the surface height compute)
+        geoid_2d_sol : geoid_eigen6c4d
+
+        # Backscatter
+        ice1_sig0_ku : sig0_ocog_20_ku
+        ice1_sig0_c : sig0_ocog_20_c
+        ice2_sig0_ku : sig0_ice_20_plrm_ku
+        ice2-sar_sig0_ku : sig0_ice_20_ku
+        ice2-sar_sig0_c : sig0_ice_20_c
+        seaice_sig0_ku : sig0_ice_sheet_20_ku
+        seaice_sig0_c : sig0_ice_sheet_20_c
+        ice1_peakiness1_ku : peakiness_1_20_ku
+        ice1_peakiness1_c : peakiness_1_20_c
+        ice1_peakiness2_ku : peakiness_1_20_plrm_ku
+        ice1_peakiness3_ku : peakiness_2_20_ku
+        ice1_peakiness3_c : peakiness_2_20_c
+
+        # Brightness temperature
+        238_brightness_temp : tb_238_01
+        365_brightness_temp : tb_365_01
+
+        # Instrument operating mode (LRM, SAR, LRM and SAR) 
+        instr_op_mode : instr_op_mode_20_ku
+
+
+
+
+
