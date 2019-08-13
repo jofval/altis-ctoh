@@ -25,7 +25,7 @@ from shapely.geometry import shape, Point, Polygon
 import pkg_resources
 from shutil import copyfile
 
-from utils.tools import __config_load__,update_progress,__regex_file_parser__, fatal_error
+from altis_utils.tools import __config_load__,update_progress,__regex_file_parser__, fatal_error
 
 from cartopy.io.img_tiles import StamenTerrain
 #from cartopy.io.img_tiles import Stamen

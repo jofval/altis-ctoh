@@ -4,6 +4,9 @@
 #
 # Altimetric Time Series (AlTiS)
 #
+# module load python/3.7
+# source activate gui_py37
+#
 # Created by Fabien Blarel on 2019-04-19. 
 # Copyright (c) 2019 Legos/CTOH. All rights reserved.
 # ----------------------------------------------------------------------
@@ -35,7 +38,7 @@ from cartopy.feature import ShapelyFeature,NaturalEarthFeature,COLORS,GSHHSFeatu
 #else:
 from cartopy.io.img_tiles import Stamen
 
-from track import Track
+from altis.track_structure import Track
 
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx as NavigationToolbar
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
@@ -344,7 +347,7 @@ class Load_data_Window(wx.Dialog):
         self.text_ctrl_gdr_dir.SetValue(self.gdr_dir)
 
         # Selection des fichiers trace
-        self.file_struct = __regex_file_parser__(self.sel_mission.GetValue(),self.gdr_dir)
+        self.file_struct = __regex_file_parser__(self.sel_mission.GetValue(),self.gdr_dir,None)
 
         list_track = np.unique(self.file_struct['track'])
         self.sel_track.Clear()

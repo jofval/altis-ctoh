@@ -46,14 +46,14 @@ setup(name=package_name,
                 "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
                 "Operating System :: OS Independent",
                 ], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-      keywords='radar altimetry, time series, hydrology, ',
+      keywords='radar altimetry, time series, hydrology, normalized pass',
       author='CTOH',
-      author_email='frappart@legos.obs-mip.fr, \
+      author_email='frappart@legos.obs-mip.fr,  blarel@legos.obs-mip.fr, \
                     ctoh_products@legos.obs-mip.fr',
       url='http://ctoh.legos.obs-mip.fr/land_surfaces/softwares/...',
       license='GPLv3',
       packages=find_namespace_packages('.',exclude=['tests']),
-      package_data={package_name:['LICENSE','etc/*.cfg','doc/*','examples/*']},
+      package_data={package_name:['LICENSE','etc/*.yml','doc/*','examples/*']},
       include_package_data=False,
       zip_safe=False,
       setup_requires=['vcversioner'],
@@ -68,7 +68,6 @@ setup(name=package_name,
       entry_points={
           'console_scripts': [
                'altis_gui = %s.altis_gui:main' % package_name,
-               'normpass = %s.track:main' % package_name,
         ]
       },)
 
