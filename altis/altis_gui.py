@@ -45,7 +45,7 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
-from altis.download_data_gui import Load_data_Window
+from altis.download_data_gui_2 import Load_data_Window
 from altis.help_gui import Help_Window
 
 #-------------------------------------------------------------------------------
@@ -130,11 +130,6 @@ class Ctrl_Window(wx.Frame):
         print('getSelectCycle')
         return np.array(mask)
         
-    
-
-        
-
-
 #-------------------------------------------------------------------------------
 # Main window : This is the main window
 #-------------------------------------------------------------------------------
