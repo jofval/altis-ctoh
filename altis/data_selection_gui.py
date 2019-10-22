@@ -12,11 +12,18 @@
 # ----------------------------------------------------------------------
 
 import pdb
-
+import wx
 import numpy as np
-
+from altis.common_data import Singleton
 from matplotlib.widgets import LassoSelector, PolygonSelector, MultiCursor
 from matplotlib.path import Path
+import cartopy.crs as ccrs
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+import matplotlib as mpl
+import matplotlib.cm as mpl_cm
+import matplotlib.pyplot as plt
+import xarray as xr
 
 class DatasetSelection(object):
     """
@@ -24,255 +31,190 @@ class DatasetSelection(object):
     
     """
 
-    def __init__(self, fig, axes_list,plotfig_cfg,plot_param, cell_mask, alpha_other=0.1):
+    def __init__(self, fig, plt_list,axes_list, cm, cbar):
         self.fig = fig
         self.canvas = fig.canvas
         self.axes = axes_list 
-        self.plotfig_cfg = plotfig_cfg
-        self.plot_param = plot_param
-
+        self.plt = plt_list
+        [self.ax1,self.ax2,self.ax3,self.ax4] = axes_list 
+        [self.plt1,self.plt2,self.plt3,self.plt4] = plt_list
         self.collections = dict()
         self.fc = dict()
-        self.Npts = dict()
+        self.cm =cm
+        self.cbar = cbar
+#        for idx in range(len(self.axes)):
+#            self.collections[idx] = self.axes[idx].collections[0].get_offsets()
+#            self.fc[idx] = self.axes[idx].collections[0].get_facecolors()
 
-        for idx in range(len(self.axes)):
-            self.collections[idx] = self.axes[idx].collections[0].get_offsets()
-            self.fc[idx] = self.axes[idx].collections[0].get_facecolors()
-            self.Npts[idx] = len(self.axes[idx].collections[0].get_offsets())
-
-        self.alpha_other = alpha_other
+        for idx,plt in enumerate(self.plt):
+            self.collections[idx] = plt.get_offsets()
+            self.fc[idx] = plt.get_facecolors()
 
         self.xys = self.collections
-
         self.init_selector()
         
-        self.cell_mask_index = np.where(cell_mask)
-        self.cell_mask_index = np.array([self.cell_mask_index[0],self.cell_mask_index[1]])
+        self.mask_xys = np.ones(self.xys[0].shape[0],dtype='bool')
+        
+        self.common_data = Singleton()
+        self.MASTER_mask = self.common_data.DATA_MASK_SEL[-1]\
+                             & self.common_data.DATA_MASK_PARAM\
+                             & self.common_data.CYCLE_SEL
+                             
+        self.mask_output = np.array(self.MASTER_mask)
+        self.input_mask_index = np.where(self.MASTER_mask)
+        self.input_mask_index = np.array([self.input_mask_index[0],self.input_mask_index[1]])
+        
+        print('self.MASTER_mask.shape',self.MASTER_mask.shape)
+        print('self.input_mask_index.shape',self.input_mask_index.shape)
 
-        self.array_idx = np.empty(self.cell_mask_index.shape)
-        self.array_idx.fill(np.nan)
-        
-        print('self.cell_mask_index.shape',self.cell_mask_index.shape)
-        
-#        pdb.set_trace()
-        #Récupération de l'axe selectionnées
-        #cid : id pour deconnecter l'évenement
-        self.canvas.mpl_connect('button_press_event', self.get_axes)
-#        self.event_suppr = self.canvas.mpl_connect('key_press_event', self.apply_mask)
-        
 
+        def get_axes( event):
+            if hasattr(self,'current_axes'):
+                pass                
+            else:
+                self.current_axes = event.inaxes
+                print('button_press_event',self.axes.index(self.current_axes))
+
+        def accept(event):
+            print('event.key, ',event.key)
+            if event.key == "enter":
+                self.progress = wx.ProgressDialog("Data Selection Processing ...", "please wait", maximum=100, style=wx.PD_SMOOTH|wx.PD_AUTO_HIDE)
+                self.progress.Update(10, "Mask processing...")
+                self.axes[self.axes_idx].set_title("      ")
+                self.canvas.mpl_disconnect(self.cid_axes)
+                self.canvas.mpl_disconnect(self.cid_key)
+                self.common_data.DATA_MASK_SEL.append(self.mask_output)
+                
+                xys_param = self.xys[1][self.mask_xys,0]
+                norm = mpl.colors.Normalize(vmin=np.min(xys_param), vmax=np.max(xys_param))
+                m = mpl_cm.ScalarMappable(norm=norm, cmap=self.cm)
+                col = [list(m.to_rgba(x)) for x in xys_param]
+                self.progress.Update(40, "Update plots...")
+
+                for ax in range(len(self.axes)):
+                    self.axes[ax].set_title("      ")
+                    self.plt[ax].set_facecolors(col)
+                    xys_output = self.xys[ax][self.mask_xys,:]
+                    self.plt[ax].set_offsets(xys_output)
+
+                self.progress.Update(70, "Update color range...")
+                print('selected data...2 xys_output',xys_output.shape)
+                    
+                self.cbar.set_clim(vmin=np.min(xys_param),vmax=np.max(xys_param))
+                self.cbar.draw_all()
+
+                self.canvas.draw()
+                self.progress.Update(100, "Update color range...")
+                
+                print('data_selection DATA_MASK : ',\
+                            self.common_data.DATA_MASK_SEL[-1].shape,\
+                            np.sum(self.common_data.DATA_MASK_SEL[-1]))
+                self.progress.Destroy()
+                
+            elif event.key == "r":  # revers selection
+                self.plot_selection(alpha = 0.01)
+            elif event.key == "escape":  # Abort
+                print("Aborted selection.")
+                if hasattr(self,'axes_idx'):
+                    self.axes[self.axes_idx].set_title("      ")
+                    self.plot_selection_inside(alpha=1.0)
+                self.canvas.mpl_disconnect(self.cid_axes)
+                self.canvas.mpl_disconnect(self.cid_key)
+
+        self.cid_axes = self.canvas.mpl_connect('button_press_event', get_axes)
+        self.cid_key = self.canvas.mpl_connect("key_press_event", accept)          
+        
     def init_selector(self):
         """
         PolygonSelector empèche le sharex de bien marcher dans les scatter plot.
         """
-        self.Polysel = dict()
+        self.Polysel = []
         lineprops = dict(color='r', linestyle='-', linewidth=1, alpha=0.5)
         markerprops = dict(marker='o', markersize=7, mec='k', mfc='k', alpha=0.5)
-        for ax_idx,ax in enumerate(self.axes):
-            self.Polysel[ax_idx] = PolygonSelector(ax, onselect=self.onselect,\
-                useblit=True,lineprops = lineprops, markerprops = markerprops)
-        
-                    
-    #Récuperer l'axe courant
-    def get_axes(self, event):
-        self.current_axes = event.inaxes
+        for ax in self.axes:
+#            self.Polysel.append(PolygonSelector(ax, onselect=self.onselect,useblit=True,\
+#                                   lineprops = lineprops, markerprops = markerprops))
+            self.Polysel.append(LassoSelector(ax, onselect=self.onselect,useblit=True))    #,\
 
     def onselect(self, verts):
-
-        print('Test_onselect')       
-
+    
         path = Path(verts)        
 
-        print('self.current_axes',self.current_axes)
         #Recupere l'index de la figure courante
         self.axes_idx = self.axes.index(self.current_axes)
         print('self.axes_idx',self.axes_idx)
+        self.axes[self.axes_idx].set_title("Data selection : 'r' key to reverse,\n'Enter' key to validate, 'Escape' key to aborte. ",color='r',fontweight='bold')
         
         self.ind = np.nonzero([path.contains_point(xy) for xy in self.xys[self.axes_idx]])[0]
-        print('self.ind.shape',self.ind.shape)
-        print('self.ind',self.ind)
-        print('self.xys[self.axes_idx].shape',self.xys[self.axes_idx].shape)
         
-        self.array_idx[:,0:len(self.ind)] = self.cell_mask_index[:,self.ind] 
+        print('self.xys[self.axes_idx].shape : ',self.xys[self.axes_idx].shape)
+        print('len(self.ind) : ',len(self.ind), np.max(self.ind), np.min(self.ind))
         
-        self.fc[self.axes_idx][:, -1] = self.alpha_other
-        self.fc[self.axes_idx][self.ind, -1] = 1
-        self.axes[self.axes_idx].collections[0].set_facecolors(self.fc[self.axes_idx])
+        self.select_flag = "inside"
+        self.mask_xys[:] = False
+        self.mask_xys[self.ind] = True
+        for ax in range(len(self.axes)):
+            self.fc[ax][:, -1] = 0.01
+            self.fc[ax][self.ind, -1] = 1
+            self.axes[ax].collections[0].set_facecolors(self.fc[ax])
         self.canvas.draw_idle()
+        
+#        pdb.set_trace()
+        
+        self.input_mask_index_sel = self.input_mask_index[:,self.ind]
+        self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = False 
+#        x = xr.DataArray(self.input_mask_index[0], dims=['cycle'])
+#        y = xr.DataArray(self.input_mask_index[1], dims=['norm_index'])
+####        self.mask_output [x,y] = True
+#        for ix,iy in zip(x,y):
+#            self.mask_output [ix,iy] = True
 
+        self.mask_output [self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
+        self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
+        self.disconnect()
+                            
+    def plot_selection(self,alpha):
+            if self.select_flag == "inside":
+                self.plot_selection_outside(alpha)
+                
+                self.mask_xys[:] = True
+                self.mask_xys[self.ind] = False
+
+                self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = True 
+                self.mask_output [self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = False
+
+                self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
+                self.select_flag = "outside"
+
+            elif self.select_flag == "outside":
+                self.plot_selection_inside(alpha)
+
+                self.mask_xys[:] = False
+                self.mask_xys[self.ind] = True
+
+                self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = False
+                self.mask_output[self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
+
+                self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
+                self.select_flag = "inside"
+
+    def plot_selection_outside(self,alpha):
+            for ax in range(len(self.axes)):
+                self.fc[ax][:, -1] = 1
+                self.fc[ax][self.ind, -1] = alpha
+                self.axes[ax].collections[0].set_facecolors(self.fc[ax])
+            self.canvas.draw_idle()
+
+    def plot_selection_inside(self,alpha):
+            for ax in range(len(self.axes)):
+                self.fc[ax][:, -1] = alpha
+                self.fc[ax][self.ind, -1] = 1
+                self.axes[ax].collections[0].set_facecolors(self.fc[ax])
+            self.canvas.draw_idle()
 
     def disconnect(self):
-        self.Polysel[self.axes_idx].disconnect_events()
-        self.fc[self.axes_idx][:, -1] = 1
-        self.collection[self.axes_idx].set_facecolors(self.fc[self.axes_idx])
-        self.canvas.draw_idle()
-
-def fig_layout(fig):
-    ax0 = fig.add_subplot(2,2,1, projection=ccrs.PlateCarree())
-#    ax0.autoscale()
-    gl = ax0.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
-                      linewidth=0.5, color='white', alpha=1.0, linestyle='--')
-    gl.xlabels_top = True
-    gl.ylabels_left = True
-    gl.xlabels_bottom = False
-    gl.ylabels_right = False
-    gl.xlines = True
-    gl.xformatter = LONGITUDE_FORMATTER
-    gl.yformatter = LATITUDE_FORMATTER
-        
-    ax1 = fig.add_subplot(2,2,2)    #,sharey=ax0)
-    ax1.autoscale()
-    ax1.grid(True)
-    ax2 = fig.add_subplot(2,2,3)    #,sharex=ax0)
-    ax2.autoscale()
-    ax2.grid(True)
-    ax3 = fig.add_subplot(2,2,4)    #,sharey=ax2)
-    ax3.autoscale()
-    ax3.grid(True)
-
-    return ax0,ax1,ax2,ax3
+        for ax in range(len(self.axes)):
+            self.Polysel[ax].disconnect_events()
 
 
-def fig_draw(fig,axes_list,plotfig_cfg,plot_param):
-    ax0,ax1,ax2,ax3 = axes_list
-    cm,url,layer,RIVERS_10m = plotfig_cfg
-    lon,lat,param,time = plot_param
-
-    # J'ai fait un cmap car c'est le seul moyen pour récupérer les couleur de chaque point avec getfacecolor()
-    cmap = plt.cm.get_cmap(cm)
-    norm = clr.Normalize(vmin=np.min(param), vmax=np.max(param))
-
-#    plt0 = ax0.scatter(lon,lat,c=param, marker='+',cmap=cm, vmin=np.min(param), vmax=np.max(param), norm=norm,transform=ccrs.PlateCarree())
-    plt0 = ax0.scatter(lon,lat,c=cmap(norm(param.data.flatten())), marker='+',transform=ccrs.PlateCarree())
-    ax0.add_wmts(url,layer)
-    
-    ax0.add_feature(RIVERS_10m)
-
-    ax0.plot(x,y,transform=ccrs.PlateCarree())
-#    plt1 = ax1.scatter(param,lat,c=param, marker='+',cmap=cm, vmin=np.min(param), vmax=np.max(param), norm=norm) 
-#    plt2 = ax2.scatter(lon,param,c=param, marker='+',cmap=cm, vmin=np.min(param), vmax=np.max(param), norm=norm) 
-#    plt3 = ax3.scatter(np.array(time),param,c=param, marker='+',cmap=cm, vmin=np.min(param), vmax=np.max(param), norm=norm) 
-    plt1 = ax1.scatter(param,lat,c=cmap(norm(param.data.flatten())), marker='+') 
-    plt2 = ax2.scatter(lon,param,c=cmap(norm(param.data.flatten())), marker='+') 
-    plt3 = ax3.scatter(np.array(time),param,c=cmap(norm(param.data.flatten())), marker='+') 
-    cbar = fig.colorbar(plt0, ax=[ax1,ax3], orientation='vertical')
-
-#    pdb.set_trace()
-#    cbar = fig.colorbar(ScalarMappable(norm=norm, cmap=cmap), ax=[ax1,ax3],orientation='vertical')
-        
-#    cbar.set_label(param.attrs['long_name'], rotation=270)
- 
-    return plt0,plt1,plt2,plt3
-
-if __name__ == '__main__':
-
-    import matplotlib.colors as clr
-    import matplotlib.pyplot as plt
-    from matplotlib.cm import ScalarMappable
-    from matplotlib.colorbar import ColorbarBase
-    from track import Track
-
-#    from cartopy.io.img_tiles import Stamen
-    from utils.tools import __config_load__,update_progress,__regex_file_parser__
-    
-    import geopandas as gpd 
-    
-    #import cartopy.io.img_tiles as cimgt
-    import cartopy.crs as ccrs
-    from owslib.wmts import WebMapTileService
-    from cartopy.io.shapereader import Reader
-    from cartopy.feature import ShapelyFeature,NaturalEarthFeature,COLORS
-    import cartopy.feature as cfeature
-    import cartopy.io.img_tiles as cimgt
-    from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
-    from pandas.plotting import register_matplotlib_converters
-    import pkg_resources
-    import yaml
-
-    # Performance GUI
-    # Line segment simplification and Using the fast style
-    import matplotlib.style as mplstyle
-    import matplotlib as mpl
-    mplstyle.use('fast')
-    mpl.rcParams['path.simplify'] = True
-    mpl.rcParams['path.simplify_threshold'] = 1.0
-    mpl.rcParams['agg.path.chunksize'] = 10000
-   
-    mission = 'j2D'
-    data_directory = '/local/hdd/MAPS_DATA/j2D'
-#    data_directory = '/home/blarel/DATA/j2D'
-    track = 102
-    surf_type = 'RiversLakes'
-    kml_file = '/home/ctoh/blarel/prog/AlTiS_Software/prototype_GUI/102_j2D_Mississip.kml'
-#    kml_file = '/home/blarel/prog/102_j2D_Mississip.kml'
-
-    # Selection des fichiers trace
-    file_struct = __regex_file_parser__(mission,data_directory)
-    mask_file = file_struct['track'] == track
-    file_list = file_struct['filename'][mask_file]
-    
-    # création de l'objet Track.
-    tr=Track(mission,surf_type,data_directory,file_list,kml_file)
-
-
-    # Lecture polygone contenu dans le fichier kml
-    gpd.io.file.fiona.drvsupport.supported_drivers['KML'] = 'rw'
-    polys = gpd.read_file(kml_file, driver='KML')
-    poly = polys.loc[polys['Name'] ==  polys['Name'][0]]
-    x,y = poly['geometry'][0].exterior.xy
-
-    altis_cfg = pkg_resources.resource_filename('altis', '../etc/altis_config.yml')
-    with open(altis_cfg) as f:
-        try:
-            yaml_data = yaml.load(f)
-        except:
-            yaml_data = yaml.load(f, Loader=yaml.FullLoader) # A revoir pour créer un vrai loader
-    url = yaml_data['wmts']['ground_map']['url']
-    layer = yaml_data['wmts']['ground_map']['layer']
-    
-    RIVERS_10m =NaturalEarthFeature('physical','rivers_lake_centerlines', '10m', edgecolor=COLORS['water'],facecolor='none')
-
-    lon = tr.data_val['lon_20hz']
-    lat = tr.data_val['lat_20hz']
-    param = tr.data_val['ice1_ku_Surf-Height_alti']
-    time = tr.data_val['time_20hz']
-
-    register_matplotlib_converters()
-    
-#        tiler = StamenTerrain()
-#    tiler = Stamen('terrain-background',style='toner-labels')   # desired_tile_form='RGBA')
-# Figure 1    
-#    cm='viridis' #'hsv'
-    cm='hsv'
-
-    plt.ion() # Mode interactif pour fonctionner sous ipython. Cela ne fonctionne pas en ligne de commande : 'python data_selection_gui.py'
-    fig = plt.figure()
-    ax0,ax1,ax2,ax3 = fig_layout(fig)
-    
-    axes_list =[ax0,ax1,ax2,ax3]
-    plotfig_cfg = [cm,url,layer,RIVERS_10m]
-    plot_param = [lon,lat,param,time]
-    
-    plt0,plt1,plt2,plt3=fig_draw(fig,axes_list,plotfig_cfg,plot_param)
-    
-    cycle_mask = np.ones([param.shape[1]],dtype=np.dtype('bool'))
-    cell_mask = np.ones(param.shape,dtype=np.dtype('bool'))
-    
-    
-    print('param.shape',param.shape)
-    print('lon.shape',lon.shape)
-    print('lat.shape',lat.shape)
-    
-    mask_param = np.isnan(param)
-    mask_lon = np.isnan(lon)
-    mask_lat = np.isnan(lat)
-#    mask_time = np.isnan(np.array(time))
-#    
-    cell_mask = ~mask_param & ~mask_lon & ~mask_lat
-    
-    print('plt0.get_facecolors().shape',plt0.get_facecolors().shape)
-    
-    
-#    pdb.set_trace()
-    selector = DatasetSelection(fig,axes_list,plotfig_cfg,plot_param,cell_mask)
 

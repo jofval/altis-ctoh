@@ -15,12 +15,15 @@ mission :
     - ers2.c.v1
     - j1E
     - s3lanOT
+    - c2SesaC
     
     
 surface_types :
+    - None
     - RiversLakes
     - GreatLakes
     - Ocean
+
 wmts:   # Web Map Tile Service
     ground_map :
         # Global Imagery Browse Services (GIBS)

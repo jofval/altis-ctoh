@@ -11,6 +11,7 @@
 
 # Jason-1
 j1E :
+    filename_normpass_pattern : .*_j1E_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : 2PeP\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{3})(_)
     cycle_pattern : (P)(\d{3})(_)
@@ -75,6 +76,7 @@ j1E :
 
 # Jason-2
 j2D :
+    filename_normpass_pattern : .*j2D_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : 2PdP\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{3})(_)
     cycle_pattern : (P)(\d{3})(_)
@@ -139,6 +141,7 @@ j2D :
         
 # Jason-3
 j3Ds :
+    filename_normpass_pattern : .*_j3Ds_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : 2P.*P\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{3})(_)
     cycle_pattern : (P)(\d{3})(_)
@@ -204,7 +207,7 @@ j3Ds :
         
 # envisat.v21
 envisat.v21 :
-
+    filename_normpass_pattern : .*_envisat.v21_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : _\d{3}_\d{4}_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1\.nc 
     track_pattern : (_)(\d{4})(_)
     cycle_pattern : (_)(\d{3})(_)
@@ -271,10 +274,10 @@ envisat.v21 :
         
 # ers2 CTOH
 ers2.c.v1 :
-
-    filename_pattern : \d{3}_\d{4}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    filename_normpass_pattern : .*_esr2.c.v1_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_pattern : P\d{3}_\d{4}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{4})(_)
-    cycle_pattern : (\d{3})(_)
+    cycle_pattern : (P)(\d{3})(_)
     surf_type :
         - RiversLakes
 #        - GreatLakes
@@ -300,7 +303,7 @@ ers2.c.v1 :
         lat_hf : lat_20hz
         
         # Index of normalized pass
-        norm_index_hf : norm_index_20hz
+        norm_index_hf : None    #norm_index_20hz
         
         # Altitude
         alt_hf : alt_20hz
@@ -339,7 +342,7 @@ ers2.c.v1 :
         
 # saral
 saral.s :
-
+    filename_normpass_pattern : .*_saral.s_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : 2PTP\d{3}_\d{4}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d.CNES\.nc
     track_pattern : (_)(\d{4})(_)
     cycle_pattern : (P)(\d{3})(_)
@@ -408,7 +411,7 @@ saral.s :
 
 # Sentinel-3
 s3lanOT :
-
+    filename_normpass_pattern : .*_s3lanOT_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : _\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_.*T.*_.*_C\d{3}_P\d{3}_L.*_.*_NT_.*\.nc
     track_pattern : (P)(\d{3})(_)
     cycle_pattern : (C)(\d{3})(_)
@@ -442,7 +445,7 @@ s3lanOT :
         lat_hf : lat_20_ku
         
         # Index of normalized pass
-        norm_index_hf : norm_index_20hz
+        norm_index_hf : None #norm_index_20hz
         
         # Altitude
         alt_hf : alt_20_ku
@@ -493,7 +496,68 @@ s3lanOT :
         # Instrument operating mode (LRM, SAR, LRM and SAR) 
         instr_op_mode : instr_op_mode_20_ku
 
+# Cryosat2 ESA Version C   MAPS_Central_Africa_CS_ESAC_SIR_2m_002_05129_019_697_20110715T060215_20110715T065153.nc
+c2SesaC :
+    filename_normpass_pattern : .*_c2SesaC_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_pattern : .*_\d{3}_\d{3}_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d\.nc
+    track_pattern : (_)(\d{3})(_)(\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d)(_)
+    cycle_pattern : (_)(\d{3})(_)(\d{3})(_)
+    
+    surf_type :
+#        - RiversLakes
+#        - GreatLakes
+#        - Ocean
+    
+    retracker :
+        - trkr_1
+        - trkr_2
+        - trkr_3
 
+    band : 
+        - ku
+#        - c
+    
+    freq : 20.0
+    
+    track : 770
+    
+    param :
+        # Coordinates
+        time_lf : time_1hz
+        time_hf : time_20hz
+        lon_hf : lon_20hz
+        lat_hf : lat_20hz
+
+        # Index of normalized pass
+        norm_index_hf : None
+        
+        # Altitude
+        alt_hf : alt_cog_ref_ellip
+        
+        # Surface Height 
+        surf_height_trkr_1_20hz : surf_height_trkr_1_20hz
+        surf_height_trkr_2_20hz : surf_height_trkr_2_20hz
+        surf_height_trkr_3_20hz : surf_height_trkr_3_20hz
+        
+        # Range Corrections
+        model_wet_tropo_corr : wet_tropo_corr
+        model_dry_tropo_corr : dry_tropo_corr
+#        iono_corr_gim_ku : ion_gim
+        solid_earth_tide : sol_earth_tide
+        pole_tide : geocen_pol_tide
+
+        # Flags (indicates if the correction has been applied in height computation)
+        flag_wet_tropo : corr_wet_tropo
+        flag_dry_tropo : corr_dry_tropo
+#        flag_ion_corr : corr_ion_corr
+        flag_sol_earth_tide : corr_sol_earth_tide
+        flag_geocen_pol_tide : corr_geocen_pol_tide
+
+        geoid : geoid_eigen6c4d
+        sig_0_trkr_1_20hz : sig_0_trkr_1_20hz
+        sig_0_trkr_2_20hz : sig_0_trkr_2_20hz
+        sig_0_trkr_3_20hz : sig_0_trkr_3_20hz
+        peakiness_20hz : peakiness_20hz
 
 
 

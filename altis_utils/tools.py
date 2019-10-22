@@ -16,6 +16,21 @@ import yaml
 import numpy as np
 import pkg_resources
 import logging, sys
+import geopandas as gpd 
+from shapely.geometry import shape, Point, Polygon
+
+def kml_poly_select(kml_file,lon_mean,lat_mean):
+    '''
+       Selection des données contenues à l'intérieur du polygone défini dans le fichier kml
+    '''
+    
+    gpd.io.file.fiona.drvsupport.supported_drivers['KML'] = 'rw'
+    polys = gpd.read_file(kml_file, driver='KML')
+    poly = polys.loc[polys['Name'] ==  polys['Name'][0]]
+
+    mask = [Point(lon,lat).within(poly.loc[0, 'geometry']) for lon,lat in zip(lon_mean,lat_mean)]
+    
+    return mask
 
 
 def fatal_error(msg):
