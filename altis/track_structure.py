@@ -35,7 +35,7 @@ class GDR_altis(object):
 
     def __init__(self,mission,filename,mission_config_file=None,kml_file=None,):
         '''
-            Chargement de la trace normalisée.
+            Chargement de la structure GDR créer par Altis.
         '''
         self.mission = mission
         
@@ -49,14 +49,16 @@ class GDR_altis(object):
 
         param_config = __config_load__(mission,mission_config_file)
         filename_pattern = param_config['filename_normpass_pattern']
+        filename_tracks_pattern = param_config['filename_tracks_pattern']
         self.norm_index_hf_name = param_config['param']['norm_index_hf']
         self.time_hf_name = param_config['param']['time_hf']
         self.time_lf_name = param_config['param']['time_lf']
         self.lon_hf_name = param_config['param']['lon_hf']
         self.lat_hf_name = param_config['param']['lat_hf']
 
-        match = re.search(filename_pattern, filename)
-        if match :
+        if re.search(filename_pattern, filename) or\
+            re.search(filename_tracks_pattern, filename):
+#            match = re.search(filename_pattern, filename)
             self.data_val = xr.open_dataset(filename)
             cycle = self.data_val.cycle
             lon = self.data_val[self.lon_hf_name].data
@@ -68,12 +70,14 @@ class GDR_altis(object):
             else:
                 mask_kml = np.ones(lon.shape,dtype=np.bool)
             
-            xr_mask_kml = xr.DataArray(mask_kml,dims=['cycle','gdr_index'])
+            xr_mask_kml = xr.DataArray(mask_kml,dims=['cycle_index','gdr_index'])
 
-#            list(self.data_val.variables.keys())
             for param in list(self.data_val.variables.keys()):
                 if len(self.data_val[param].shape) == 2:
                     self.data_val[param] = self.data_val[param].where(xr_mask_kml,drop=True)
+
+#        elif re.search(filename_tracks_pattern, filename) :
+#            match = re.search(filename_tracks_pattern, filename)
             
         else:
             raise Exception('The normpass filename is not conform to the filename '\
@@ -96,9 +100,12 @@ class GDR_altis(object):
         enddate = date[-1]
         endcycle = '{:03d}'.format(cycle[-1])
         
-        track = self.data_val.pass_number
+        if isinstance(self.track_value, str):
+            track = self.track_value
+        else:
+            track = '{:04d}'.format(self.track_value.min())
         
-        return 'AlTiS_gdrpass_'+self.mission+'_{:04d}'.format(track)+'_'+startdate+'_'+startcycle+'_'+enddate+'_'+endcycle+'.nc'
+        return 'AlTiS_gdrpass_'+self.mission+'_'+track+'_'+startdate+'_'+startcycle+'_'+enddate+'_'+endcycle+'.nc'
                    
     def save_gdr_data(self,mask,filename):
     
@@ -212,9 +219,12 @@ class Normpass(object):
         enddate = date[-1]
         endcycle = '{:03d}'.format(cycle[-1])
 
-        track = self.data_val.pass_number
-        
-        return 'AlTiS_normpass_'+self.mission+'_{:04d}'.format(track)+'_'+startdate+'_'+startcycle+'_'+enddate+'_'+endcycle+'.nc'
+        if isinstance(self.track_value, str):
+            track = self.track_value
+        else:
+            track = '{:04d}'.format(self.track_value.min())
+
+        return 'AlTiS_normpass_'+self.mission+'_'+track+'_'+startdate+'_'+startcycle+'_'+enddate+'_'+endcycle+'.nc'
     
 
     def save_norm_data(self,mask,filename):
@@ -249,8 +259,6 @@ class Normpass(object):
         self.data_val.attrs['lon_min'] = np.min(lon)
         self.data_val.attrs['lon_max'] = np.max(lon)
 #        self.data_val.attrs[''] = 
-        
-        track = self.data_val.pass_number
         
         print('Normpass file created :  '+filename)
         self.data_val.to_netcdf(filename,format='NETCDF4_CLASSIC') 
@@ -329,13 +337,14 @@ class Track(object):
         self.data_attributs,\
         self.struct_dtype,\
         self.cycle,\
-        self.date = self.__read_file__(data_directory,\
+        self.date,\
+        self.tracks = self.__read_file__(data_directory,\
                                             file_list,\
                                             param_list, norm_index_ref)
                                             
         # Création d'un dictionnaire xarray self.data_val contenant les paramétres et
         # ayant les dimmensions coordonnées définies précédemment.
-        self.__mk_data_struct__(data_struct,self.data_attributs,norm_index_ref,param_list,self.cycle,self.date,kml_file)
+        self.__mk_data_struct__(data_struct,self.data_attributs,norm_index_ref,param_list,self.cycle,self.date,kml_file,self.tracks)
 
         # Calcul des hauteurs altimétrique pour les différents retrackers
         self.__surf_height__(surf_type,param_config)
@@ -401,7 +410,7 @@ class Track(object):
                 cycle = int(dataset.sub_cycle_number)
             else:
                 cycle = dataset.cycle_number
-                
+            track = dataset.pass_number
             try:
                 mask = np.isnat(dataset[self.time_hf_name].data)
             except ValueError:
@@ -438,7 +447,7 @@ class Track(object):
                         print(message)                                                                        
                         raise self.InterpolationError(message)
                     
-        return data_disk,cycle,date
+        return data_disk,cycle,date,track
 
     def __data_sort_index__(self,data_struct,norm_index_ref):
             mask = data_struct > -2147483648
@@ -478,7 +487,7 @@ class Track(object):
          # Création d'une structure de type
         for filename in file_list:
             update_progress(cy_idx/len(file_list), title = 'Structure building')
-            data_disk_return,cycle_return,date_return = \
+            data_disk_return,cycle_return,date_return,track_return = \
                         self.__read_param_file__(data_directory,filename,[self.time_hf_name])
             data_disk[cy_idx] = data_disk_return
             along_track_size_index.extend([len(data_disk[cy_idx][self.time_hf_name])])
@@ -515,15 +524,17 @@ class Track(object):
         data_struct.fill(np.nan)
         data_struct=xr.DataArray(data_struct,dims=['cycle_index','gdr_index'])
 
+        tracks = []
         cycle = []
         date = []
         data_attributs = dict()
         cy_idx = 0
         for filename in file_list:
             update_progress(cy_idx/len(file_list), title = 'Track files loading')
-            data_disk,cycle_return,date_return = \
+            data_disk,cycle_return,date_return,track_return = \
                         self.__read_param_file__(data_directory,filename,param_list)
 
+            tracks.extend([int(track_return)])
             cycle.extend([cycle_return])
             date.extend([date_return])
 
@@ -560,9 +571,9 @@ class Track(object):
             else:
                 data_attributs[param]['comment']=''
 
-        return data_struct,data_attributs,struct_dtype,cycle,date
+        return data_struct,data_attributs,struct_dtype,cycle,date,tracks
 
-    def __mk_data_struct__(self,data_struct,data_attributs,norm_index_ref,param_list,cycle,date,kml_file):
+    def __mk_data_struct__(self,data_struct,data_attributs,norm_index_ref,param_list,cycle,date,kml_file,tracks):
         '''
             Création d'un dictionnaire xarray self.data_val contenant les paramétres et
             ayant les dimmensions coordonnées définies précédemment.
@@ -604,6 +615,7 @@ class Track(object):
         for param in param_list:
             self.data_val[param] = xr.DataArray(data_struct.data[param],
                                                coords={'cycle_index' : cycle_index,
+                                                        'tracks' : ('cycle_index', tracks),
                                                         'cycle' : ('cycle_index', cycle),
                                                         'date' :('cycle_index', date),
                                                         'gdr_index' : np.arange(data_struct.shape[1])},
@@ -680,9 +692,16 @@ class Track(object):
         enddate = date[-1]
         endcycle = '{:03d}'.format(cycle[-1])
 
-        
-        track=int(self.data_attributs['global']['pass_number'])
-        return 'AlTiS_gdrpass_'+self.mission+'_{:04d}'.format(track)+'_'+startdate+'_'+startcycle+'_'+enddate+'_'+endcycle+'.nc' 
+#        if min(self.tracks) == max(self.tracks):
+#            track = '{:04d}'.format(min(self.tracks))
+#        else:
+#            track = 'Tracks'
+        if isinstance(self.track_value, str):
+            track = self.track_value
+        else:
+            track = '{:04d}'.format(self.track_value.min())
+
+        return 'AlTiS_gdrpass_'+self.mission+'_'+track+'_'+startdate+'_'+startcycle+'_'+enddate+'_'+endcycle+'.nc' 
     
 
     def save_gdr_data(self,mask,filename):
@@ -728,7 +747,12 @@ class Track(object):
             for att in self.data_attributs['global'].keys():
                 dataset_merge.attrs[att] = self.data_attributs['global'][att]
 
-        track=int(self.data_attributs['global']['pass_number'])
+        if min(self.tracks) == max(self.tracks):
+            dataset_merge.attrs['pass_number'] = min(self.tracks)
+        else:
+            dataset_merge.attrs['pass_number'] = -1
+#            track = 'Tracks'
+
         print('AlTiS GDR pass file created :  '+filename)
         dataset_merge.to_netcdf(filename,format='NETCDF4_CLASSIC') 
         

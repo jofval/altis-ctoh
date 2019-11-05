@@ -200,8 +200,10 @@ class Time_Series_Panel ( wx.Frame ):
         
         if 'gdr_index' in self.common_data.param.dims:
             self.dim_index = 'gdr_index'
+            self.dim_cycle = 'cycle_index'
         else:
             self.dim_index = 'norm_index'
+            self.dim_cycle = 'cycle'
         
         self.median_param = self.common_data.param.where(self.mask).median(dim=self.dim_index)  #,skipna=True)
         self.mean_param = self.common_data.param.where(self.mask).mean(dim=self.dim_index)  #,skipna=True)
@@ -273,9 +275,12 @@ class Time_Series_Panel ( wx.Frame ):
         array = pd.DataFrame(array).T
         header_csvfile = ['date'] + header_csvfile + ['number of sample']
 
-        default_filaname = "AlTiS_TimeSeries_"+self.data_sel_config['mission']+"_{:04d}".format(self.data_sel_config['track'])
+        if self.data_sel_config['track'] == 'Tracks':
+            default_filaname = "AlTiS_TimeSeries_"+self.data_sel_config['mission']+"_Tracks"
+        else:        
+            default_filaname = "AlTiS_TimeSeries_"+self.data_sel_config['mission']+"_{:04d}".format(int(self.data_sel_config['track']))
         
-        latpos = self.common_data.lat.where(mask).mean(dim=self.dim_index).mean(dim='cycle')
+        latpos = self.common_data.lat.where(mask).mean(dim=self.dim_index).mean(dim=self.dim_cycle)
         if latpos >= 0.0:
             latpos_flag = 'N{:04d}'.format(int(latpos*100))
         else:

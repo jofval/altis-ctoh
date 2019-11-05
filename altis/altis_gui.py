@@ -14,7 +14,7 @@ import wx
 import wx.adv
 import yaml
 import os
-#import sys
+import sys
 #import matplotlib
 import numpy as np
 import pandas as pd
@@ -81,7 +81,7 @@ class Ctrl_Window(wx.Frame):
         super().__init__(parent, title = "AlTiS : Dataset Selection",
             style=wx.FRAME_FLOAT_ON_PARENT | wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX |\
              wx.RESIZE_BORDER | wx.SYSTEM_MENU | wx.CAPTION ,\
-             pos=(10,50),size=(200,700))
+             pos=(10,50),size=(250,700))
 
         self.parent = parent 
 
@@ -90,8 +90,9 @@ class Ctrl_Window(wx.Frame):
         box = wx.BoxSizer(wx.HORIZONTAL)
 
         self.lctrlSelectCycle = wx.ListCtrl(panel, -1, style = wx.LC_REPORT) 
-        self.lctrlSelectCycle.InsertColumn(0, 'Cycle', width = 50) 
-        self.lctrlSelectCycle.InsertColumn(1, 'Date', wx.LIST_FORMAT_RIGHT, 100) 
+        self.lctrlSelectCycle.InsertColumn(0, 'Date', wx.LIST_FORMAT_LEFT, 80) 
+        self.lctrlSelectCycle.InsertColumn(1, 'Cycle', wx.LIST_FORMAT_CENTER, width = 50) 
+        self.lctrlSelectCycle.InsertColumn(2, 'Track', wx.LIST_FORMAT_CENTER, width = 50) 
 
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.parent.onSelectCycle, self.lctrlSelectCycle)
         
@@ -100,15 +101,19 @@ class Ctrl_Window(wx.Frame):
         panel.Fit() 
         self.Centre() 
 
-    def update(self,cycle,date):
+    def update(self,cycle,date,tracks):
         self.lctrlSelectCycle.DeleteAllItems()
         index = 0
-        for i in zip(cycle,date):
+        for i in zip(cycle,date,tracks):
 #            print(index,i, 'cycle: {:03d}'.format(i[0]))
 #            index = self.list.InsertStringItem(index, '{:03d}'.format(i[0])) 
 #            self.list.SetStringItem(index, 1,'{:04d}/{:02d}/{:02d}'.format(i[1][0],i[1][1],i[1][2]) ) 
-            index = self.lctrlSelectCycle.InsertItem(index, '{:03d}'.format(i[0])) 
-            self.lctrlSelectCycle.SetItem(index, 1,'{:04d}/{:02d}/{:02d}'.format(i[1][0],i[1][1],i[1][2]) ) 
+#            index = self.lctrlSelectCycle.InsertItem(index, '{:03d}'.format(i[0])) 
+#            self.lctrlSelectCycle.SetItem(index, 1,'{:04d}'.format(i[2]) ) 
+#            self.lctrlSelectCycle.SetItem(index, 2,'{:04d}/{:02d}/{:02d}'.format(i[1][0],i[1][1],i[1][2]) ) 
+            index = self.lctrlSelectCycle.InsertItem(index,'{:04d}/{:02d}/{:02d}'.format(i[1][0],i[1][1],i[1][2]) ) 
+            self.lctrlSelectCycle.SetItem(index, 1, '{:03d}'.format(i[0])) 
+            self.lctrlSelectCycle.SetItem(index, 2, '{:04d}'.format(i[2]) ) 
             index += 1  
 
     def create_toolbar(self):
@@ -243,7 +248,8 @@ class Main_Window(wx.Frame):
         else:
             kml_filename=' | select. file : '+self.data_sel_config['kml_file'].split(os.path.sep)[-1]
         
-        main_plot_title = 'Mission : '+self.data_sel_config['mission']+' | '+' track number : '+str(self.data_sel_config['track'])+' | '+mode_flag+kml_filename+'\n\n'+self.param
+#        main_plot_title = 'Mission : '+self.data_sel_config['mission']+' | '+' track number : '+str(self.data_sel_config['track'])+' | '+mode_flag+kml_filename+'\n\n'+self.param
+        main_plot_title = 'Mission : '+self.data_sel_config['mission']+' | '+mode_flag+kml_filename+'\n\n'+self.param
                         
         self.figure.suptitle(main_plot_title, fontsize=16)
         
@@ -305,69 +311,76 @@ class Main_Window(wx.Frame):
  
         self.iconQuit = self.mk_iconbar("Quit",wx.ART_QUIT,"Quit AlTiS")
 
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
         self.toolbar.AddSeparator()
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
 
-        self.btnImport = wx.Button(self.toolbar, label="Import...")
+        self.comboColorKindData = wx.ComboBox( self.toolbar, value = "Normpass", choices = ['Normpass', 'AlTiS GDR', 'GDR Tracks'] )
+        self.toolbar.AddControl(self.comboColorKindData, label="Kind of data to import" )
+#        self.toolbar.AddStretchableSpace()
+        self.btnImport = wx.Button(self.toolbar, label="Import ...")
         self.toolbar.AddControl(self.btnImport, label="Normpass or GDR")
 
+#        self.toolbar.AddStretchableSpace()
+        self.toolbar.AddSeparator()
+#        self.toolbar.AddStretchableSpace()
+
 #        self.iconOpen = self.mk_iconbar("Open",wx.ART_FILE_OPEN,"Load Altimetry Dataset")
-        self.toolbar.AddStretchableSpace()
         self.comboSelParam = wx.ComboBox( self.toolbar, value = "Select_parameter", choices = [],size=(200,30))
         self.toolbar.AddControl(self.comboSelParam, label="Select a paramter" )
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
 #        self.iconSave = self.mk_iconbar("Save",wx.ART_FILE_SAVE,"Save Altimetry Dataset")
         self.btnSave = wx.Button(self.toolbar, label="Save")
         self.toolbar.AddControl(self.btnSave, label="Save the current selection.")
         
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
         self.toolbar.AddSeparator()
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
     
 #        self.btnSelectData = self.mk_iconbar("Selection",wx.ART_CUT,"Dataset Selection")
         self.btnSelectData = wx.Button(self.toolbar, label="Selection")
         self.toolbar.AddControl(self.btnSelectData, label="Select and Remove")
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
         self.iconUndo = self.mk_iconbar("Undo",wx.ART_UNDO,"Undo")
 #        self.iconRedo = self.mk_iconbar("Redo",wx.ART_REDO,"Redo")
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
 #        self.iconRefresh = self.mk_iconbar("Refresh",wx.ART_NEW,"Refresh scale")
         self.btnRefresh = wx.Button(self.toolbar, label="Refresh")
         self.toolbar.AddControl(self.btnRefresh, label="Update the scale")
 
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
         self.toolbar.AddSeparator()
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
 
         self.checkCoast = wx.CheckBox( self.toolbar, label="Coastline")
         self.toolbar.AddControl(self.checkCoast, label="Show Coastline" )
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
         self.checkRiversLakes = wx.CheckBox( self.toolbar, label="Rivers-Lakes")
         self.toolbar.AddControl(self.checkRiversLakes, label="Show Rivers-Lakes" )
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
+        self.toolbar.AddSeparator()
         self.comboColorMap = wx.ComboBox( self.toolbar, value = "jet", choices = ["jet","hsv","ocean","terrain","coolwarm","RdBu","viridis"])
         self.toolbar.AddControl(self.comboColorMap, label="Color palet" )
         self.comboGroundMap = wx.ComboBox( self.toolbar, value = "Ground Map None", choices = ["Ground Map None","LandSat","Open Street Map"])
         self.toolbar.AddControl(self.comboGroundMap, label="Ground Map")
 
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
 
         self.toolbar.AddSeparator()
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
 
-        self.btnHoocking = wx.Button(self.toolbar, label="Hoocking correction")
-        self.toolbar.AddControl(self.btnHoocking )
-        self.btnColAnalysis = wx.Button(self.toolbar, label="Collinear Analysis")
-        self.toolbar.AddControl(self.btnColAnalysis)
+#        self.btnHooking = wx.Button(self.toolbar, label="Hooking correction")
+#        self.toolbar.AddControl(self.btnHooking )
+#        self.btnColAnalysis = wx.Button(self.toolbar, label="Collinear Analysis")
+#        self.toolbar.AddControl(self.btnColAnalysis)
         
 #        self.btnTimeSeries = self.mk_iconbar("Time Series",wx.ART_EXECUTABLE_FILE,"Time Series")
         self.btnTimeSeries = wx.Button(self.toolbar, label = "Time Series")
         self.toolbar.AddControl(self.btnTimeSeries, label = "Compute the Time Series")
 
-        self.toolbar.AddStretchableSpace()
+#        self.toolbar.AddStretchableSpace()
 
-        self.toolbar.AddSeparator()  
+#        self.toolbar.AddSeparator()  
 
 
         self.toolbar.AddStretchableSpace()
@@ -383,8 +396,8 @@ class Main_Window(wx.Frame):
 #        self.iconSave.Bind(wx.EVT_MENU, self.onSave)
         self.btnSave.Bind(wx.EVT_BUTTON, self.onSave)
         self.btnSelectData.Bind(wx.EVT_BUTTON, self.onSelectData)
-        self.btnHoocking.Bind(wx.EVT_BUTTON, self.onHoocking)
-        self.btnColAnalysis.Bind(wx.EVT_BUTTON, self.onColAnalysis)
+#        self.btnHooking.Bind(wx.EVT_BUTTON, self.onHooking)
+#        self.btnColAnalysis.Bind(wx.EVT_BUTTON, self.onColAnalysis)
         self.btnTimeSeries.Bind(wx.EVT_BUTTON, self.onTimeSeries)
         self.Bind(wx.EVT_MENU, self.onUndo,self.iconUndo)
 #        self.Bind(wx.EVT_MENU, self.onRedo, self.iconRedo)
@@ -403,7 +416,7 @@ class Main_Window(wx.Frame):
         itemTool = self.toolbar.AddTool(wx.ID_ANY, bt_txt, ico, bt_lg_txt)
         return itemTool
 
-    def onHoocking(self,event):
+    def onHooking(self,event):
         print('Hooking !!')
 
     def onColAnalysis(self,event): 
@@ -604,7 +617,13 @@ class Main_Window(wx.Frame):
             mask = self.common_data.CYCLE_SEL\
                  &  self.common_data.DATA_MASK_SEL[-1]\
                  & self.common_data.DATA_MASK_PARAM
-
+            
+            if min(self.tracks[mask.any(axis=1)]) == max(self.tracks[mask.any(axis=1)]):
+                self.tr.track_value = min(self.tracks[mask.any(axis=1)])
+            else:
+                self.tr.track_value = 'Tracks'
+                
+            
             if self.data_sel_config['gdr_altis_flag']:
                 default_filename = self.tr.mk_filename_gdr_data (mask)
 
@@ -764,8 +783,10 @@ class Main_Window(wx.Frame):
         
     def onOpen(self,event):
     
+
         self.get_env_var()
-    
+        self.data_sel_config['data_type'] = self.comboColorKindData.GetValue()
+
         with Load_data_Window(self.data_sel_config) as load_data_args:
             load_data_args.Center()
             load_data_args.Show()
@@ -810,8 +831,9 @@ class Main_Window(wx.Frame):
                         self.progress.Update(100, "Done.")
                         self.progress.Destroy()
                         return -1
-                
-            self.data_sel_config['track'] = self.tr.data_val.pass_number
+
+#            pdb.set_trace()
+            self.data_sel_config['track'] = str(self.tr.data_val.pass_number)
             print('Normpass file has been successfully read.')
 
             param_name=self.tr.time_hf_name
@@ -919,6 +941,18 @@ class Main_Window(wx.Frame):
 #        param_name='time_20hz'
 #        data = self.tr.data_val[param_name]
         self.cycle = np.array(data.coords['cycle'])
+        if 'tracks' in data.coords.keys():
+            self.tracks = np.array(data.coords['tracks'])
+            if self.tracks.min() == self.tracks.max():
+                self.data_sel_config['track'] = str(self.tracks.min())
+            else :
+                self.data_sel_config['track'] = 'Tracks'
+            
+        else:
+            self.tracks = np.empty(len(self.cycle),dtype='int')
+            self.tracks.fill(self.data_sel_config['track'])
+#            self.data_sel_config['track'] = str(self.tr.pass_number)
+            
 #        self.norm_index = np.array(data.coords['norm_index'])
         dataset_date=np.array(data.coords['date'],dtype=np.datetime64)
         self.date = [(y,m,d) for y,m,d in zip(pd.DatetimeIndex(dataset_date).year,
@@ -935,8 +969,7 @@ class Main_Window(wx.Frame):
                     self.progress.Destroy()
                     return -1
             
-        
-        
+        self.set_env_var()
         self.progress.Update(50, "Data conditionning...")
 
         if hasattr(self,"plt1"):
@@ -970,7 +1003,7 @@ class Main_Window(wx.Frame):
 
 
     def initDataSelect(self,event):
-        self.data_selection_frame.update(self.cycle,self.date)
+        self.data_selection_frame.update(self.cycle,self.date,self.tracks)
         self.cycle_mask = self.data_selection_frame.onSelectAll(event)
         self.cycle_mask = np.tile(self.cycle_mask,(len(self.norm_index),1)).T
         self.common_data.CYCLE_SEL = self.cycle_mask
@@ -1011,6 +1044,7 @@ class Main_Window(wx.Frame):
         else:
             print('altis.tmp non trouvé')
             self.data_sel_config = dict()
+            self.data_sel_config['data_type'] = ''
             self.data_sel_config['data_dir'] = ''
             self.data_sel_config['list_file'] = []
             self.data_sel_config['track'] = None
