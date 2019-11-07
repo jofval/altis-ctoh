@@ -72,6 +72,8 @@ from altis.colinear_analysis import ColinAnal_Panel
 
 from altis.patch_code_oswlib_wmts import *
 
+
+from altis._version import __version__,__revision__
 #-------------------------------------------------------------------------------
 # Control window : This window display the list of the cycle dowloaded in memory. 
 #    This window is used for the cycle selection.
@@ -183,8 +185,14 @@ class Main_Window(wx.Frame):
         main_panel.SetSizer(vbox)
 
         self.create_toolbar()
-        self.statusbar = self.CreateStatusBar()
-        self.statusbar.SetStatusText('AlTiS') 
+        self.statusbar = self.CreateStatusBar(2)
+#        self.SetStatusText(0,"\tCentered")
+#        self.SetStatusText(1,"\t\tRight Aligned")
+        status_bar_right_text = 'AlTiS - version : '+__version__+'       '
+        print(status_bar_right_text)
+        version_size = wx.Window.GetTextExtent(self, status_bar_right_text)
+        self.SetStatusWidths([-1, version_size.width])
+        self.statusbar.SetStatusText(status_bar_right_text,1) 
 
         self.cycle=[]
         self.date=[]
@@ -232,9 +240,9 @@ class Main_Window(wx.Frame):
         if event.inaxes in self.list_axes:
             idx = self.list_axes.index(event.inaxes)
             [xlabel,ylabel] = self.list_axes_coord[idx]
-            self.statusbar.SetStatusText("AlTiS\t%s : %s, %s : %s" % (xlabel,"{: 10.6f}".format(xdata),ylabel,"{: 10.6f}".format(ydata)))
+            self.statusbar.SetStatusText("Coordinates :\t%s : %s, %s : %s" % (xlabel,"{: 10.6f}".format(xdata),ylabel,"{: 10.6f}".format(ydata)))
         else:
-            self.statusbar.SetStatusText("AlTiS")
+            self.statusbar.SetStatusText("Coordinates :")
 
     def draw(self,lon,lat,time,param,mask,cm,groundmap):
     

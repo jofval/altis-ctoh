@@ -26,6 +26,7 @@ import pdb
 import tempfile
 
 from altis_utils.tools import __config_load__,update_progress,__regex_file_parser__
+from altis._version import __version__,__revision__
 
 #-------------------------------------------------------------------------------
 # Help window
@@ -89,8 +90,8 @@ class Help_Window(wx.Frame):
         info = wx.adv.AboutDialogInfo()
 
         info.SetIcon(wx.Icon(logo_file, wx.BITMAP_TYPE_PNG))
-        info.SetName('AlTiS')
-        info.SetVersion('<version> <creation_date>')
+        info.SetName('AlTiS\n')
+        info.SetVersion('Version '+__version__+'\n'+__revision__)
         info.SetDescription(description)
         info.SetCopyright('2019 - CTOH')
         info.SetWebSite('http://ctoh.legos.obs-mip.fr/applications/land_surfaces/softwares/maps')

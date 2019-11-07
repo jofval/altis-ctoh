@@ -31,7 +31,7 @@ class DatasetSelection(object):
     
     """
 
-    def __init__(self, fig, plt_list,axes_list, cm, cbar):
+    def __init__(self, fig, plt_list,axes_list, cm, cbar,DEBUG=False):
         self.fig = fig
         self.canvas = fig.canvas
         self.axes = axes_list 
@@ -42,6 +42,7 @@ class DatasetSelection(object):
         self.fc = dict()
         self.cm =cm
         self.cbar = cbar
+        self.debug = DEBUG
 #        for idx in range(len(self.axes)):
 #            self.collections[idx] = self.axes[idx].collections[0].get_offsets()
 #            self.fc[idx] = self.axes[idx].collections[0].get_facecolors()
@@ -64,8 +65,9 @@ class DatasetSelection(object):
         self.input_mask_index = np.where(self.MASTER_mask)
         self.input_mask_index = np.array([self.input_mask_index[0],self.input_mask_index[1]])
         
-        print('self.MASTER_mask.shape',self.MASTER_mask.shape)
-        print('self.input_mask_index.shape',self.input_mask_index.shape)
+        if self.debug:
+            print('self.MASTER_mask.shape',self.MASTER_mask.shape)
+            print('self.input_mask_index.shape',self.input_mask_index.shape)
 
 
         def get_axes( event):
@@ -73,7 +75,8 @@ class DatasetSelection(object):
                 pass                
             else:
                 self.current_axes = event.inaxes
-                print('button_press_event',self.axes.index(self.current_axes))
+                if self.debug:
+                    print('button_press_event',self.axes.index(self.current_axes))
 
         def accept(event):
             print('event.key, ',event.key)
@@ -98,7 +101,9 @@ class DatasetSelection(object):
                     self.plt[ax].set_offsets(xys_output)
 
                 self.progress.Update(70, "Update color range...")
-                print('selected data...2 xys_output',xys_output.shape)
+
+                if self.debug:
+                    print('selected data...2 xys_output',xys_output.shape)
                     
                 self.cbar.set_clim(vmin=np.min(xys_param),vmax=np.max(xys_param))
                 self.cbar.draw_all()
@@ -106,7 +111,8 @@ class DatasetSelection(object):
                 self.canvas.draw()
                 self.progress.Update(100, "Update color range...")
                 
-                print('data_selection DATA_MASK : ',\
+                if self.debug:
+                    print('data_selection DATA_MASK : ',\
                             self.common_data.DATA_MASK_SEL[-1].shape,\
                             np.sum(self.common_data.DATA_MASK_SEL[-1]))
                 self.progress.Destroy()
@@ -114,7 +120,8 @@ class DatasetSelection(object):
             elif event.key == "r":  # revers selection
                 self.plot_selection(alpha = 0.01)
             elif event.key == "escape":  # Abort
-                print("Aborted selection.")
+                if self.debug:
+                    print("Aborted selection.")
                 if hasattr(self,'axes_idx'):
                     self.axes[self.axes_idx].set_title("      ")
                     self.plot_selection_inside(alpha=1.0)
@@ -142,13 +149,15 @@ class DatasetSelection(object):
 
         #Recupere l'index de la figure courante
         self.axes_idx = self.axes.index(self.current_axes)
-        print('self.axes_idx',self.axes_idx)
+        if self.debug:
+            print('self.axes_idx',self.axes_idx)
         self.axes[self.axes_idx].set_title("Data selection : 'r' key to reverse,\n'Enter' key to validate, 'Escape' key to aborte. ",color='r',fontweight='bold')
         
         self.ind = np.nonzero([path.contains_point(xy) for xy in self.xys[self.axes_idx]])[0]
         
-        print('self.xys[self.axes_idx].shape : ',self.xys[self.axes_idx].shape)
-        print('len(self.ind) : ',len(self.ind), np.max(self.ind), np.min(self.ind))
+        if self.debug:
+            print('self.xys[self.axes_idx].shape : ',self.xys[self.axes_idx].shape)
+            print('len(self.ind) : ',len(self.ind), np.max(self.ind), np.min(self.ind))
         
         self.select_flag = "inside"
         self.mask_xys[:] = False
