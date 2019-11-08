@@ -31,7 +31,7 @@ class DatasetSelection(object):
     
     """
 
-    def __init__(self, fig, plt_list,axes_list, cm, cbar,DEBUG=False):
+    def __init__(self, fig, plt_list,axes_list, cm, cbar,DEBUG=True):
         self.fig = fig
         self.canvas = fig.canvas
         self.axes = axes_list 
@@ -80,7 +80,7 @@ class DatasetSelection(object):
 
         def accept(event):
             print('event.key, ',event.key)
-            if event.key == "enter":
+            if (event.key == "enter")or(event.key == "v"):
                 self.progress = wx.ProgressDialog("Data Selection Processing ...", "please wait", maximum=100, style=wx.PD_SMOOTH|wx.PD_AUTO_HIDE)
                 self.progress.Update(10, "Mask processing...")
                 self.axes[self.axes_idx].set_title("      ")
@@ -151,7 +151,7 @@ class DatasetSelection(object):
         self.axes_idx = self.axes.index(self.current_axes)
         if self.debug:
             print('self.axes_idx',self.axes_idx)
-        self.axes[self.axes_idx].set_title("Data selection : 'r' key to reverse,\n'Enter' key to validate, 'Escape' key to aborte. ",color='r',fontweight='bold')
+        self.axes[self.axes_idx].set_title("Data selection : 'r' key to reverse,\n'Enter' (or 'v') key to validate, 'Escape' key to aborte. ",color='r',fontweight='bold')
         
         self.ind = np.nonzero([path.contains_point(xy) for xy in self.xys[self.axes_idx]])[0]
         

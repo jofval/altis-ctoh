@@ -74,6 +74,7 @@ j1E :
         187_brightness_temp : tb_187    
         238_brightness_temp : tb_238
         340_brightness_temp : tb_340
+        
 
 # Jason-2
 j2D :
