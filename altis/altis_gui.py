@@ -323,11 +323,11 @@ class Main_Window(wx.Frame):
         self.toolbar.AddSeparator()
 #        self.toolbar.AddStretchableSpace()
 
-        self.comboColorKindData = wx.ComboBox( self.toolbar, value = "Normpass", choices = ['Normpass', 'AlTiS GDR', 'GDR Tracks'] )
-        self.toolbar.AddControl(self.comboColorKindData, label="Kind of data to import" )
+        self.comboKindData = wx.ComboBox( self.toolbar, value = "Import data ... ", choices = ['Normpass', 'AlTiS GDR', 'GDR Tracks'],size=(130,30))
+        self.toolbar.AddControl(self.comboKindData, label="Kind of data to import" )
 #        self.toolbar.AddStretchableSpace()
-        self.btnImport = wx.Button(self.toolbar, label="Import ...")
-        self.toolbar.AddControl(self.btnImport, label="Normpass or GDR")
+#        self.btnImport = wx.Button(self.toolbar, label="Import ...")
+#        self.toolbar.AddControl(self.btnImport, label="Normpass or GDR")
 
 #        self.toolbar.AddStretchableSpace()
         self.toolbar.AddSeparator()
@@ -399,7 +399,8 @@ class Main_Window(wx.Frame):
 
         self.Bind(wx.EVT_MENU, self.onQuit,self.iconQuit)
 #        self.iconOpen.Bind(wx.EVT_MENU, self.onOpen)
-        self.btnImport.Bind(wx.EVT_BUTTON, self.onOpen)
+#        self.btnImport.Bind(wx.EVT_BUTTON, self.onOpen)
+        self.comboKindData.Bind(wx.EVT_COMBOBOX, self.onOpen)
         self.comboSelParam.Bind(wx.EVT_COMBOBOX, self.onSelParam)
 #        self.iconSave.Bind(wx.EVT_MENU, self.onSave)
         self.btnSave.Bind(wx.EVT_BUTTON, self.onSave)
@@ -791,18 +792,18 @@ class Main_Window(wx.Frame):
         
     def onOpen(self,event):
     
+        if self.comboKindData.GetValue() != "Import data ... ":
+            self.get_env_var()
+            self.data_sel_config['data_type'] = self.comboKindData.GetValue()
 
-        self.get_env_var()
-        self.data_sel_config['data_type'] = self.comboColorKindData.GetValue()
-
-        with Load_data_Window(self.data_sel_config) as load_data_args:
-            load_data_args.Center()
-            load_data_args.Show()
-            if load_data_args.ShowModal() == wx.ID_OK:
-                print("ShowModal == wx.ID_OK")
-                self.load_data_process(event,load_data_args.data_sel_config)
-            else:
-                print('Cancel')
+            with Load_data_Window(self.data_sel_config) as load_data_args:
+                load_data_args.Center()
+                load_data_args.Show()
+                if load_data_args.ShowModal() == wx.ID_OK:
+                    print("ShowModal == wx.ID_OK")
+                    self.load_data_process(event,load_data_args.data_sel_config)
+                else:
+                    print('Cancel')
         
     def load_data_process(self,event,load_data_args):
                         

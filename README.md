@@ -1,6 +1,11 @@
-Multi-mission Altimetry Processing Software (MAPS)
+                Altimetry Time Series (AlTiS) Software
 
-MAPS software have been developed in order to ...
+AlTiS software have been developed in order to make time series using altimetry 
+measures. It software replace "MAPS" software which is not more longer 
+maintained.
+
+
+
 
 Reference:
 

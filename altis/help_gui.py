@@ -42,7 +42,7 @@ class Help_Window(wx.Frame):
         hbox2 = wx.BoxSizer(wx.HORIZONTAL)
         st1 = wx.TextCtrl(self.help_panel, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL | wx.TE_RICH)
         
-        help_file = pkg_resources.resource_filename('altis', '../HELP.txt')
+        help_file = pkg_resources.resource_filename('altis', 'HELP.txt')
         with open(help_file, 'r') as file:
             wx.TextCtrl.SetValue(st1, file.read())
         hbox2.Add(st1, proportion=1, flag=wx.EXPAND)
