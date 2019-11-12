@@ -62,12 +62,22 @@ setup(name=package_name,
       setup_requires=['vcversioner'],
       vcversioner={'version_module_paths': ['%s/_version.py' % package_name]},
       #cmdclass={'install': CustomInstall},
-#      install_requires=[
-#          "numpy>=1.8",
-#          "configobj>5",
+      install_requires=[
+            "geopandas>=0.4.1",
+            "matplotlib>=3.0.3",
+            "netcdf4>=1.4.2"
+            "numpy>=1.16.3",
+            "owslib>=0.17.1",
+            "pandas>=0.24.2",
+            "psutil>=5.6.2",
+            "setuptools>=41.0.1",
+            "shapely>=1.6.4",
+            "wxpython>=4.0.4",
+            "xarray>=0.12.1",
+            "yachain>=0.1.4",
           # -*- Extra requirements: -*-
-#      ],
-      python_requires='>=3',
+      ],
+      python_requires='>=3.7',
       entry_points={
           'console_scripts': [
                'altis_gui = %s.altis_gui:main' % package_name,
