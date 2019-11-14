@@ -79,6 +79,7 @@ class DatasetSelection(object):
                     print('button_press_event',self.axes.index(self.current_axes))
 
         def accept(event):
+            cursor_wait = wx.BusyCursor()
             print('event.key, ',event.key)
             if (event.key == "enter")or(event.key == "v"):
                 self.progress = wx.ProgressDialog("Data Selection Processing ...", "please wait", maximum=100, style=wx.PD_SMOOTH|wx.PD_AUTO_HIDE)
@@ -109,7 +110,7 @@ class DatasetSelection(object):
                 self.cbar.draw_all()
 
                 self.canvas.draw()
-                self.progress.Update(100, "Update color range...")
+                self.progress.Update(100, "Done.")
                 
                 if self.debug:
                     print('data_selection DATA_MASK : ',\
@@ -144,6 +145,8 @@ class DatasetSelection(object):
             self.Polysel.append(LassoSelector(ax, onselect=self.onselect,useblit=True))    #,\
 
     def onselect(self, verts):
+
+        cursor_wait = wx.BusyCursor()
     
         path = Path(verts)        
 
@@ -162,6 +165,8 @@ class DatasetSelection(object):
         self.select_flag = "inside"
         self.mask_xys[:] = False
         self.mask_xys[self.ind] = True
+
+        cursor_wait = wx.BusyCursor()
         for ax in range(len(self.axes)):
             self.fc[ax][:, -1] = 0.01
             self.fc[ax][self.ind, -1] = 1

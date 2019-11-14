@@ -415,19 +415,28 @@ class Load_data_Window(wx.Dialog):
     
     
     def onKMLFile(self,event):
-#        if self.normpass_panel.IsShown():
-        if self.flag_normpass_panel:
-            self.kml_filename = self.kml_dialog_txtctrl(self.text_ctrl_kml_files)
-#        elif self.gdr_altis_panel.IsShown():
-        elif self.flag_gdr_altis_panel:
-            self.kml_filename = self.kml_dialog_txtctrl(self.text_ctrl_kml_files)
-#        if self.gdr_panel.IsShown():
-        elif self.flag_gdr_panel:
-            self.kml_filename = self.kml_dialog_txtctrl(self.text_ctrl_kml_files)
+        if self.text_ctrl_kml_files.GetValue() != '':
+            directory = self.text_ctrl_kml_files.GetValue()
+            directory = os.sep.join(directory.split(os.sep)[:-1])
+        else: 
+            directory = ''
+        self.kml_filename = self.kml_dialog_txtctrl(self.text_ctrl_kml_files,directory)
+
+##        if self.normpass_panel.IsShown():
+#        if self.flag_normpass_panel:
+#            self.kml_filename = self.kml_dialog_txtctrl(self.text_ctrl_kml_files,directory)
+##        elif self.gdr_altis_panel.IsShown():
+#        elif self.flag_gdr_altis_panel:
+#            self.kml_filename = self.kml_dialog_txtctrl(self.text_ctrl_kml_files,directory)
+##        if self.gdr_panel.IsShown():
+#        elif self.flag_gdr_panel:
+#            self.kml_filename = self.kml_dialog_txtctrl(self.text_ctrl_kml_files,directory)
 
 
-    def kml_dialog_txtctrl(self,text_ctrl):
-         fileDialog = wx.FileDialog(self, "Open KML file", wildcard="KML files (*.kml;*.KML)|*.kml;*.KML",
+    def kml_dialog_txtctrl(self,text_ctrl,directory):
+         fileDialog = wx.FileDialog(self, "Open KML file",
+                                    defaultDir=directory, 
+                                    wildcard="KML files (*.kml;*.KML)|*.kml;*.KML",
                        style = wx.FD_FILE_MUST_EXIST) 
          
          if fileDialog.ShowModal() == wx.ID_OK:
@@ -444,27 +453,53 @@ class Load_data_Window(wx.Dialog):
 
 #        if self.normpass_panel.IsShown():
         if self.flag_normpass_panel:
-             fileDialog = wx.FileDialog(self, "Open Normpass file", wildcard="nc files (*.nc;*.NC)|*.nc;*.NC",
-                           style = wx.FD_FILE_MUST_EXIST) 
+            if self.text_ctrl_normpass_files.GetValue() != '':
+                directory = self.text_ctrl_normpass_files.GetValue()
+                directory = os.sep.join(directory.split(os.sep)[:-1])
+            else: 
+                directory = ''
+                
+            fileDialog = wx.FileDialog(self, "Open Normpass file",
+                                defaultDir=directory,
+                                wildcard="nc files (*.nc;*.NC)|*.nc;*.NC",
+                                style = wx.FD_FILE_MUST_EXIST) 
              
-             if fileDialog.ShowModal() == wx.ID_OK:
-                 self.normpass_filename = fileDialog.GetPath()
-                 fileDialog.Destroy()
-             #Ecriture du pathname et filename du fichier dans le TextCtrl
-             self.text_ctrl_normpass_files.SetValue(self.normpass_filename)
+             
+            if fileDialog.ShowModal() == wx.ID_OK:
+                self.normpass_filename = fileDialog.GetPath()
+                fileDialog.Destroy()
+                #Ecriture du pathname et filename du fichier dans le TextCtrl
+
+            self.text_ctrl_normpass_files.SetValue(self.normpass_filename)
 #        elif self.gdr_altis_panel.IsShown():
         elif self.flag_gdr_altis_panel:
-             fileDialog = wx.FileDialog(self, "Open AlTiS GDR file", wildcard="nc files (AlTiS*.nc;AlTiS*.NC)|*.nc;*.NC",
-                           style = wx.FD_FILE_MUST_EXIST) 
-             
-             if fileDialog.ShowModal() == wx.ID_OK:
-                 self.gdr_altis_filename = fileDialog.GetPath()
-                 fileDialog.Destroy()
-             #Ecriture du pathname et filename du fichier dans le TextCtrl
-             self.text_ctrl_gdr_altis_files.SetValue(self.gdr_altis_filename)
+
+            if self.text_ctrl_gdr_altis_files.GetValue() != '':
+                directory = self.text_ctrl_gdr_altis_files.GetValue()
+                directory = os.sep.join(directory.split(os.sep)[:-1])
+            else: 
+                directory = ''
+
+            fileDialog = wx.FileDialog(self, "Open AlTiS GDR file",
+                                    defaultDir=directory,
+                                    wildcard="nc files (AlTiS*.nc;AlTiS*.NC)|*.nc;*.NC",
+                                    style = wx.FD_FILE_MUST_EXIST) 
+
+            if fileDialog.ShowModal() == wx.ID_OK:
+             self.gdr_altis_filename = fileDialog.GetPath()
+             fileDialog.Destroy()
+            #Ecriture du pathname et filename du fichier dans le TextCtrl
+            self.text_ctrl_gdr_altis_files.SetValue(self.gdr_altis_filename)
 #        elif self.gdr_panel.IsShown():
         elif self.flag_gdr_panel:
-            dirDialog = wx.DirDialog (self, "Altimetric Data directory", "", style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
+
+            if self.text_ctrl_gdr_dir.GetValue() != '':
+                directory = self.text_ctrl_gdr_dir.GetValue()
+#                directory = os.sep.join(directory.split(os.sep)[:-1])
+            else: 
+                directory = ''
+
+            dirDialog = wx.DirDialog (self, "Altimetric Data directory", directory, style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
 
             if dirDialog.ShowModal() == wx.ID_OK:
                  self.gdr_dir = dirDialog.GetPath()

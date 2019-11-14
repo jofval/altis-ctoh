@@ -22,7 +22,7 @@ import pandas as pd
 import xarray as xr
 import pkg_resources
 import re
-#import pdb
+import pdb
 import tempfile
 
 # Performance GUI
@@ -322,8 +322,9 @@ class Main_Window(wx.Frame):
 #        self.toolbar.AddStretchableSpace()
         self.toolbar.AddSeparator()
 #        self.toolbar.AddStretchableSpace()
-
-        self.comboKindData = wx.ComboBox( self.toolbar, value = "Import data ... ", choices = ['Normpass', 'AlTiS GDR', 'GDR Tracks'],size=(130,30))
+        
+        self.ListKindData = ['Import data ... ','Normpass', 'AlTiS GDR', 'GDR Tracks']
+        self.comboKindData = wx.ComboBox( self.toolbar, value = self.ListKindData[0], choices = self.ListKindData[1:],size=(130,30))
         self.toolbar.AddControl(self.comboKindData, label="Kind of data to import" )
 #        self.toolbar.AddStretchableSpace()
 #        self.btnImport = wx.Button(self.toolbar, label="Import ...")
@@ -448,6 +449,7 @@ class Main_Window(wx.Frame):
         
         
     def onRefresh(self,event):
+        cursor_wait = wx.BusyCursor()
         print('On Refresh')
         xy_coord=self.plt1.get_offsets()
         xy_data=self.plt2.get_offsets()
@@ -469,6 +471,7 @@ class Main_Window(wx.Frame):
     
     
     def onCoast(self,event):
+        cursor_wait = wx.BusyCursor()
         if hasattr(self,"plt1"):
             self.ax1_zoom = {'x':self.ax1.get_xlim(),'y':self.ax1.get_ylim()}
             xlim_diff=np.diff(self.ax1.get_xlim())
@@ -502,6 +505,7 @@ class Main_Window(wx.Frame):
 
     
     def onRiversLakes(self,event):
+        cursor_wait = wx.BusyCursor()
         if hasattr(self,"plt1"):
             self.ax1_zoom = {'x':self.ax1.get_xlim(),'y':self.ax1.get_ylim()}
             xlim_diff=np.diff(self.ax1.get_xlim())
@@ -533,6 +537,7 @@ class Main_Window(wx.Frame):
             print('removed')
 
     def onColorMap(self,event):
+        cursor_wait = wx.BusyCursor()
         if hasattr(self,"plt1"):
             self.ax1_zoom = {'x':self.ax1.get_xlim(),'y':self.ax1.get_ylim()}
         else:
@@ -547,6 +552,7 @@ class Main_Window(wx.Frame):
 
 
     def onGroundMap(self,event):
+        cursor_wait = wx.BusyCursor()
         if hasattr(self,"plt1"):
             self.ax1_zoom = {'x':self.ax1.get_xlim(),'y':self.ax1.get_ylim()}
         else:
@@ -711,34 +717,39 @@ class Main_Window(wx.Frame):
             self.update_plot()
         
     def update_plot(self,):
-            mask = self.common_data.CYCLE_SEL\
-                 &  self.common_data.DATA_MASK_SEL[-1]\
-                 & self.common_data.DATA_MASK_PARAM
-            param = self.common_data.param.where(mask)
-            lon = self.common_data.lon.where(mask)
-            lat = self.common_data.lat.where(mask)
-            time = self.common_data.time.where(mask)
-            self.plt1.remove()
-            self.plt1 = self.ax1.scatter(lon,lat,c=param, marker='+',cmap=self.cm,transform=ccrs.PlateCarree())
-            self.plt2.remove()
-            self.plt2 = self.ax2.scatter(param,lat,c=param, marker='+',cmap=self.cm ) 
-            self.plt3.remove()
-            self.plt3 = self.ax3.scatter(lon,param,c=param, marker='+',cmap=self.cm ) 
-            self.plt4.remove()
-            self.plt4 = self.ax4.scatter(np.array(time),param,c=param, marker='+',cmap=self.cm ) 
+        cursor_wait = wx.BusyCursor()
 
-    #        self.cbar.remove()
-            self.cbar.set_cmap(cmap=self.cm)
-            self.cbar.set_label(param.attrs['long_name'], rotation=270)
-            self.cbar.draw_all()
+        mask = self.common_data.CYCLE_SEL\
+             &  self.common_data.DATA_MASK_SEL[-1]\
+             & self.common_data.DATA_MASK_PARAM
+        param = self.common_data.param.where(mask)
+        lon = self.common_data.lon.where(mask)
+        lat = self.common_data.lat.where(mask)
+        time = self.common_data.time.where(mask)
+        self.plt1.remove()
+        self.plt1 = self.ax1.scatter(lon,lat,c=param, marker='+',cmap=self.cm,transform=ccrs.PlateCarree())
+        self.plt2.remove()
+        self.plt2 = self.ax2.scatter(param,lat,c=param, marker='+',cmap=self.cm ) 
+        self.plt3.remove()
+        self.plt3 = self.ax3.scatter(lon,param,c=param, marker='+',cmap=self.cm ) 
+        self.plt4.remove()
+        self.plt4 = self.ax4.scatter(np.array(time),param,c=param, marker='+',cmap=self.cm ) 
 
-            self.canvas.draw()
+#        self.cbar.remove()
+        self.cbar.set_cmap(cmap=self.cm)
+        self.cbar.set_label(param.attrs['long_name'], rotation=270)
+        self.cbar.draw_all()
+
+        self.canvas.draw()
   
     def onHelp(self,event): 
         help=Help_Window()
         help.Show()
 
     def onSelParam(self,event):
+
+        cursor_wait = wx.BusyCursor()
+
         self.param = self.comboSelParam.GetValue()
         self.common_data.param_name = self.param
         self.common_data.param = self.tr.data_val[self.param]
@@ -771,6 +782,7 @@ class Main_Window(wx.Frame):
         self.cm = self.comboColorMap.GetValue()
         self.groundmap = self.comboGroundMap.GetValue()
         print('Drawing... ',self.param,self.cm,self.groundmap)
+        
 
         self.ax1.clear()
         self.ax2.clear()
@@ -788,13 +800,14 @@ class Main_Window(wx.Frame):
         self.canvas.draw()
         self.current_mission = self.data_sel_config['mission']
         self.current_track = self.data_sel_config['track']
-        
+
         
     def onOpen(self,event):
     
-        if self.comboKindData.GetValue() != "Import data ... ":
+        if self.comboKindData.GetValue() != self.ListKindData[0]:
             self.get_env_var()
             self.data_sel_config['data_type'] = self.comboKindData.GetValue()
+            self.comboKindData.SetValue(self.ListKindData[0])
 
             with Load_data_Window(self.data_sel_config) as load_data_args:
                 load_data_args.Center()
@@ -815,6 +828,7 @@ class Main_Window(wx.Frame):
         self.current_mission = None
         self.current_track = None
         
+        cursor_wait = wx.BusyCursor()
 
         if self.data_sel_config['normpass_flag']:
             mission=self.data_sel_config['mission']
@@ -831,7 +845,8 @@ class Main_Window(wx.Frame):
             try :
                 self.tr=Normpass(mission,filename,kml_file=kml_file)
             except Exception:
-                message = 'Check the mission name suitability with the dataset file.'
+                message = ('The data file does not suit to the '+mission+' name.\n\n'
+                +' - Check the mission name field and the data file.')
                 with wx.MessageDialog(None, message=message, caption='Warning',
                     style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR) as save_dataset_dlg:
                 
@@ -921,7 +936,20 @@ class Main_Window(wx.Frame):
                 return -1
 
             print('>>>>>:',mission,filename,kml_file)
-            self.tr=GDR_altis(mission,filename,kml_file=kml_file)
+            try:
+                self.tr=GDR_altis(mission,filename,kml_file=kml_file)
+            except Exception:
+                message = ('The data file does not suit to the '+mission+' name.\n\n'
+                +' - Check the mission name field and the data file.')
+                
+                with wx.MessageDialog(None, message=message, caption='Warning',
+                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR) as save_dataset_dlg:
+                
+                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
+                        print('No dataset!')
+                        self.progress.Update(100, "Done.")
+                        self.progress.Destroy()
+                        return -1
             print('GDR files have been successfully read.')
 
             param_name=self.tr.time_hf_name
@@ -983,6 +1011,7 @@ class Main_Window(wx.Frame):
 
         if hasattr(self,"plt1"):
 #            delattr(self,'plt1')
+            pdb.set_trace()
             self.plt1.remove()
             self.plt2.remove()
             self.plt3.remove()
@@ -1004,11 +1033,10 @@ class Main_Window(wx.Frame):
         for param in self.param_list:
             self.comboSelParam.Append(param)
 
-        
+
         self.comboSelParam.SetValue(self.param_list[0])
         self.progress.Update(100, "Done.")
         self.progress.Destroy()
-
 
 
     def initDataSelect(self,event):
