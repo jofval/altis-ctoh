@@ -173,8 +173,6 @@ class DatasetSelection(object):
             self.axes[ax].collections[0].set_facecolors(self.fc[ax])
         self.canvas.draw_idle()
         
-#        pdb.set_trace()
-        
         self.input_mask_index_sel = self.input_mask_index[:,self.ind]
         self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = False 
 #        x = xr.DataArray(self.input_mask_index[0], dims=['cycle'])
