@@ -1011,7 +1011,6 @@ class Main_Window(wx.Frame):
 
         if hasattr(self,"plt1"):
 #            delattr(self,'plt1')
-            pdb.set_trace()
             self.plt1.remove()
             self.plt2.remove()
             self.plt3.remove()
