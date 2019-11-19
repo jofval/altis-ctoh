@@ -178,8 +178,11 @@ class Main_Window(wx.Frame):
         main_panel = wx.Panel(self)
         vbox = wx.BoxSizer(wx.VERTICAL)
 
+        self.mk_left_toolbar(main_panel)
+        
         self.CanvasPanel(main_panel)
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+        hbox1.Add(self.toolbar_left)
         hbox1.Add(self.plot_panel, proportion=1, flag=wx.EXPAND|wx.CENTER, border=8)
         vbox.Add(hbox1, proportion=1, flag=wx.LEFT|wx.RIGHT|wx.EXPAND, border=10)
         main_panel.SetSizer(vbox)
@@ -201,7 +204,44 @@ class Main_Window(wx.Frame):
 
 #        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.onTest, self.data_selection_frame.lctrlSelectCycle)
 #        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.onSelectCycle, self.lctrlSelectCycle)
+
+    def mk_left_toolbar(self,panel):
+    
+        self.toolbar_left = wx.ToolBar(panel,style=wx.TB_VERTICAL|wx.TB_TEXT)
+        self.toolbar_left.SetToolBitmapSize((20,20))
+        self.toolbar_left.SetToolSeparation(100)
         
+        self.btnSelectData = wx.Button(self.toolbar_left, label="Selection")
+        self.toolbar_left.AddControl(self.btnSelectData, label="Select and Remove")
+
+        self.iconUndo = self.mk_iconbar_left("Undo",wx.ART_UNDO,"Undo")
+
+        self.btnRefresh = wx.Button(self.toolbar_left, label="Refresh")
+        self.toolbar_left.AddControl(self.btnRefresh, label="Update the plots")
+
+        self.toolbar_left.AddSeparator()
+
+        self.btnRescale = wx.Button(self.toolbar_left, label="Rescale")
+        self.toolbar_left.AddControl(self.btnRescale, label="Update the scale")
+
+        self.toolbar_left.AddSeparator()
+
+        self.btnSave = wx.Button(self.toolbar_left, label="Save")
+        self.toolbar_left.AddControl(self.btnSave, label="Save the current selection.")
+
+        self.toolbar_left.AddSeparator()
+
+        self.btnTimeSeries = wx.Button(self.toolbar_left, label = "Time Series")
+        self.toolbar_left.AddControl(self.btnTimeSeries, label = "Compute the Time Series")
+
+        self.toolbar_left.Realize()
+#--------------------------------------------------------------------------------
+        self.btnTimeSeries.Bind(wx.EVT_BUTTON, self.onTimeSeries)
+        self.Bind(wx.EVT_MENU, self.onUndo,self.iconUndo)
+        self.btnRefresh.Bind(wx.EVT_BUTTON,self.onRefresh)
+        self.btnRescale.Bind(wx.EVT_BUTTON,self.onRescale)
+        self.btnSave.Bind(wx.EVT_BUTTON, self.onSave)
+       
     def CanvasPanel(self,panel):
         print('plot_panel')
         self.plot_panel=wx.Panel(panel)
@@ -229,7 +269,7 @@ class Main_Window(wx.Frame):
         vbox.Add(self.canvas, proportion=1, flag=wx.EXPAND|wx.CENTER, border=8)
 
         self.plot_panel.SetSizer(vbox)
-        
+#        self.figure.tight_layout()
         self.mouseMoveID = self.figure.canvas.mpl_connect('motion_notify_event',self.onMotion)
 
     def onMotion(self, event):
@@ -307,14 +347,14 @@ class Main_Window(wx.Frame):
         else:
             self.cbar = self.figure.colorbar(self.plt1, ax=[self.ax2,self.ax4],orientation='vertical')
             self.cbar.set_label(param.attrs['long_name'], rotation=270)
-
+#        self.figure.tight_layout()
 #        self.cursor = MultiCursor(self.figure.canvas, (self.ax1, self.ax2, self.ax3), color='black', lw=0.5, horizOn=True, vertOn=True, useblit=True)
 
     def create_toolbar(self):
         """
         Create a toolbar
         """
-        self.toolbar = self.CreateToolBar()
+        self.toolbar = self.CreateToolBar(style=wx.TB_HORZ_TEXT)
         self.toolbar.SetToolBitmapSize((20,20))
  
         self.iconQuit = self.mk_iconbar("Quit",wx.ART_QUIT,"Quit AlTiS")
@@ -339,26 +379,27 @@ class Main_Window(wx.Frame):
         self.toolbar.AddControl(self.comboSelParam, label="Select a paramter" )
 #        self.toolbar.AddStretchableSpace()
 #        self.iconSave = self.mk_iconbar("Save",wx.ART_FILE_SAVE,"Save Altimetry Dataset")
-        self.btnSave = wx.Button(self.toolbar, label="Save")
-        self.toolbar.AddControl(self.btnSave, label="Save the current selection.")
+#        self.btnSave = wx.Button(self.toolbar, label="Save")
+#        self.toolbar.AddControl(self.btnSave, label="Save the current selection.")
         
 #        self.toolbar.AddStretchableSpace()
         self.toolbar.AddSeparator()
 #        self.toolbar.AddStretchableSpace()
     
-#        self.btnSelectData = self.mk_iconbar("Selection",wx.ART_CUT,"Dataset Selection")
-        self.btnSelectData = wx.Button(self.toolbar, label="Selection")
-        self.toolbar.AddControl(self.btnSelectData, label="Select and Remove")
-#        self.toolbar.AddStretchableSpace()
-        self.iconUndo = self.mk_iconbar("Undo",wx.ART_UNDO,"Undo")
-#        self.iconRedo = self.mk_iconbar("Redo",wx.ART_REDO,"Redo")
-#        self.toolbar.AddStretchableSpace()
-#        self.iconRefresh = self.mk_iconbar("Refresh",wx.ART_NEW,"Refresh scale")
-        self.btnRefresh = wx.Button(self.toolbar, label="Refresh")
-        self.toolbar.AddControl(self.btnRefresh, label="Update the scale")
+##        self.btnSelectData = self.mk_iconbar("Selection",wx.ART_CUT,"Dataset Selection")
+#        self.btnSelectData = wx.Button(self.toolbar, label="Selection")
+#        self.toolbar.AddControl(self.btnSelectData, label="Select and Remove")
+##        self.toolbar.AddStretchableSpace()
+#        self.iconUndo = self.mk_iconbar("Undo",wx.ART_UNDO,"Undo")
+##        self.iconRedo = self.mk_iconbar("Redo",wx.ART_REDO,"Redo")
+##        self.toolbar.AddStretchableSpace()
+##        self.iconRefresh = self.mk_iconbar("Refresh",wx.ART_NEW,"Refresh scale")
+#        self.btnRefresh = wx.Button(self.toolbar, label="Refresh")
+#        self.toolbar.AddControl(self.btnRefresh, label="Update the plots")
+#        self.btnRescale = wx.Button(self.toolbar, label="Rescale")
+#        self.toolbar.AddControl(self.btnRescale, label="Update the scale")
 
 #        self.toolbar.AddStretchableSpace()
-        self.toolbar.AddSeparator()
 #        self.toolbar.AddStretchableSpace()
 
         self.checkCoast = wx.CheckBox( self.toolbar, label="Coastline")
@@ -375,17 +416,15 @@ class Main_Window(wx.Frame):
 
 #        self.toolbar.AddStretchableSpace()
 
-        self.toolbar.AddSeparator()
-#        self.toolbar.AddStretchableSpace()
-
+ 
 #        self.btnHooking = wx.Button(self.toolbar, label="Hooking correction")
 #        self.toolbar.AddControl(self.btnHooking )
 #        self.btnColAnalysis = wx.Button(self.toolbar, label="Collinear Analysis")
 #        self.toolbar.AddControl(self.btnColAnalysis)
         
 #        self.btnTimeSeries = self.mk_iconbar("Time Series",wx.ART_EXECUTABLE_FILE,"Time Series")
-        self.btnTimeSeries = wx.Button(self.toolbar, label = "Time Series")
-        self.toolbar.AddControl(self.btnTimeSeries, label = "Compute the Time Series")
+#        self.btnTimeSeries = wx.Button(self.toolbar, label = "Time Series")
+#        self.toolbar.AddControl(self.btnTimeSeries, label = "Compute the Time Series")
 
 #        self.toolbar.AddStretchableSpace()
 
@@ -398,21 +437,24 @@ class Main_Window(wx.Frame):
         self.toolbar.Realize()
 
 
+        
+
         self.Bind(wx.EVT_MENU, self.onQuit,self.iconQuit)
 #        self.iconOpen.Bind(wx.EVT_MENU, self.onOpen)
 #        self.btnImport.Bind(wx.EVT_BUTTON, self.onOpen)
         self.comboKindData.Bind(wx.EVT_COMBOBOX, self.onOpen)
         self.comboSelParam.Bind(wx.EVT_COMBOBOX, self.onSelParam)
 #        self.iconSave.Bind(wx.EVT_MENU, self.onSave)
-        self.btnSave.Bind(wx.EVT_BUTTON, self.onSave)
+#        self.btnSave.Bind(wx.EVT_BUTTON, self.onSave)
         self.btnSelectData.Bind(wx.EVT_BUTTON, self.onSelectData)
 #        self.btnHooking.Bind(wx.EVT_BUTTON, self.onHooking)
 #        self.btnColAnalysis.Bind(wx.EVT_BUTTON, self.onColAnalysis)
-        self.btnTimeSeries.Bind(wx.EVT_BUTTON, self.onTimeSeries)
-        self.Bind(wx.EVT_MENU, self.onUndo,self.iconUndo)
+#        self.btnTimeSeries.Bind(wx.EVT_BUTTON, self.onTimeSeries)
+#        self.Bind(wx.EVT_MENU, self.onUndo,self.iconUndo)
 #        self.Bind(wx.EVT_MENU, self.onRedo, self.iconRedo)
 #        self.iconRefresh.Bind(wx.EVT_MENU,self.onRefresh)
-        self.btnRefresh.Bind(wx.EVT_BUTTON,self.onRefresh)
+#        self.btnRefresh.Bind(wx.EVT_BUTTON,self.onRefresh)
+#        self.btnRescale.Bind(wx.EVT_BUTTON,self.onRescale)
         self.checkCoast.Bind(wx.EVT_CHECKBOX, self.onCoast)
         self.checkRiversLakes.Bind(wx.EVT_CHECKBOX, self.onRiversLakes)
         self.comboColorMap.Bind(wx.EVT_COMBOBOX, self.onColorMap)
@@ -424,6 +466,12 @@ class Main_Window(wx.Frame):
     
         ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (20,20))
         itemTool = self.toolbar.AddTool(wx.ID_ANY, bt_txt, ico, bt_lg_txt)
+        return itemTool
+    
+    def mk_iconbar_left(self,bt_txt,art_id,bt_lg_txt):
+    
+        ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (20,20))
+        itemTool = self.toolbar_left.AddTool(wx.ID_ANY, bt_txt, ico, bt_lg_txt)
         return itemTool
 
     def onHooking(self,event):
@@ -449,6 +497,9 @@ class Main_Window(wx.Frame):
         
         
     def onRefresh(self,event):
+        self.update_plot()
+
+    def onRescale(self,event):
         cursor_wait = wx.BusyCursor()
         print('On Refresh')
         xy_coord=self.plt1.get_offsets()
@@ -800,6 +851,7 @@ class Main_Window(wx.Frame):
         self.canvas.draw()
         self.current_mission = self.data_sel_config['mission']
         self.current_track = self.data_sel_config['track']
+#        self.figure.tight_layout()
 
         
     def onOpen(self,event):

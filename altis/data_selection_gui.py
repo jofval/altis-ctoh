@@ -60,15 +60,16 @@ class DatasetSelection(object):
         self.MASTER_mask = self.common_data.DATA_MASK_SEL[-1]\
                              & self.common_data.DATA_MASK_PARAM\
                              & self.common_data.CYCLE_SEL
-                             
-        self.mask_output = np.array(self.MASTER_mask)
-        self.input_mask_index = np.where(self.MASTER_mask)
+
+        self.mask_output = np.ones(self.MASTER_mask.shape,dtype='bool')
+        self.input_mask_index = np.where(self.mask_output)
         self.input_mask_index = np.array([self.input_mask_index[0],self.input_mask_index[1]])
         
         if self.debug:
             print('self.MASTER_mask.shape',self.MASTER_mask.shape)
             print('self.input_mask_index.shape',self.input_mask_index.shape)
-
+            print('self.mask_xys.shape',self.mask_xys.shape)
+            print('np.sum(self.xys.mask)',np.sum(self.xys[0].mask))
 
         def get_axes( event):
             if hasattr(self,'current_axes'):
@@ -84,40 +85,21 @@ class DatasetSelection(object):
             if (event.key == "enter")or(event.key == "v"):
                 self.progress = wx.ProgressDialog("Data Selection Processing ...", "please wait", maximum=100, style=wx.PD_SMOOTH|wx.PD_AUTO_HIDE)
                 self.progress.Update(10, "Mask processing...")
-                self.axes[self.axes_idx].set_title("      ")
+                self.axes[self.axes_idx].set_title(" ")
                 self.canvas.mpl_disconnect(self.cid_axes)
                 self.canvas.mpl_disconnect(self.cid_key)
+                self.mask_output = self.mask_output & np.array(self.MASTER_mask)
+                self.progress.Update(60, "Mask processing...")
                 self.common_data.DATA_MASK_SEL.append(self.mask_output)
                 
-                xys_param = self.xys[1][self.mask_xys,0]
-                norm = mpl.colors.Normalize(vmin=np.min(xys_param), vmax=np.max(xys_param))
-                m = mpl_cm.ScalarMappable(norm=norm, cmap=self.cm)
-                col = [list(m.to_rgba(x)) for x in xys_param]
-                self.progress.Update(40, "Update plots...")
-
-                for ax in range(len(self.axes)):
-                    self.axes[ax].set_title("      ")
-                    self.plt[ax].set_facecolors(col)
-                    xys_output = self.xys[ax][self.mask_xys,:]
-                    self.plt[ax].set_offsets(xys_output)
-
-                self.progress.Update(70, "Update color range...")
-
-                if self.debug:
-                    print('selected data...2 xys_output',xys_output.shape)
-                    
-                self.cbar.set_clim(vmin=np.min(xys_param),vmax=np.max(xys_param))
-                self.cbar.draw_all()
-
-                self.canvas.draw()
-                self.progress.Update(100, "Done.")
-                
-                if self.debug:
-                    print('data_selection DATA_MASK : ',\
-                            self.common_data.DATA_MASK_SEL[-1].shape,\
-                            np.sum(self.common_data.DATA_MASK_SEL[-1]))
                 self.progress.Destroy()
+                message = 'You have to press Refresh button to apply the new selection.'
+                with wx.MessageDialog(None, message=message, caption='Info',
+                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_INFORMATION) as save_dataset_dlg:
                 
+                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
+                        print('Done!')
+                                
             elif event.key == "r":  # revers selection
                 self.plot_selection(alpha = 0.01)
             elif event.key == "escape":  # Abort
@@ -128,6 +110,7 @@ class DatasetSelection(object):
                     self.plot_selection_inside(alpha=1.0)
                 self.canvas.mpl_disconnect(self.cid_axes)
                 self.canvas.mpl_disconnect(self.cid_key)
+
 
         self.cid_axes = self.canvas.mpl_connect('button_press_event', get_axes)
         self.cid_key = self.canvas.mpl_connect("key_press_event", accept)          
@@ -182,7 +165,7 @@ class DatasetSelection(object):
 #            self.mask_output [ix,iy] = True
 
         self.mask_output [self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
-        self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
+#        self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
         self.disconnect()
                             
     def plot_selection(self,alpha):
@@ -195,7 +178,7 @@ class DatasetSelection(object):
                 self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = True 
                 self.mask_output [self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = False
 
-                self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
+#                self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
                 self.select_flag = "outside"
 
             elif self.select_flag == "outside":
@@ -207,7 +190,7 @@ class DatasetSelection(object):
                 self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = False
                 self.mask_output[self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
 
-                self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
+#                self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
                 self.select_flag = "inside"
 
     def plot_selection_outside(self,alpha):

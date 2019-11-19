@@ -15,7 +15,7 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 from altis.common_data import Singleton
-
+import warnings
 import pdb
 
 class Time_Series_Panel ( wx.Frame ):
@@ -169,8 +169,6 @@ class Time_Series_Panel ( wx.Frame ):
         self.ax4.relim()
         self.canvas.draw()
  
-#        self.sel_id = self.canvas.mpl_connect('pick_event', self.onpick)
-        
         
     def onMean(self,even):
         if self.checkMean.IsChecked():
@@ -205,13 +203,14 @@ class Time_Series_Panel ( wx.Frame ):
             self.dim_index = 'norm_index'
             self.dim_cycle = 'cycle'
         
-        self.median_param = self.common_data.param.where(self.mask).median(dim=self.dim_index)  #,skipna=True)
-        self.mean_param = self.common_data.param.where(self.mask).mean(dim=self.dim_index)  #,skipna=True)
-        self.std_param = self.common_data.param.where(self.mask).std(dim=self.dim_index)    #,skipna=True)
-        self.abcisse = np.array(self.common_data.param.coords['date'].where(self.mask.any(axis=1)))
-        self.lon_sel = self.common_data.tr[self.common_data.lon_hf_name].where(self.mask)
-        self.param_sel = self.common_data.tr[self.common_data.param_name].where(self.mask)
-    
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.median_param = self.common_data.param.where(self.mask).median(dim=self.dim_index)  #,skipna=True)
+            self.mean_param = self.common_data.param.where(self.mask).mean(dim=self.dim_index)  #,skipna=True)
+            self.std_param = self.common_data.param.where(self.mask).std(dim=self.dim_index)    #,skipna=True)
+            self.abcisse = np.array(self.common_data.param.coords['date'].where(self.mask.any(axis=1)))
+            self.lon_sel = self.common_data.tr[self.common_data.lon_hf_name].where(self.mask)
+            self.param_sel = self.common_data.tr[self.common_data.param_name].where(self.mask)
     
             
     def draw(self):
@@ -261,15 +260,17 @@ class Time_Series_Panel ( wx.Frame ):
         header_csvfile = list()
         array.append(np.array(pd.Series(self.common_data.param.coords['date'].where(mask.any(axis=1))).dt.strftime("%Y-%m-%d")))
 
-        for param in list_param_coord:
-            array.append(self.common_data.tr[param].where(mask).mean(dim=self.dim_index).data)
-            header_csvfile.extend([param+'_mean'])
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            for param in list_param_coord:
+                array.append(self.common_data.tr[param].where(mask).mean(dim=self.dim_index).data)
+                header_csvfile.extend([param+'_mean'])
 
-        for param in list_param:
-            array.append(self.common_data.tr[param].where(mask).median(dim=self.dim_index).data)
-            array.append(self.common_data.tr[param].where(mask).mean(dim=self.dim_index).data)
-            array.append(self.common_data.tr[param].where(mask).std(dim=self.dim_index).data)
-            header_csvfile.extend([param+'_median',param+'_mean',param+'_std'])
+            for param in list_param:
+                array.append(self.common_data.tr[param].where(mask).median(dim=self.dim_index).data)
+                array.append(self.common_data.tr[param].where(mask).mean(dim=self.dim_index).data)
+                array.append(self.common_data.tr[param].where(mask).std(dim=self.dim_index).data)
+                header_csvfile.extend([param+'_median',param+'_mean',param+'_std'])
       
         array.append(np.sum(mask,axis=1).data)
         array = pd.DataFrame(array).T
