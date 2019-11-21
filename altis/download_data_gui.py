@@ -179,14 +179,30 @@ class Load_data_Window(wx.Dialog):
 
         self.btn_normpass_file = wx.Button(scroll_panel, label='Browse...') 
         sizer.Add(self.btn_normpass_file, pos=(4, 10), flag=wx.TOP|wx.RIGHT, border=10)
+
+#-------------------------------------------------------------------------------        
+        self.chkbox_cfgfile = wx.CheckBox(scroll_panel, label="Config file")
+        sizer.Add(self.chkbox_cfgfile, pos=(5, 0), flag=wx.LEFT|wx.TOP, border=10)
         
+        self.text_ctrl_cfgfile = wx.TextCtrl(scroll_panel)
+        sizer.Add(self.text_ctrl_cfgfile, pos=(5, 1), span=(1, 9), flag=wx.TOP|wx.EXPAND,border=10)
+
+        self.cfgfile_filename = self.data_sel_config['cfg_file'] #None
+        if not self.cfgfile_filename is None:
+            self.text_ctrl_cfgfile.SetValue(self.cfgfile_filename)
+        self.text_ctrl_cfgfile.Disable()
         
+        self.btn_cfgfile = wx.Button(scroll_panel, label='Browse...') 
+        sizer.Add(self.btn_cfgfile, pos=(5, 10), flag=wx.TOP|wx.RIGHT, border=10)
+        self.btn_cfgfile.Disable()
+#-------------------------------------------------------------------------------        
+#        
         line = wx.StaticLine(scroll_panel)
-        sizer.Add(line, pos=(5, 0), span=(1, 11),
+        sizer.Add(line, pos=(6, 0), span=(1, 11),
             flag=wx.EXPAND|wx.BOTTOM, border=10)
             
         self.bottom_bar_panel=Bottom_Bar(scroll_panel)
-        sizer.Add(self.bottom_bar_panel, pos=(6, 8), span=(1, 3) ,border=10)
+        sizer.Add(self.bottom_bar_panel, pos=(7, 8), span=(1, 3) ,border=10)
         
         sizer.AddGrowableCol(2)
 
@@ -199,7 +215,9 @@ class Load_data_Window(wx.Dialog):
 #        self.btn_load.Bind(wx.EVT_BUTTON, self.onSelFiles)
 #        self.btn_ok.Bind(wx.EVT_BUTTON, self.onOk)
 #        self.btn_cancel.Bind(wx.EVT_BUTTON, self.onQuit)
+        self.chkbox_cfgfile.Bind(wx.EVT_CHECKBOX, self.onCheckCFGFILE)
         self.chkbox_kml.Bind(wx.EVT_CHECKBOX, self.onCheckKML)
+        self.btn_cfgfile.Bind(wx.EVT_BUTTON, self.onCFGfile)
 
     def Normpass_Panel( self):
         scroll_panel = wx.lib.scrolledpanel.ScrolledPanel(self)
@@ -263,15 +281,32 @@ class Load_data_Window(wx.Dialog):
 
         self.btn_normpass_file = wx.Button(scroll_panel, label='Browse...') 
         sizer.Add(self.btn_normpass_file, pos=(4, 10), flag=wx.TOP|wx.RIGHT, border=10)
+
+#-------------------------------------------------------------------------------        
+        self.chkbox_cfgfile = wx.CheckBox(scroll_panel, label="Config file")
+        sizer.Add(self.chkbox_cfgfile, pos=(5, 0), flag=wx.LEFT|wx.TOP, border=10)
+        
+        self.text_ctrl_cfgfile = wx.TextCtrl(scroll_panel)
+        sizer.Add(self.text_ctrl_cfgfile, pos=(5, 1), span=(1, 9), flag=wx.TOP|wx.EXPAND,border=10)
+
+        self.cfgfile_filename = self.data_sel_config['cfg_file'] #None
+        if not self.cfgfile_filename is None:
+            self.text_ctrl_cfgfile.SetValue(self.cfgfile_filename)
+        self.text_ctrl_cfgfile.Disable()
+        
+        self.btn_cfgfile = wx.Button(scroll_panel, label='Browse...') 
+        sizer.Add(self.btn_cfgfile, pos=(5, 10), flag=wx.TOP|wx.RIGHT, border=10)
+        self.btn_cfgfile.Disable()
+#-------------------------------------------------------------------------------        
         
 
 #-------------------------------------------------------------------------------
         line = wx.StaticLine(scroll_panel)
-        sizer.Add(line, pos=(5, 0), span=(1, 11),
+        sizer.Add(line, pos=(6, 0), span=(1, 11),
             flag=wx.EXPAND|wx.BOTTOM, border=10)
             
         self.bottom_bar_panel=Bottom_Bar(scroll_panel)
-        sizer.Add(self.bottom_bar_panel, pos=(6, 8), span=(1, 3) ,border=10)
+        sizer.Add(self.bottom_bar_panel, pos=(7, 8), span=(1, 3) ,border=10)
         
         sizer.AddGrowableCol(2)
 
@@ -285,13 +320,15 @@ class Load_data_Window(wx.Dialog):
 #        self.btn_ok.Bind(wx.EVT_BUTTON, self.onOk)
 #        self.btn_cancel.Bind(wx.EVT_BUTTON, self.onQuit)
         self.chkbox_kml.Bind(wx.EVT_CHECKBOX, self.onCheckKML)
+        self.chkbox_cfgfile.Bind(wx.EVT_CHECKBOX, self.onCheckCFGFILE)
+        self.btn_cfgfile.Bind(wx.EVT_BUTTON, self.onCFGfile)
 
 
     def GDR_Panel(self):
         scroll_panel = wx.lib.scrolledpanel.ScrolledPanel(self)
         scroll_panel.SetupScrolling()
 
-        sizer = wx.GridBagSizer(14, 13)
+        sizer = wx.GridBagSizer(14,20)
 
         self.__config_load__()
         
@@ -371,13 +408,33 @@ class Load_data_Window(wx.Dialog):
 
         self.text_ctrl_nc_files = wx.TextCtrl(scroll_panel, style = wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL | wx.TE_RICH)
         sizer.Add(self.text_ctrl_nc_files, pos=(7, 1), span=(10, 9), flag=wx.TOP|wx.EXPAND,border=10)
+
+
+
+#-------------------------------------------------------------------------------        
+        self.chkbox_cfgfile = wx.CheckBox(scroll_panel, label="Config file")
+        sizer.Add(self.chkbox_cfgfile, pos=(18, 0), flag=wx.LEFT|wx.TOP, border=10)
+        
+        self.text_ctrl_cfgfile = wx.TextCtrl(scroll_panel)
+        sizer.Add(self.text_ctrl_cfgfile, pos=(18, 1), span=(1, 9), flag=wx.TOP|wx.EXPAND,border=10)
+
+        self.cfgfile_filename = self.data_sel_config['cfg_file'] #None
+        if not self.cfgfile_filename is None:
+            self.text_ctrl_cfgfile.SetValue(self.cfgfile_filename)
+        self.text_ctrl_cfgfile.Disable()
+        
+        self.btn_cfgfile = wx.Button(scroll_panel, label='Browse...') 
+        sizer.Add(self.btn_cfgfile, pos=(18, 10), flag=wx.TOP|wx.RIGHT, border=10)
+        self.btn_cfgfile.Disable()
+#-------------------------------------------------------------------------------        
+
 ##-------------------------------------------------------------------------------
         line = wx.StaticLine(scroll_panel)
-        sizer.Add(line, pos=(18, 0), span=(1, 11),
+        sizer.Add(line, pos=(19, 0), span=(1, 11),
             flag=wx.EXPAND|wx.BOTTOM, border=10)
             
         self.bottom_bar_panel=Bottom_Bar(scroll_panel)
-        sizer.Add(self.bottom_bar_panel, pos=(19, 8), span=(1, 3) ,border=10)
+        sizer.Add(self.bottom_bar_panel, pos=(20, 8), span=(1, 3) ,border=10)
         
         
 #        sizer.AddGrowableCol(2)
@@ -392,16 +449,15 @@ class Load_data_Window(wx.Dialog):
 #        self.btn_ok.Bind(wx.EVT_BUTTON, self.onOk)
 #        self.btn_cancel.Bind(wx.EVT_BUTTON, self.onQuit)
         self.chkbox_kml.Bind(wx.EVT_CHECKBOX, self.onCheckKML)
+        self.chkbox_cfgfile.Bind(wx.EVT_CHECKBOX, self.onCheckCFGFILE)
+        self.btn_cfgfile.Bind(wx.EVT_BUTTON, self.onCFGfile)
 
-            
+                
     def onCheckKML(self,event):
-#        if self.normpass_panel.IsShown():
         if self.flag_normpass_panel:
             self.check_ctrl_kml(self.normpass_panel)
-#        elif self.gdr_altis_panel.IsShown():
         elif self.flag_gdr_altis_panel:
             self.check_ctrl_kml(self.gdr_altis_panel)
-#        elif self.gdr_panel.IsShown():
         elif self.flag_gdr_panel:
             self.check_ctrl_kml(self.gdr_panel)
 
@@ -412,7 +468,24 @@ class Load_data_Window(wx.Dialog):
         else:
             self.text_ctrl_kml_files.Disable()
             self.btn_kml_file.Disable()
+
+    def onCheckCFGFILE(self,event):
+        if self.flag_normpass_panel:
+            self.check_cfgfile(self.normpass_panel)
+        elif self.flag_gdr_altis_panel:
+            self.check_cfgfile(self.gdr_altis_panel)
+        elif self.flag_gdr_panel:
+            self.check_cfgfile(self.gdr_panel)
+
+    def check_cfgfile(self,panel):
+        if self.chkbox_cfgfile.GetValue():
+            self.text_ctrl_cfgfile.Enable()
+            self.btn_cfgfile.Enable()
+        else:
+            self.text_ctrl_cfgfile.Disable()
+            self.btn_cfgfile.Disable()
     
+#-------------------------------------------------------------------------------
     
     def onKMLFile(self,event):
         if self.text_ctrl_kml_files.GetValue() != '':
@@ -421,16 +494,6 @@ class Load_data_Window(wx.Dialog):
         else: 
             directory = ''
         self.kml_filename = self.kml_dialog_txtctrl(self.text_ctrl_kml_files,directory)
-
-##        if self.normpass_panel.IsShown():
-#        if self.flag_normpass_panel:
-#            self.kml_filename = self.kml_dialog_txtctrl(self.text_ctrl_kml_files,directory)
-##        elif self.gdr_altis_panel.IsShown():
-#        elif self.flag_gdr_altis_panel:
-#            self.kml_filename = self.kml_dialog_txtctrl(self.text_ctrl_kml_files,directory)
-##        if self.gdr_panel.IsShown():
-#        elif self.flag_gdr_panel:
-#            self.kml_filename = self.kml_dialog_txtctrl(self.text_ctrl_kml_files,directory)
 
 
     def kml_dialog_txtctrl(self,text_ctrl,directory):
@@ -446,7 +509,29 @@ class Load_data_Window(wx.Dialog):
          text_ctrl.SetValue(kml_filename)
          
          return kml_filename
+#-------------------------------------------------------------------------------
 
+    def onCFGfile(self,event):
+        if self.text_ctrl_cfgfile.GetValue() != '':
+            directory = self.text_ctrl_cfgfile.GetValue()
+            directory = os.sep.join(directory.split(os.sep)[:-1])
+        else: 
+            directory = ''
+        self.kml_filename = self.cfgfile_dialog_txtctrl(self.text_ctrl_cfgfile,directory)
+
+    def cfgfile_dialog_txtctrl(self,text_ctrl,directory):
+         fileDialog = wx.FileDialog(self, "Select your configuration file.",
+                                    defaultDir=directory, 
+                                    wildcard="YAML files (*.YML)|*.yml",
+                       style = wx.FD_FILE_MUST_EXIST) 
+         
+         if fileDialog.ShowModal() == wx.ID_OK:
+             cfgfile_filename = fileDialog.GetPath()
+             fileDialog.Destroy()
+         #Ecriture du pathname et filename du fichier dans le TextCtrl
+         text_ctrl.SetValue(cfgfile_filename)
+         
+    
 #-------------------------------------------------------------------------------
                 
     def onGDRFiles(self,event):
@@ -556,6 +641,10 @@ class Load_data_Window(wx.Dialog):
                 self.data_sel_config['kml_file'] = self.text_ctrl_kml_files.GetValue()  #self.kml_filename
             else:
                 self.data_sel_config['kml_file'] = None 
+            if self.chkbox_cfgfile.GetValue():
+                self.data_sel_config['cfg_file'] = self.text_ctrl_cfgfile.GetValue()  #self.kml_filename
+            else:
+                self.data_sel_config['cfg_file'] = None 
 #            self.Close()
             event.Skip()            
 #        elif self.gdr_altis_panel.IsShown():
@@ -571,6 +660,10 @@ class Load_data_Window(wx.Dialog):
                 self.data_sel_config['kml_file'] = self.text_ctrl_kml_files.GetValue()  #self.kml_filename
             else:
                 self.data_sel_config['kml_file'] = None 
+            if self.chkbox_cfgfile.GetValue():
+                self.data_sel_config['cfg_file'] = self.text_ctrl_cfgfile.GetValue()  #self.kml_filename
+            else:
+                self.data_sel_config['cfg_file'] = None 
 #            self.Close()
             event.Skip()            
 #        elif self.gdr_panel.IsShown():
@@ -590,6 +683,10 @@ class Load_data_Window(wx.Dialog):
                 self.data_sel_config['kml_file'] = self.text_ctrl_kml_files.GetValue()  #self.kml_filename
             else:
                 self.data_sel_config['kml_file'] = None 
+            if self.chkbox_cfgfile.GetValue():
+                self.data_sel_config['cfg_file'] = self.text_ctrl_cfgfile.GetValue()  #self.kml_filename
+            else:
+                self.data_sel_config['cfg_file'] = None 
 #            self.Close()
             event.Skip()            
 

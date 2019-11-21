@@ -9,18 +9,16 @@
 
 
 
+################################################################################
 # Jason-1
+################################################################################
 j1E :
     filename_normpass_pattern : .*_j1E_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_tracks_pattern : .*_j1E_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : 2PeP\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{3})(_)
     cycle_pattern : (P)(\d{3})(_)
-    surf_type :
-        - RiversLakes
-#        - GreatLakes
-#        - Ocean
-    
+
     retracker :
         - ice1
         - mle3
@@ -31,8 +29,6 @@ j1E :
 #        - c
     
     freq : 20.0
-    
-    track : 254
     
     param :
         # Coordinates
@@ -76,32 +72,54 @@ j1E :
         340_brightness_temp : tb_340
         
 
+################################################################################
 # Jason-2
+################################################################################
 j2D :
+    #---------------------------------------------------------------------------
+    # Filename regular expression (DO NOT TOUCH!)
+    #---------------------------------------------------------------------------
+    # Normpass file patern
     filename_normpass_pattern : .*j2D_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    # AlTiS multi-track GDR file patern
     filename_tracks_pattern : .*j2D_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    # GDR file patern
     filename_pattern : 2PdP\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    # track
     track_pattern : (_)(\d{3})(_)
+    # cycle
     cycle_pattern : (P)(\d{3})(_)
-    surf_type :
-        - RiversLakes
-#        - GreatLakes
-#        - Ocean
-    
+
+    #---------------------------------------------------------------------------
+    # Retracker to compute surface height
+    #---------------------------------------------------------------------------
     retracker :
         - ice1
         - mle3
         - ocean
 
+    #---------------------------------------------------------------------------
+    # Band to compute surface height
+    #---------------------------------------------------------------------------
     band : 
         - ku
 #        - c
     
+    #---------------------------------------------------------------------------
+    # A long track sampling frequency
+    #---------------------------------------------------------------------------
     freq : 20.0
     
-    track : 254
-    
+    #---------------------------------------------------------------------------
+    # The parameters readed in the Normpass, GRD track or AlTiS GDR files.
+    # There are two kinds of parameters : Imperative ones and Optional ones. 
+    #---------------------------------------------------------------------------
     param :
+        #---------------------------------------------------------------------------
+        # Imperative required parameters
+        #   They are needed for compute the surface height over different surfaces 
+        #   types (RiversLales, GreatsLakes, Ocean,)
+        #---------------------------------------------------------------------------
         # Coordinates
         time_lf : time
         time_hf : time_20hz
@@ -114,14 +132,14 @@ j2D :
         # Altitude
         alt_hf : alt_20hz
         
-        # Range (Ice-1 (OCOG) retracker)
+        # Range (Ice-1 (OCOG) retracker) (needed for RiversLakes Surface height)
         ice1_range_ku : ice_range_20hz_ku
-        # Range (MLE-3 retracker)
+        # Range (MLE-3 retracker) (needed for RiversLakes Surface height)
         mle3_range_ku : range_20hz_ku_mle3
-        # Range (Oean retracker)
+        # Range (Oean retracker) (needed for RiversLakes Surface height)
         ocean_range_ku : range_20hz_ku
         
-        # Range Corrections
+        # Range Corrections needed for RiversLakes Surface height
         model_wet_tropo_corr : model_wet_tropo_corr
         model_dry_tropo_corr : model_dry_tropo_corr
         iono_corr_gim_ku : iono_corr_gim_ku
@@ -131,9 +149,13 @@ j2D :
         # Geoid correction (for RiversLakes, GreatLakes Surface Type)
         geoid : geoid_egm08
 
-        # Backscatter
+        #---------------------------------------------------------------------------
+        # Optional parameters.
+        #---------------------------------------------------------------------------
+        # Backscatter 
         ice1_sig0_ku : ice_sig0_20hz_ku
         ice1_sig0_c : ice_sig0_20hz_c
+        # Peakiness
         ice1_peakiness_ku : peakiness_20hz_ku
         ice1_peakiness_c : peakiness_20hz_c
 
@@ -142,18 +164,16 @@ j2D :
         238_brightness_temp : tb_238
         340_brightness_temp : tb_340
         
+################################################################################
 # Jason-3
+################################################################################
 j3Ds :
     filename_normpass_pattern : .*_j3Ds_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_tracks_pattern : .*_j3Ds_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : 2P.*P\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{3})(_)
     cycle_pattern : (P)(\d{3})(_)
-    surf_type :
-        - RiversLakes
-#        - GreatLakes
-#        - Ocean
-    
+
     retracker :
         - ice1
         - mle3
@@ -164,8 +184,6 @@ j3Ds :
 #        - c
     
     freq : 20.0
-    
-    track : 254
     
     param :
         # Coordinates
@@ -209,18 +227,16 @@ j3Ds :
         340_brightness_temp : tb_340
         
         
+################################################################################
 # envisat.v21
+################################################################################
 envisat.v21 :
     filename_normpass_pattern : .*_envisat.v21_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_tracks_pattern : .*_envisat.v21_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : _\d{3}_\d{4}_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1\.nc 
     track_pattern : (_)(\d{4})(_)
     cycle_pattern : (_)(\d{3})(_)
-    surf_type :
-        - RiversLakes
-#        - GreatLakes
-#        - Ocean
-    
+
     retracker :
         - ice1
         - ice2
@@ -232,8 +248,6 @@ envisat.v21 :
 #        - s
     
     freq : 18.0
-    
-    track : 1002
     
     param :
         # Coordinates
@@ -277,18 +291,16 @@ envisat.v21 :
         238_brightness_temp : interpole_238_temp_mwr
         365_brightness_temp : interpole_365_temp_mwr
         
+################################################################################
 # ers2 CTOH
+################################################################################
 ers2.c.v1 :
     filename_normpass_pattern : .*_esr2.c.v1_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_tracks_pattern : .*_esr2.c.v1_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : P\d{3}_\d{4}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{4})(_)
     cycle_pattern : (P)(\d{3})(_)
-    surf_type :
-        - RiversLakes
-#        - GreatLakes
-#        - Ocean
-    
+
     retracker :
         - ice1
         - ice2
@@ -297,8 +309,6 @@ ers2.c.v1 :
         - ku
     
     freq : 20.0
-    
-    track : 1002
     
     param :
     
@@ -346,17 +356,15 @@ ers2.c.v1 :
         365_brightness_temp : tb_365_reaper
         
         
+################################################################################
 # saral
+################################################################################
 saral.s :
     filename_normpass_pattern : .*_saral.s_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_tracks_pattern : .*_saral.s_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : 2PTP\d{3}_\d{4}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d.CNES\.nc
     track_pattern : (_)(\d{4})(_)
     cycle_pattern : (P)(\d{3})(_)
-    surf_type :
-        - RiversLakes
-#        - GreatLakes
-#        - Ocean
     
     retracker :
         - ice1
@@ -368,8 +376,6 @@ saral.s :
         - ka
     
     freq : 40.0
-    
-    track : 1002
     
     param :
         # Coordinates
@@ -416,17 +422,15 @@ saral.s :
 
 
 
+################################################################################
 # Sentinel-3
+################################################################################
 s3lanOT :
     filename_normpass_pattern : .*_s3lanOT_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_tracks_pattern : .*_s3lanOT_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : _\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_.*T.*_.*_C\d{3}_P\d{3}_L.*_.*_NT_.*\.nc
     track_pattern : (P)(\d{3})(_)
     cycle_pattern : (C)(\d{3})(_)
-    surf_type :
-        - RiversLakes
-#        - GreatLakes
-#        - Ocean
     
     retracker :
         - ice1
@@ -441,8 +445,6 @@ s3lanOT :
 #        - c
     
     freq : 20.0
-    
-    track : 770
     
     param :
     
@@ -504,19 +506,16 @@ s3lanOT :
         # Instrument operating mode (LRM, SAR, LRM and SAR) 
         instr_op_mode : instr_op_mode_20_ku
 
+################################################################################
 # Cryosat2 ESA Version C
+################################################################################
 c2SesaB :
     filename_normpass_pattern : .*_c2SesaB_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_tracks_pattern : .*_c2SesaB_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : .*_\d{3}_\d{3}_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{3})(_)(\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d)(_)
     cycle_pattern : (_)(\d{3})(_)(\d{3})(_)
-    
-    surf_type :
-#        - RiversLakes
-#        - GreatLakes
-#        - Ocean
-    
+
     retracker :
         - trkr_1
         - trkr_2
@@ -527,8 +526,6 @@ c2SesaB :
 #        - c
     
     freq : 20.0
-    
-    track : 770
     
     param :
         # Coordinates
@@ -568,18 +565,15 @@ c2SesaB :
         sig_0_trkr_3_20hz : sig_0_trkr_3_20hz
         peakiness_20hz : peakiness_20hz
 
+################################################################################
 # Cryosat2 ESA Version C
+################################################################################
 c2SesaC :
     filename_normpass_pattern : .*_c2SesaC_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_tracks_pattern : .*_c2SesaC_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : .*_\d{3}_\d{3}_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{3})(_)(\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d)(_)
     cycle_pattern : (_)(\d{3})(_)(\d{3})(_)
-    
-    surf_type :
-#        - RiversLakes
-#        - GreatLakes
-#        - Ocean
     
     retracker :
         - trkr_1
@@ -591,8 +585,6 @@ c2SesaC :
 #        - c
     
     freq : 20.0
-    
-    track : 770
     
     param :
         # Coordinates

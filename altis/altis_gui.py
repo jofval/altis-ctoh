@@ -24,6 +24,7 @@ import pkg_resources
 import re
 import pdb
 import tempfile
+import shutil
 
 # Performance GUI
 # Line segment simplification and Using the fast style
@@ -214,6 +215,7 @@ class Main_Window(wx.Frame):
         vbox = wx.BoxSizer(wx.VERTICAL)
         
 #        vbox.Add((-1, 5))
+        vbox.Add((-1,40))
 
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         self.btnSelectData = wx.Button(self.toolbar_left_panel, label="Selection")
@@ -234,6 +236,8 @@ class Main_Window(wx.Frame):
         hbox2.Add(self.btnRefresh, border=10)
         vbox.Add(hbox2, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
+        vbox.Add((-1, 50))
+
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
@@ -241,6 +245,8 @@ class Main_Window(wx.Frame):
         self.btnRescale = wx.Button(self.toolbar_left_panel, label="Rescale")
         hbox3.Add(self.btnRescale, border=10)
         vbox.Add(hbox3, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        vbox.Add((-1, 50))
 
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
@@ -250,6 +256,8 @@ class Main_Window(wx.Frame):
         hbox4.Add(self.btnSave, border=10)
         vbox.Add(hbox4, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
+        vbox.Add((-1, 50))
+
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
@@ -258,11 +266,13 @@ class Main_Window(wx.Frame):
         hbox5.Add(self.btnTimeSeries, border=10)
         vbox.Add(hbox5, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
+        vbox.Add((-1, 150))
+
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
         
         hbox_cfg = wx.BoxSizer(wx.HORIZONTAL)
-        self.btnCfg = wx.Button(self.toolbar_left_panel,wx.ID_PREFERENCES, label="Config")
+        self.btnCfg = wx.Button(self.toolbar_left_panel,wx.ID_PREFERENCES, label="Config. File")
         hbox_cfg.Add(self.btnCfg, border=10)
         vbox.Add(hbox_cfg, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
@@ -274,43 +284,8 @@ class Main_Window(wx.Frame):
         self.btnRefresh.Bind(wx.EVT_BUTTON,self.onRefresh)
         self.btnRescale.Bind(wx.EVT_BUTTON,self.onRescale)
         self.btnSave.Bind(wx.EVT_BUTTON, self.onSave)
+        self.btnCfg.Bind(wx.EVT_BUTTON, self.onCfg)
 
-#    def mk_left_toolbar(self,panel):
-#    
-#        self.toolbar_left = wx.ToolBar(panel,style=wx.TB_VERTICAL)
-#        self.toolbar_left.SetToolBitmapSize((20,20))
-#        self.toolbar_left.SetToolSeparation(100)
-#        
-#        self.btnSelectData = wx.Button(self.toolbar_left, label="Selection")
-#        self.toolbar_left.AddControl(self.btnSelectData, label="Select and Remove")
-
-#        self.iconUndo = self.mk_iconbar_left("Undo",wx.ART_UNDO,"Undo")
-
-#        self.btnRefresh = wx.Button(self.toolbar_left, label="Refresh")
-#        self.toolbar_left.AddControl(self.btnRefresh, label="Update the plots")
-
-#        self.toolbar_left.AddSeparator()
-
-#        self.btnRescale = wx.Button(self.toolbar_left, label="Rescale")
-#        self.toolbar_left.AddControl(self.btnRescale, label="Update the scale")
-
-#        self.toolbar_left.AddSeparator()
-
-#        self.btnSave = wx.Button(self.toolbar_left, label="Save")
-#        self.toolbar_left.AddControl(self.btnSave, label="Save the current selection.")
-
-#        self.toolbar_left.AddSeparator()
-
-#        self.btnTimeSeries = wx.Button(self.toolbar_left, label = "Time Series")
-#        self.toolbar_left.AddControl(self.btnTimeSeries, label = "Compute the Time Series")
-
-#        self.toolbar_left.Realize()
-##--------------------------------------------------------------------------------
-#        self.btnTimeSeries.Bind(wx.EVT_BUTTON, self.onTimeSeries)
-#        self.Bind(wx.EVT_MENU, self.onUndo,self.iconUndo)
-#        self.btnRefresh.Bind(wx.EVT_BUTTON,self.onRefresh)
-#        self.btnRescale.Bind(wx.EVT_BUTTON,self.onRescale)
-#        self.btnSave.Bind(wx.EVT_BUTTON, self.onSave)
        
     def CanvasPanel(self,panel):
         print('plot_panel')
@@ -544,6 +519,37 @@ class Main_Window(wx.Frame):
         itemTool = self.toolbar_left.AddTool(wx.ID_ANY, bt_txt, ico, bt_lg_txt)
         return itemTool
 
+    def onCfg(self,event):
+        message = ('You have specific parameters in Normpass or GDR pass files.\n\n'+
+                    'You can make you own configuration file.\n\n'+
+                    'For that you need to export the native AlTiS configuration'+
+                    ' file, modify it and select it for the next data importation.\n\n'+
+                    'Click Ok to generate a configuration file otherwise Cancel.')
+        with wx.MessageDialog(None, message=message, caption='Make your own configuration file.',
+            style=wx.OK | wx.CANCEL | wx.OK_DEFAULT | wx.ICON_INFORMATION) as save_dataset_dlg:
+        
+            if save_dataset_dlg.ShowModal() == wx.ID_OK:
+                print('Make cofig file!')
+                self.mkCfgFile()
+        
+    def mkCfgFile(self): 
+        altis_mission_cfg = pkg_resources.resource_filename('altis', '../etc/config_mission.yml')
+        default_filename = "AlTiS_mission_config.yml"
+        with wx.FileDialog(self, message="Export AlTiS configuration file" ,
+               defaultDir=self.data_sel_config['data_dir'], defaultFile=default_filename ,wildcard="YAML files (*.yml)|*.yml",
+               style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,) as fileDialog:
+
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return     # the user changed their mind
+
+            # save the current contents in the file
+            export_pathname = fileDialog.GetPath()
+            try:
+                shutil.copy(altis_mission_cfg, export_pathname)
+            except IOError:
+                wx.LogError("Cannot export Altis configuration file '%s'." % export_pathname)
+        
+                
     def onHooking(self,event):
         print('Hooking !!')
 
@@ -956,6 +962,7 @@ class Main_Window(wx.Frame):
             mission=self.data_sel_config['mission']
             kml_file=self.data_sel_config['kml_file']
             filename=self.data_sel_config['normpass_file']
+            cfgfile_name=self.data_sel_config['cfg_file']
             self.set_env_var()
             
             if (len(filename) == 0) :
@@ -965,7 +972,7 @@ class Main_Window(wx.Frame):
 
             print('>>>>>:',mission,filename,kml_file)
             try :
-                self.tr=Normpass(mission,filename,kml_file=kml_file)
+                self.tr=Normpass(mission,filename,mission_config_file=cfgfile_name,kml_file=kml_file)
             except Exception:
                 message = ('The data file does not suit to the '+mission+' name.\n\n'
                 +' - Check the mission name field and the data file.')
@@ -992,6 +999,7 @@ class Main_Window(wx.Frame):
             kml_file=self.data_sel_config['kml_file']
             file_list=self.data_sel_config['list_file']
             data_dir=self.data_sel_config['data_dir']
+            cfgfile_name=self.data_sel_config['cfg_file']
             self.set_env_var()
             
             if (len(file_list) == 0) :
@@ -1000,8 +1008,8 @@ class Main_Window(wx.Frame):
                 return -1
                 
             try:
-                self.tr=Track(mission,surf_type,data_dir,file_list,kml_file=kml_file)
-            except (Track.InterpolationError, Track.TimeAttMissing, Track.ListFileEmpty) as e:
+                self.tr=Track(mission,surf_type,data_dir,file_list,mission_config_file=cfgfile_name,kml_file=kml_file)
+            except (Track.InterpolationError, Track.TimeAttMissing, Track.ListFileEmpty, Track.SurfaceHeightError) as e:
                 message = e.message_gui
                 print('>>>>>>>>> ',message)
                 with wx.MessageDialog(None, message=message, caption='Error',
@@ -1050,6 +1058,7 @@ class Main_Window(wx.Frame):
             mission=self.data_sel_config['mission']
             kml_file=self.data_sel_config['kml_file']
             filename=self.data_sel_config['gdr_altis_file']
+            cfgfile_name=self.data_sel_config['cfg_file']
             self.set_env_var()
             
             if (len(filename) == 0) :
@@ -1059,7 +1068,7 @@ class Main_Window(wx.Frame):
 
             print('>>>>>:',mission,filename,kml_file)
             try:
-                self.tr=GDR_altis(mission,filename,kml_file=kml_file)
+                self.tr=GDR_altis(mission,filename,mission_config_file=cfgfile_name,kml_file=kml_file)
             except Exception:
                 message = ('The data file does not suit to the '+mission+' name.\n\n'
                 +' - Check the mission name field and the data file.')
@@ -1202,6 +1211,7 @@ class Main_Window(wx.Frame):
         else:
             print('altis.tmp non trouvé')
             self.data_sel_config = dict()
+            self.data_sel_config['cfg_file'] = None
             self.data_sel_config['data_type'] = ''
             self.data_sel_config['data_dir'] = ''
             self.data_sel_config['list_file'] = []
