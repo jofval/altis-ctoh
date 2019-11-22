@@ -73,6 +73,7 @@ from altis.colinear_analysis import ColinAnal_Panel
 
 from altis.patch_code_oswlib_wmts import *
 
+from altis_utils.tools import FileNotFoundError
 
 from altis._version import __version__,__revision__
 #-------------------------------------------------------------------------------
@@ -973,6 +974,17 @@ class Main_Window(wx.Frame):
             print('>>>>>:',mission,filename,kml_file)
             try :
                 self.tr=Normpass(mission,filename,mission_config_file=cfgfile_name,kml_file=kml_file)
+            except FileNotFoundError as e:
+                message = e.message_gui
+                print('>>>>>>>>> ',message)
+                with wx.MessageDialog(None, message=message, caption='Error',
+                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR) as save_dataset_dlg:
+                
+                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
+                        print('No dataset!')
+                        self.progress.Update(100, "Done.")
+                        self.progress.Destroy()
+                        return -1
             except Exception:
                 message = ('The data file does not suit to the '+mission+' name.\n\n'
                 +' - Check the mission name field and the data file.')

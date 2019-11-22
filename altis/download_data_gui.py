@@ -26,7 +26,7 @@ import re
 import pdb
 import tempfile
 
-from altis_utils.tools import __config_load__,update_progress,__regex_file_parser__
+from altis_utils.tools import __config_load__,update_progress,__regex_file_parser__,FileNotFoundError
 
  
 class Bottom_Bar(wx.Panel):
@@ -124,7 +124,14 @@ class Load_data_Window(wx.Dialog):
         sizer = wx.GridBagSizer(6, 11)
 
         self.__config_load__()
+        
+        font = wx.SystemSettings.GetFont(wx.SYS_SYSTEM_FONT)
+        font.SetPointSize(16)
+        font.MakeBold()
+        font.MakeUnderlined()
+        
         Title_panel = wx.StaticText(scroll_panel, label="AlTiS GDR")
+        Title_panel.SetFont(font)
         sizer.Add(Title_panel, pos=(0, 0), flag=wx.TOP|wx.LEFT|wx.BOTTOM,
             border=15)
 
@@ -226,8 +233,14 @@ class Load_data_Window(wx.Dialog):
         sizer = wx.GridBagSizer(8, 11)
 
         self.__config_load__()
+
+        font = wx.SystemSettings.GetFont(wx.SYS_SYSTEM_FONT)
+        font.SetPointSize(16)
+        font.MakeBold()
+        font.MakeUnderlined()
         
         Title_panel = wx.StaticText(scroll_panel, label="Normpass")
+        Title_panel.SetFont(font)
         sizer.Add(Title_panel, pos=(0, 0), flag=wx.TOP|wx.LEFT|wx.BOTTOM,
             border=15)
 
@@ -332,13 +345,15 @@ class Load_data_Window(wx.Dialog):
 
         self.__config_load__()
         
+        font = wx.SystemSettings.GetFont(wx.SYS_SYSTEM_FONT)
+        font.SetPointSize(16)
+        font.MakeBold()
+        font.MakeUnderlined()
+        
         Title_panel = wx.StaticText(scroll_panel, label="GDR Tracks")
+        Title_panel.SetFont(font)
         sizer.Add(Title_panel, pos=(0, 0), flag=wx.TOP|wx.LEFT|wx.BOTTOM,
             border=15)
-
-#        icon = wx.StaticBitmap(scroll_panel, bitmap=wx.Bitmap(''))
-#        sizer.Add(icon, pos=(0, 4), flag=wx.TOP|wx.RIGHT|wx.ALIGN_RIGHT,
-#            border=5)
 
         line = wx.StaticLine(scroll_panel)
         sizer.Add(line, pos=(1, 0), span=(1, 11),
@@ -407,7 +422,7 @@ class Load_data_Window(wx.Dialog):
             self.sel_track.SetValue(self.data_sel_config['list_track'][0])
 
         self.text_ctrl_nc_files = wx.TextCtrl(scroll_panel, style = wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL | wx.TE_RICH)
-        sizer.Add(self.text_ctrl_nc_files, pos=(7, 1), span=(10, 9), flag=wx.TOP|wx.EXPAND,border=10)
+        sizer.Add(self.text_ctrl_nc_files, pos=(7, 0), span=(10, 12), flag=wx.TOP|wx.EXPAND,border=10)
 
 
 
@@ -593,7 +608,17 @@ class Load_data_Window(wx.Dialog):
             self.text_ctrl_gdr_dir.SetValue(self.gdr_dir)
 
             # Selection des fichiers trace
-            self.file_struct = __regex_file_parser__(self.sel_mission.GetValue(),self.gdr_dir,None)
+            try:
+                self.file_struct = __regex_file_parser__(self.sel_mission.GetValue(),self.gdr_dir,None)
+            except FileNotFoundError as e:
+                message = e.message_gui
+                print('>>>>>>>>> ',message)
+                with wx.MessageDialog(None, message=message, caption='Error',
+                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR) as save_dataset_dlg:
+                
+                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
+                        return -1
+                
 
             list_track = np.unique(self.file_struct['track'])
             self.sel_track.Clear()

@@ -18,6 +18,29 @@ import pkg_resources
 import logging, sys
 import geopandas as gpd 
 from shapely.geometry import shape, Point, Polygon
+import xarray as xr
+
+
+class Error(Exception):
+    pass
+
+class FileNotFoundError(Error):
+    def __init__(self,message):
+        super().__init__(message)
+        self.message_gui = message
+
+#--------------------------------------------------------------------------
+# Computation of stand absolute deviation (deviation in L1 norm) of a
+# variable
+#
+#--------------------------------------------------------------------------
+# 2014/04/04 | F. FRAPPART   | Creation 
+#--------------------------------------------------------------------------
+def std_abs_dev(vec,dim_label):
+    sum_abs_diff = np.abs(vec-vec.median(dim=dim_label)).sum(dim=dim_label)
+    N = len(vec.coords[dim_label])
+    return (1/N)*sum_abs_diff
+
 
 def kml_poly_select(kml_file,lon_mean,lat_mean):
     '''
@@ -101,6 +124,7 @@ def __regex_file_parser__(mission,directory,mission_config_file):
     track=[]
     cycle=[]
     file_list_bad_regex=[]
+    file_list_ok_regex=[]
     for idx,filename in enumerate(file_list):
         match = re.search(filename_pattern, filename)
         if match :
@@ -108,22 +132,26 @@ def __regex_file_parser__(mission,directory,mission_config_file):
             track.extend([int(match.group(2))])
             match = re.search(cycle_pattern, filename)
             cycle.extend([int(match.group(2))])
+            file_list_ok_regex.extend([filename])
         else:
-            track.extend([None])
-            cycle.extend([None])
+#            track.extend([None])
+#            cycle.extend([None])
             file_list_bad_regex.extend([filename])
     
     
-    if track.count(None) > 0:
-        if track.count(None) == len(file_list):
-            raise Exception('The filenames are not conform to the filename '\
-                            +'pattern of '+mission+' mission. None file '\
-                            'could not be load.')
-        else:
-            raise Exception('Some filenames are not conform to the filename '\
-                            +'pattern of '+mission+' mission and could not '\
-                            +'be load : \n',file_list_bad_regex)
+#    if track.count(None) > 0:
+    if len(file_list_bad_regex) == len(file_list):
+        message = ('The filenames are not conform to the filename '\
+                        +'pattern of '+mission+' mission. None file '\
+                        'could not be load.')
+        print(message)
+        raise FileNotFoundError(message)
+#        else:
+#            raise Exception('Some filenames are not conform to the filename '\
+#                            +'pattern of '+mission+' mission and could not '\
+#                            +'be load : \n',file_list_bad_regex)
     else:
+        file_list = file_list_ok_regex
         track = np.array(track,dtype=np.int)
         cycle = np.array(cycle,dtype=np.int)
         list_track = np.unique(track)

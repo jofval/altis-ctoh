@@ -58,7 +58,7 @@ class Help_Window(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnAboutBox, self.iconHelp)
         
         self.statusbar = self.CreateStatusBar()
-        self.statusbar.SetStatusText('AlTiS : <version> <creation_date> CTOH') 
+        self.statusbar.SetStatusText(('AlTiS version : %s, revision : %s CTOH')%(__version__,__revision__))
 
 
     def mk_iconbar(self,bt_txt,art_id,bt_lg_txt):
@@ -71,10 +71,10 @@ class Help_Window(wx.Frame):
         
         logo_file = pkg_resources.resource_filename('altis', '../etc/altis_logo.png')        
 
-        description = """AlTiS (Altimetric Time Series) software is a tool for 
-        build altimetric time series from GDR (Geographic Data Reccord) files
-         suppled by the French Observation Service CTOH 
-         (Centre of Topography of the Oceans and the Hydrosphere)."""
+        description = ("AlTiS (Altimetric Time Series) software is a tool to "+
+            "build time series from altimetric GDR (Geographic Data Reccord) data "+
+            "suppled by the French Observation Service CTOH (Centre of Topography "+
+            "of the Oceans and the Hydrosphere).")
 
         licence = """AlTiS (Altimetric Time Series) software is free software;
         you can redistribute it and/or modify it under the terms of the GNU General 

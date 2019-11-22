@@ -15,6 +15,7 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 from altis.common_data import Singleton
+from altis_utils.tools import std_abs_dev
 import warnings
 import pdb
 
@@ -56,8 +57,8 @@ class Time_Series_Panel ( wx.Frame ):
         self.btnUpdate = wx.Button(self.toolbar, label='Refresh')
         self.toolbar.AddControl(self.btnUpdate)
         self.toolbar.AddSeparator()
-        self.checkMean = wx.CheckBox( self.toolbar, label="Mean")
-        self.toolbar.AddControl(self.checkMean, label="Show/Hide Mean" )
+        self.checkMean = wx.CheckBox( self.toolbar, label="Mean/Std")
+        self.toolbar.AddControl(self.checkMean, label="Show/Hide Mean/Std" )
         self.toolbar.AddSeparator()
         self.btnCSVexport = wx.Button(self.toolbar, label='Export ...')
         self.toolbar.AddControl(self.btnCSVexport)
@@ -174,10 +175,14 @@ class Time_Series_Panel ( wx.Frame ):
         if self.checkMean.IsChecked():
             self.mean_plt, = self.ax1.plot(self.abcisse,self.mean_param,'-+b', label='mean' ,alpha=0.5)
             counts, bins, self.mean_bars = self.ax2.hist(self.mean_param,50,color='b',label='mean',alpha=0.5)
+            self.std_plt, = self.ax3.plot(self.abcisse,self.std_param,'-+g', label='std' ,alpha=0.5)
+            counts, bins, self.std_bars = self.ax4.hist(self.std_param,50,color='g',label='std',alpha=0.5)
             self.canvas.draw()
         else:
             self.mean_plt.remove()
+            self.std_plt.remove()
             _ = [b.remove() for b in self.mean_bars]
+            _ = [b.remove() for b in self.std_bars]
             self.canvas.draw()
             
     def param_compute(self,):
@@ -203,9 +208,11 @@ class Time_Series_Panel ( wx.Frame ):
             self.dim_index = 'norm_index'
             self.dim_cycle = 'cycle'
         
+
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self.median_param = self.common_data.param.where(self.mask).median(dim=self.dim_index)  #,skipna=True)
+            self.std_abs_dev_param = std_abs_dev(self.common_data.param.where(self.mask),self.dim_index)  #,skipna=True)
             self.mean_param = self.common_data.param.where(self.mask).mean(dim=self.dim_index)  #,skipna=True)
             self.std_param = self.common_data.param.where(self.mask).std(dim=self.dim_index)    #,skipna=True)
             self.abcisse = np.array(self.common_data.param.coords['date'].where(self.mask.any(axis=1)))
@@ -232,11 +239,13 @@ class Time_Series_Panel ( wx.Frame ):
         self.ax2.grid(True)
 
         self.std_plt, = self.ax3.plot(self.abcisse,self.std_param,'-+g', label='std' ,alpha=0.5)
+        self.std_abs_dev_plt, = self.ax3.plot(self.abcisse,self.std_abs_dev_param,'-+y', label='std_abs_dev' ,alpha=0.5)
         self.ax3.legend()
         self.ax3.set_ylabel(self.param_name+' ('+self.param_units+')')
         self.ax3.grid(True)
 
         counts, bins, self.std_bars = self.ax4.hist(self.std_param,50,color='g',label='std',alpha=0.5)
+        counts, bins, self.std_abs_dev_bars = self.ax4.hist(self.std_abs_dev_param,50,color='y',label='std_abs_dev',alpha=0.5)
         self.ax4.legend()
         self.ax4.set_xlabel(self.param_name+' ('+self.param_units+')')
         self.ax4.grid(True)
@@ -258,23 +267,32 @@ class Time_Series_Panel ( wx.Frame ):
         
         array = list()
         header_csvfile = list()
+        array.append(np.array(self.common_data.param.coords['cycle'].where(mask.any(axis=1)),dtype='int'))
+        if 'tracks' in self.common_data.param.coords._names:
+            array.append(np.array(self.common_data.param.coords['tracks'].where(mask.any(axis=1)),dtype='int'))
+        else:
+            array.append([int(self.data_sel_config['track'])]*len(self.common_data.param.coords['cycle']))
         array.append(np.array(pd.Series(self.common_data.param.coords['date'].where(mask.any(axis=1))).dt.strftime("%Y-%m-%d")))
-
+        
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             for param in list_param_coord:
                 array.append(self.common_data.tr[param].where(mask).mean(dim=self.dim_index).data)
-                header_csvfile.extend([param+'_mean'])
+                header_csvfile.extend([param+'_mean (deg)'])
 
             for param in list_param:
                 array.append(self.common_data.tr[param].where(mask).median(dim=self.dim_index).data)
+                array.append(std_abs_dev(self.common_data.tr[param].where(mask),self.dim_index).data)
                 array.append(self.common_data.tr[param].where(mask).mean(dim=self.dim_index).data)
                 array.append(self.common_data.tr[param].where(mask).std(dim=self.dim_index).data)
-                header_csvfile.extend([param+'_median',param+'_mean',param+'_std'])
+                header_csvfile.extend([param+'_median ('+self.common_data.tr[param].units+')',\
+                                        param+'_std_abs_dev ('+self.common_data.tr[param].units+')',\
+                                        param+'_mean ('+self.common_data.tr[param].units+')',\
+                                        param+'_std ('+self.common_data.tr[param].units+')'])
       
         array.append(np.sum(mask,axis=1).data)
         array = pd.DataFrame(array).T
-        header_csvfile = ['date'] + header_csvfile + ['number of sample']
+        header_csvfile = ['Cycle number','Track number','date (Year-Month-Day)'] + header_csvfile + ['number of sample']
 
         if self.data_sel_config['track'] == 'Tracks':
             default_filaname = "AlTiS_TimeSeries_"+self.data_sel_config['mission']+"_Tracks"
@@ -324,147 +342,4 @@ class Time_Series_Panel ( wx.Frame ):
         #            ax.set_ylim(-0.5, 1.5)
         figi.show()
         return True
-
-            
-#def plot_time_series(tr,mask):
-#    cm='hsv'
-
-#    lon = tr.data_val['lon_20hz'].where(mask).mean(dim='cycle')
-#    lat = tr.data_val['lat_20hz'].where(mask).mean(dim='cycle')
-#    
-#    abcisse = lon
-#    
-#    param = tr.data_val['ice1_ku_SurfHeight_alti'].where(mask).mean(dim='cycle')
-#    std_param = tr.data_val['ice1_ku_SurfHeight_alti'].where(mask).std(dim='cycle')
-#    fig = plt.figure()
-#    ax1 = fig.add_subplot(7,1,1)
-#    ax1.set_title('Mean parameter along the normalized track')
-#    plt1 = ax1.scatter(abcisse,param,c=param, marker='+',cmap=cm ) 
-#    ax1.set_ylabel('Surface height (m)')
-#    ax1.grid()
-#    ax2 = fig.add_subplot(7,1,2,sharex=ax1)
-#    plt2 = ax2.scatter(abcisse,std_param,c=std_param, marker='+',cmap=cm ) 
-#    ax2.set_ylabel('Std Surface height (m)')
-#    ax2.grid()
-#    
-#    param = 10.0*np.log10(np.power(10.0,tr.data_val['ice_sig0_20hz_ku']/10.).where(mask).mean(dim='cycle'))
-#    std_param = 10.0*np.log10(np.power(10.0,tr.data_val['ice_sig0_20hz_ku']/10.).where(mask).std(dim='cycle'))
-#    ax3 = fig.add_subplot(7,1,3,sharex=ax1)
-#    plt3 = ax3.scatter(abcisse,param,c=param, marker='+',cmap=cm ) 
-#    ax3.set_ylabel('Sig0 (dB)')
-#    ax3.grid()
-#    ax4 = fig.add_subplot(7,1,4,sharex=ax1)
-#    plt4 = ax4.scatter(abcisse,std_param,c=std_param, marker='+',cmap=cm ) 
-#    ax4.set_ylabel('Std Sig0 (dB)')
-#    ax4.grid()
-
-#    param = tr.data_val['peakiness_20hz_ku'].where(mask).mean(dim='cycle')
-#    std_param = tr.data_val['peakiness_20hz_ku'].where(mask).std(dim='cycle')
-#    ax5 = fig.add_subplot(7,1,5,sharex=ax1)
-#    plt5 = ax5.scatter(abcisse,param,c=param, marker='+',cmap=cm ) 
-#    ax5.set_ylabel('Peakiness')
-#    ax5.grid()
-#    ax6 = fig.add_subplot(7,1,6,sharex=ax1)
-#    plt6 = ax6.scatter(abcisse,std_param,c=std_param, marker='+',cmap=cm ) 
-#    ax6.set_ylabel('Std Peakiness')
-#    ax6.grid()
-
-#    ax7 = fig.add_subplot(7,1,7,sharex=ax1)
-#    plt7 = ax7.scatter(abcisse,std_param.coords['count'],c=std_param.coords['count'], marker='+',cmap=cm ) 
-#    ax7.set_xlabel('lon')
-#    ax7.set_ylabel('Count')
-#    ax7.grid()
-#    multi_normpass = MultiCursor(fig.canvas, (ax1, ax2, ax3, ax4, ax5, ax6, ax7), color='r', lw=1)
-#    
-##-------------------------------------------------------------------------------
-
-#    H_param = tr.data_val['ice1_ku_SurfHeight_alti'].where(mask).data
-
-#    Lon = tr.data_val['lon_20hz'].where(mask).data
-
-#    mean_H_param = tr.data_val['ice1_ku_SurfHeight_alti'].where(mask).mean(dim='norm_index')
-#    std_H_param = tr.data_val['ice1_ku_SurfHeight_alti'].where(mask).std(dim='norm_index')
-
-##    pdb.set_trace()
-##-------------------------------------------------------------------------------
-
-
-#    def onpick(event):
-
-#        if event.artist!=line: return True
-
-#        N = len(event.ind)
-#        if not N: return True
-
-
-#        figi = plt.figure()
-#        print('event.ind',event.ind)
-#        for subplotnum, dataind in enumerate(event.ind):
-#            ax = figi.add_subplot(N,1,subplotnum+1)
-#            ax.plot(Lon[dataind],H_param[dataind],'.')
-#            ax.set_title('Cycle number : %04d,\nMean value = %1.3f, Std = %1.3f '%(dataind,mean_H_param[dataind], std_H_param[dataind]))
-#            ax.set_ylabel('Surface height (m)')
-#            ax.set_xlabel('Longitude (deg)')
-#            ax.grid()
-##            ax.text(0.05, 0.9, 'mu=%1.3f\nsigma=%1.3f'%(mean_H_param[dataind], std_H_param[dataind]),
-##                    transform=ax.transAxes, va='top')
-##            ax.set_ylim(-0.5, 1.5)
-#        figi.show()
-#        return True
-
-
-#    param = tr.data_val['ice1_ku_SurfHeight_alti'].where(mask).mean(dim='norm_index')
-#    std_param = tr.data_val['ice1_ku_SurfHeight_alti'].where(mask).std(dim='norm_index')
-#    abcisse = np.array(param.coords['date'].where(mask.any(axis=1)))
-
-#    fig = plt.figure()
-#    ax1 = fig.add_subplot(2,2,1)
-#    ax1.set_title('Surface height Time series')
-#    
-##    line, = ax1.plot(abcisse,param, '+', picker=5)  # 5 points tolerance
-
-
-#    plt1 = ax1.scatter(abcisse,param,c=param, marker='+',cmap=cm ) 
-#    line, = ax1.plot(abcisse,param, '+', picker=5)  # 5 points tolerance
-#    ax1.set_ylabel('Surface height (m)')
-#    ax1.grid()
-#    
-#    vmin = np.min(param)
-#    vmax = np.max(param)
-#    ax2 = fig.add_subplot(2,2,2)
-#    ax2.set_title('histo')
-#    plt2 = ax2.hist(param,50)
-##    n, bins, patches = ax2.hist(np.array(param),50, (vmin,vmax), normed=True, histtype='bar')
-##    cm = plt.cm.get_cmap(cm)
-##    bin_centers = 0.5 * (bins[:-1] + bins[1:])
-##    # scale values to interval [0,1]
-##    col = bin_centers - min(bin_centers)
-##    col /= max(col)
-##    
-##    for c, p in zip(col, patches):
-##        ax2.setp(p, 'facecolor', cm(c))
-
-#    ax2.set_xlabel('Surface height (m)')
-#    ax2.grid()
-#    ax3 = fig.add_subplot(2,2,3,sharex=ax1)
-#    ax3.set_title('Std Time series')
-#    plt3 = ax3.scatter(abcisse,std_param,c=std_param, marker='+',cmap=cm ) 
-#    ax3.set_ylabel('Std Surface height (m)')
-#    ax3.set_xlabel('Time date')
-#    ax3.grid()
-
-#    vmin = np.min(std_param)
-#    vmax = np.max(std_param)
-#    ax4 = fig.add_subplot(2,2,4)
-#    ax4.set_title('histo')
-#    plt4 = ax4.hist(std_param,50)
-#    ax4.set_xlabel('Std Surface height (m)')
-#    ax4.grid()
-#    
-#    multi = MultiCursor(fig.canvas, (ax1, ax3), color='r', lw=1)
-#    
-#    
-#    fig.canvas.mpl_connect('pick_event', onpick)
-#    
-#    plt.show()
 

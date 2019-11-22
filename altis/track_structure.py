@@ -24,7 +24,7 @@ import pandas as pd
 import pkg_resources
 from shutil import copyfile
 
-from altis_utils.tools import __config_load__,update_progress,__regex_file_parser__, fatal_error,kml_poly_select
+from altis_utils.tools import __config_load__,update_progress,__regex_file_parser__, fatal_error,kml_poly_select,FileNotFoundError
 
 from altis._version import __version__, __revision__
 
@@ -184,6 +184,11 @@ class Normpass(object):
         self.lon_hf_name = param_config['param']['lon_hf']
         self.lat_hf_name = param_config['param']['lat_hf']
 
+        if not os.path.isfile(filename):
+            message = (('File not found !\n\n- %s')%(filename))
+            print(message)
+            raise FileNotFoundError(message)
+            
         match = re.search(filename_pattern, filename)
         if match :
             self.data_val = xr.open_dataset(filename)
