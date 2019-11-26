@@ -252,8 +252,7 @@ class Time_Series_Panel ( wx.Frame ):
         self.canvas.mpl_connect('pick_event', self.onpick)
 
     def onCSVexport(self,event):
-        
-        pdb.set_trace()
+
         mask = self.common_data.CYCLE_SEL\
              &  self.common_data.DATA_MASK_SEL[-1]\
              & self.common_data.DATA_MASK_PARAM
