@@ -133,10 +133,9 @@ class Time_Series_Panel ( wx.Frame ):
             self.statusbar.SetStatusText("AlTiS\t%s : %s, %s : %s" % (xlabel,"{: 10.6f}".format(xdata),ylabel,"{: 10.6f}".format(ydata)))
         else:
             self.statusbar.SetStatusText("AlTiS")
-#        
+
     def onUpdate(self,event):
-#        self.sel_id.disconnect()
-        
+
         self.param_compute()
         self.param_name = self.common_data.param_name
         self.figure.suptitle(self.param_name, fontsize=16)
@@ -254,6 +253,7 @@ class Time_Series_Panel ( wx.Frame ):
 
     def onCSVexport(self,event):
         
+        pdb.set_trace()
         mask = self.common_data.CYCLE_SEL\
              &  self.common_data.DATA_MASK_SEL[-1]\
              & self.common_data.DATA_MASK_PARAM

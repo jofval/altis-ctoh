@@ -21,7 +21,7 @@ import cartopy.crs as ccrs
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 import matplotlib as mpl
-import matplotlib.cm as mpl_cm
+#import matplotlib.cm as mpl_cm
 import matplotlib.pyplot as plt
 import xarray as xr
 
@@ -31,7 +31,8 @@ class DatasetSelection(object):
     
     """
 
-    def __init__(self, fig, plt_list,axes_list, cm, cbar,DEBUG=True):
+    def __init__(self, fig, plt_list,axes_list, select_text_info,DEBUG=True):
+        wx.SetCursor(wx.StockCursor(wx.CURSOR_PENCIL))
         self.fig = fig
         self.canvas = fig.canvas
         self.axes = axes_list 
@@ -40,12 +41,8 @@ class DatasetSelection(object):
         [self.plt1,self.plt2,self.plt3,self.plt4] = plt_list
         self.collections = dict()
         self.fc = dict()
-        self.cm =cm
-        self.cbar = cbar
         self.debug = DEBUG
-#        for idx in range(len(self.axes)):
-#            self.collections[idx] = self.axes[idx].collections[0].get_offsets()
-#            self.fc[idx] = self.axes[idx].collections[0].get_facecolors()
+        self.select_text_info = select_text_info
 
         for idx,plt in enumerate(self.plt):
             self.collections[idx] = plt.get_offsets()
@@ -93,12 +90,21 @@ class DatasetSelection(object):
                 self.common_data.DATA_MASK_SEL.append(self.mask_output)
                 
                 self.progress.Destroy()
-                message = 'You have to press Refresh button to apply the new selection.'
-                with wx.MessageDialog(None, message=message, caption='Info',
-                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_INFORMATION) as save_dataset_dlg:
-                
-                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
-                        print('Done!')
+#                message = 'You have to press Refresh button to apply the new selection.'
+#                with wx.MessageDialog(None, message=message, caption='Info',
+#                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_INFORMATION) as save_dataset_dlg:
+#                
+#                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
+#                        print('Done!')
+#                wx.Cursor(wx.StockCursor(wx.CURSOR_DEFAULT))
+                del cursor_wait
+#                self.select_text_info = self.fig.text(-0.1, 1.2, \
+#                        'Press refresh ...', horizontalalignment='center',\
+#                        verticalalignment='center',color='r',fontweight='bold',\
+#                        transform=self.ax1.transAxes)
+                self.select_text_info.set_text('Press refresh ...')
+                self.canvas.draw_idle()
+                wx.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
                                 
             elif event.key == "r":  # revers selection
                 self.plot_selection(alpha = 0.01)
@@ -110,6 +116,8 @@ class DatasetSelection(object):
                     self.plot_selection_inside(alpha=1.0)
                 self.canvas.mpl_disconnect(self.cid_axes)
                 self.canvas.mpl_disconnect(self.cid_key)
+                del cursor_wait
+                wx.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
 
 
         self.cid_axes = self.canvas.mpl_connect('button_press_event', get_axes)

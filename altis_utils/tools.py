@@ -37,7 +37,9 @@ class FileNotFoundError(Error):
 # 2014/04/04 | F. FRAPPART   | Creation 
 #--------------------------------------------------------------------------
 def std_abs_dev(vec,dim_label):
+    mask_nan = np.isnan(vec.median(dim=dim_label))
     sum_abs_diff = np.abs(vec-vec.median(dim=dim_label)).sum(dim=dim_label)
+    sum_abs_diff[mask_nan] = np.nan
     N = len(vec.coords[dim_label])
     return (1/N)*sum_abs_diff
 

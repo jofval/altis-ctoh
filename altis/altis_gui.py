@@ -11,14 +11,11 @@
 # Copyright (c) 2019 Legos/CTOH. All rights reserved.
 # ----------------------------------------------------------------------
 import wx
-#import wx.adv
 import yaml
 import os
 import sys
-#import matplotlib
 import numpy as np
 import pandas as pd
-#import glob
 import xarray as xr
 import pkg_resources
 import re
@@ -35,10 +32,8 @@ import shutil
 #mpl.rcParams['path.simplify_threshold'] = 1.0
 #mpl.rcParams['agg.path.chunksize'] = 10000
 
-
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
-        
 
 from altis_utils.tools import __config_load__,update_progress,__regex_file_parser__
 
@@ -76,6 +71,7 @@ from altis.patch_code_oswlib_wmts import *
 from altis_utils.tools import FileNotFoundError
 
 from altis._version import __version__,__revision__
+
 #-------------------------------------------------------------------------------
 # Control window : This window display the list of the cycle dowloaded in memory. 
 #    This window is used for the cycle selection.
@@ -134,6 +130,8 @@ class Ctrl_Window(wx.Frame):
 
         self.toolbar.Realize()
 
+        self.btnSelectAll.Disable()
+
         self.Bind(wx.EVT_BUTTON, self.parent.onSelectAll, self.btnSelectAll)
  
     def mk_iconbar(self,bt_txt,art_id,bt_lg_txt):
@@ -148,14 +146,6 @@ class Ctrl_Window(wx.Frame):
         print('onSelectAll')
         return np.ones((self.lctrlSelectCycle.GetItemCount()),dtype=bool)
             
-#    def onSelectCycle(self,event):
-#        mask=[]
-#        for idx in range(self.lctrlSelectCycle.GetItemCount()):
-#            mask.extend([self.lctrlSelectCycle.IsSelected(idx)])
-
-#        print('onSelectCycle')
-#        return np.array(mask)
-    
     def getselectcyle(self):
         mask=[]
         for idx in range(self.lctrlSelectCycle.GetItemCount()):
@@ -219,7 +209,7 @@ class Main_Window(wx.Frame):
         vbox.Add((-1,40))
 
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        self.btnSelectData = wx.Button(self.toolbar_left_panel, label="Selection")
+        self.btnSelectData = wx.Button(self.toolbar_left_panel, label="Data Select.")
         hbox1.Add(self.btnSelectData, border=10)
         vbox.Add(hbox1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 #        vbox.Add((-1, 5))
@@ -271,17 +261,50 @@ class Main_Window(wx.Frame):
 
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
-        
+
+        hbox_label = wx.BoxSizer(wx.HORIZONTAL)
+        self.stattext_label = wx.StaticText(self.toolbar_left_panel, label = "Convex hull : ")        
+        hbox_label.Add(self.stattext_label, border=10)
+        vbox.Add(hbox_label, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        hbox_ExpEnv = wx.BoxSizer(wx.HORIZONTAL)
+        self.btnExpEnv = wx.Button(self.toolbar_left_panel,label="Export")
+        hbox_ExpEnv.Add(self.btnExpEnv, border=10)
+        vbox.Add(hbox_ExpEnv, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        hbox_ImpEnv = wx.BoxSizer(wx.HORIZONTAL)
+        self.btnImpEnv = wx.Button(self.toolbar_left_panel,label="Import")
+        hbox_ImpEnv.Add(self.btnImpEnv, border=10)
+        vbox.Add(hbox_ImpEnv, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+#        vbox.Add((-1, 50))
+
+        line = wx.StaticLine(self.toolbar_left_panel)
+        vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
         hbox_cfg = wx.BoxSizer(wx.HORIZONTAL)
         self.btnCfg = wx.Button(self.toolbar_left_panel,wx.ID_PREFERENCES, label="Config. File")
         hbox_cfg.Add(self.btnCfg, border=10)
         vbox.Add(hbox_cfg, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
         self.toolbar_left_panel.SetSizer(vbox)
+
+#--------------------------------------------------------------------------------
+        self.btnSelectData.Disable()
+        self.iconUndo.Disable()
+        self.btnRefresh.Disable()
+        self.btnRescale.Disable()
+        self.btnSave.Disable()
+        self.btnTimeSeries.Disable()
+        self.btnExpEnv.Disable()
+        self.btnImpEnv.Disable()
+
         
 #--------------------------------------------------------------------------------
         self.btnTimeSeries.Bind(wx.EVT_BUTTON, self.onTimeSeries)
-        self.Bind(wx.EVT_MENU, self.onUndo,self.iconUndo)
+        self.btnExpEnv.Bind(wx.EVT_BUTTON, self.onExpEnv)
+        self.btnImpEnv.Bind(wx.EVT_BUTTON, self.onImpEnv)
+        self.iconUndo.Bind(wx.EVT_BUTTON, self.onUndo)
         self.btnRefresh.Bind(wx.EVT_BUTTON,self.onRefresh)
         self.btnRescale.Bind(wx.EVT_BUTTON,self.onRescale)
         self.btnSave.Bind(wx.EVT_BUTTON, self.onSave)
@@ -405,102 +428,45 @@ class Main_Window(wx.Frame):
  
         self.iconQuit = self.mk_iconbar("Quit",wx.ART_QUIT,"Quit AlTiS")
 
-#        self.toolbar.AddStretchableSpace()
         self.toolbar.AddSeparator()
-#        self.toolbar.AddStretchableSpace()
         
         self.ListKindData = ['Import data ... ','Normpass', 'AlTiS GDR', 'GDR Tracks']
         self.comboKindData = wx.ComboBox( self.toolbar, value = self.ListKindData[0], choices = self.ListKindData[1:],size=(130,30))
         self.toolbar.AddControl(self.comboKindData, label="Kind of data to import" )
-#        self.toolbar.AddStretchableSpace()
-#        self.btnImport = wx.Button(self.toolbar, label="Import ...")
-#        self.toolbar.AddControl(self.btnImport, label="Normpass or GDR")
 
-#        self.toolbar.AddStretchableSpace()
         self.toolbar.AddSeparator()
-#        self.toolbar.AddStretchableSpace()
 
-#        self.iconOpen = self.mk_iconbar("Open",wx.ART_FILE_OPEN,"Load Altimetry Dataset")
         self.comboSelParam = wx.ComboBox( self.toolbar, value = "Select_parameter", choices = [],size=(200,30))
         self.toolbar.AddControl(self.comboSelParam, label="Select a paramter" )
-#        self.toolbar.AddStretchableSpace()
-#        self.iconSave = self.mk_iconbar("Save",wx.ART_FILE_SAVE,"Save Altimetry Dataset")
-#        self.btnSave = wx.Button(self.toolbar, label="Save")
-#        self.toolbar.AddControl(self.btnSave, label="Save the current selection.")
-        
-#        self.toolbar.AddStretchableSpace()
-        self.toolbar.AddSeparator()
-#        self.toolbar.AddStretchableSpace()
-    
-##        self.btnSelectData = self.mk_iconbar("Selection",wx.ART_CUT,"Dataset Selection")
-#        self.btnSelectData = wx.Button(self.toolbar, label="Selection")
-#        self.toolbar.AddControl(self.btnSelectData, label="Select and Remove")
-##        self.toolbar.AddStretchableSpace()
-#        self.iconUndo = self.mk_iconbar("Undo",wx.ART_UNDO,"Undo")
-##        self.iconRedo = self.mk_iconbar("Redo",wx.ART_REDO,"Redo")
-##        self.toolbar.AddStretchableSpace()
-##        self.iconRefresh = self.mk_iconbar("Refresh",wx.ART_NEW,"Refresh scale")
-#        self.btnRefresh = wx.Button(self.toolbar, label="Refresh")
-#        self.toolbar.AddControl(self.btnRefresh, label="Update the plots")
-#        self.btnRescale = wx.Button(self.toolbar, label="Rescale")
-#        self.toolbar.AddControl(self.btnRescale, label="Update the scale")
 
-#        self.toolbar.AddStretchableSpace()
-#        self.toolbar.AddStretchableSpace()
+        self.toolbar.AddSeparator()
 
         self.checkCoast = wx.CheckBox( self.toolbar, label="Coastline")
         self.toolbar.AddControl(self.checkCoast, label="Show Coastline" )
-#        self.toolbar.AddStretchableSpace()
+
         self.checkRiversLakes = wx.CheckBox( self.toolbar, label="Rivers-Lakes")
         self.toolbar.AddControl(self.checkRiversLakes, label="Show Rivers-Lakes" )
-#        self.toolbar.AddStretchableSpace()
+
         self.toolbar.AddSeparator()
         self.comboColorMap = wx.ComboBox( self.toolbar, value = "jet", choices = ["jet","hsv","ocean","terrain","coolwarm","RdBu","viridis"])
         self.toolbar.AddControl(self.comboColorMap, label="Color palet" )
         self.comboGroundMap = wx.ComboBox( self.toolbar, value = "Ground Map None", choices = ["Ground Map None","LandSat","Open Street Map"])
         self.toolbar.AddControl(self.comboGroundMap, label="Ground Map")
 
-#        self.toolbar.AddStretchableSpace()
-
- 
-#        self.btnHooking = wx.Button(self.toolbar, label="Hooking correction")
-#        self.toolbar.AddControl(self.btnHooking )
-#        self.btnColAnalysis = wx.Button(self.toolbar, label="Collinear Analysis")
-#        self.toolbar.AddControl(self.btnColAnalysis)
-        
-#        self.btnTimeSeries = self.mk_iconbar("Time Series",wx.ART_EXECUTABLE_FILE,"Time Series")
-#        self.btnTimeSeries = wx.Button(self.toolbar, label = "Time Series")
-#        self.toolbar.AddControl(self.btnTimeSeries, label = "Compute the Time Series")
-
-#        self.toolbar.AddStretchableSpace()
-
-#        self.toolbar.AddSeparator()  
-
-
         self.toolbar.AddStretchableSpace()
         self.iconHelp = self.mk_iconbar("Help",wx.ART_HELP,"Help on AlTiS")
 
         self.toolbar.Realize()
-
-
         
+        self.checkCoast.Disable()
+        self.checkRiversLakes.Disable()
+        self.comboColorMap.Disable()
+        self.comboGroundMap.Disable()
 
         self.Bind(wx.EVT_MENU, self.onQuit,self.iconQuit)
-#        self.iconOpen.Bind(wx.EVT_MENU, self.onOpen)
-#        self.btnImport.Bind(wx.EVT_BUTTON, self.onOpen)
         self.comboKindData.Bind(wx.EVT_COMBOBOX, self.onOpen)
         self.comboSelParam.Bind(wx.EVT_COMBOBOX, self.onSelParam)
-#        self.iconSave.Bind(wx.EVT_MENU, self.onSave)
-#        self.btnSave.Bind(wx.EVT_BUTTON, self.onSave)
         self.btnSelectData.Bind(wx.EVT_BUTTON, self.onSelectData)
-#        self.btnHooking.Bind(wx.EVT_BUTTON, self.onHooking)
-#        self.btnColAnalysis.Bind(wx.EVT_BUTTON, self.onColAnalysis)
-#        self.btnTimeSeries.Bind(wx.EVT_BUTTON, self.onTimeSeries)
-#        self.Bind(wx.EVT_MENU, self.onUndo,self.iconUndo)
-#        self.Bind(wx.EVT_MENU, self.onRedo, self.iconRedo)
-#        self.iconRefresh.Bind(wx.EVT_MENU,self.onRefresh)
-#        self.btnRefresh.Bind(wx.EVT_BUTTON,self.onRefresh)
-#        self.btnRescale.Bind(wx.EVT_BUTTON,self.onRescale)
         self.checkCoast.Bind(wx.EVT_CHECKBOX, self.onCoast)
         self.checkRiversLakes.Bind(wx.EVT_CHECKBOX, self.onRiversLakes)
         self.comboColorMap.Bind(wx.EVT_COMBOBOX, self.onColorMap)
@@ -519,7 +485,66 @@ class Main_Window(wx.Frame):
         ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (20,20))
         itemTool = self.toolbar_left.AddTool(wx.ID_ANY, bt_txt, ico, bt_lg_txt)
         return itemTool
+        
+    def onExpEnv(self,event):
+        mask = self.common_data.CYCLE_SEL\
+             &  self.common_data.DATA_MASK_SEL[-1]\
+             & self.common_data.DATA_MASK_PARAM
+             
+        param = self.common_data.param.where(mask)
+        lon = self.common_data.lon.where(mask)
+        lat = self.common_data.lat.where(mask)
 
+        mask_nan = ~np.isnan(lon) & ~np.isnan(lat) & ~np.isnan(param)
+
+        mask_nan = mask_nan.data.reshape(-1)
+        lon = lon.data.reshape(-1)[mask_nan]
+        lat = lat.data.reshape(-1)[mask_nan]
+        param = param.data.reshape(-1)[mask_nan]
+        
+        import csv
+        from scipy.spatial import ConvexHull
+        
+        hull = ConvexHull(np.array([lon,lat,param]).T)
+#        hull.simplices
+
+        if min(self.tracks[mask.any(axis=1)]) == max(self.tracks[mask.any(axis=1)]):
+            track_value = str(min(self.tracks[mask.any(axis=1)]))
+        else:
+            track_value = 'Tracks'
+
+#        pdb.set_trace()            
+        cycle_min = np.min(self.cycle[self.common_data.CYCLE_SEL.any(axis=1)])
+        cycle_max = np.max(self.cycle[self.common_data.CYCLE_SEL.any(axis=1)])
+        mission = self.data_sel_config['mission']
+        convexhull_filename = 'AlTiS_convexhull_'+mission+'_'+track_value+'_'+self.param+'_cy'+str(cycle_min)+'_cy'+str(cycle_max)+'.csv'
+        
+        with wx.FileDialog(self, message="Export Convex Hull Dataset as CSV file" ,
+               defaultDir=self.data_sel_config['data_dir'], defaultFile=convexhull_filename ,wildcard="CSV files (*.csv)|*.csv",
+               style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,) as fileDialog:
+
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return     # the user changed their mind
+
+            # save the current contents in the file
+            pathname = fileDialog.GetPath()
+            try:
+                with open(pathname, 'w', newline='') as csvfile:
+                    spamwriter = csv.writer(csvfile, dialect='excel',delimiter=',',
+                                            quotechar='#', quoting=csv.QUOTE_MINIMAL)
+                    spamwriter.writerow(['lon', 'lat', self.param])
+                    for idx in hull.simplices:
+                        spamwriter.writerow([lon[idx[0]],lat[idx[1]],param[idx[2]]])
+            except IOError:
+                wx.LogError("Cannot save current data in file '%s'." % pathname)
+
+            
+                
+        
+             
+    def onImpEnv(self,event):
+        pass
+        
     def onCfg(self,event):
         message = ('You have specific parameters in Normpass or GDR pass files.\n\n'+
                     'You can make you own configuration file.\n\n'+
@@ -574,6 +599,9 @@ class Main_Window(wx.Frame):
         
         
     def onRefresh(self,event):
+        self.btnSelectData.Enable()
+        if hasattr(self,'select_text_info'):
+            self.select_text_info.set_text('')
         self.update_plot()
 
     def onRescale(self,event):
@@ -749,10 +777,17 @@ class Main_Window(wx.Frame):
     def onSelectData(self,event):
         print('onSelectData')
 #        pdb.set_trace()
+        self.btnSelectData.Disable()
+        self.select_text_info = self.figure.text(-0.1, 1.2, 'Selection processing ...', horizontalalignment='center',\
+                        verticalalignment='center',color='r',fontweight='bold', fontsize=15,\
+                        transform=self.ax1.transAxes)
+        self.canvas.draw()
         selection = DatasetSelection(self.figure,
                                 [self.plt1,self.plt2,self.plt3,self.plt4],
                                 [self.ax1,self.ax2,self.ax3,self.ax4],
-                                self.cm,self.cbar)
+                                self.select_text_info)
+        self.iconUndo.Enable()
+        self.btnRefresh.Enable()
 
     def onSave(self,event):
         if hasattr(self,"tr"):
@@ -836,8 +871,9 @@ class Main_Window(wx.Frame):
                 self.ts_panel.Close()
             except :
                 pass
-            
         self.Close()
+
+
  
     def onUndo(self,event):
         if len(self.common_data.DATA_MASK_SEL) > 1:
@@ -928,7 +964,19 @@ class Main_Window(wx.Frame):
         self.canvas.draw()
         self.current_mission = self.data_sel_config['mission']
         self.current_track = self.data_sel_config['track']
-#        self.figure.tight_layout()
+
+        self.checkCoast.Enable()
+        self.checkRiversLakes.Enable()
+        self.comboColorMap.Enable()
+        self.comboGroundMap.Enable()
+        self.data_selection_frame.btnSelectAll.Enable()
+
+        self.btnSelectData.Enable()
+        self.btnSave.Enable()
+        self.btnTimeSeries.Enable()
+        self.btnExpEnv.Enable()
+        self.btnImpEnv.Enable()
+        self.btnRescale.Enable()
 
         
     def onOpen(self,event):
