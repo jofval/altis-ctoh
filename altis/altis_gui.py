@@ -22,6 +22,8 @@ import re
 import pdb
 import tempfile
 import shutil
+import csv
+from scipy.spatial import ConvexHull, Delaunay
 
 # Performance GUI
 # Line segment simplification and Using the fast style
@@ -167,19 +169,19 @@ class Main_Window(wx.Frame):
         
         self.get_env_var()
 
-        main_panel = wx.Panel(self)
+        self.main_panel = wx.Panel(self)
         vbox = wx.BoxSizer(wx.VERTICAL)
 
-        self.mk_left_toolbar(main_panel)
+        self.mk_left_toolbar(self.main_panel)
 #        self.mk_left_toolbar()
         
-        self.CanvasPanel(main_panel)
+        self.CanvasPanel(self.main_panel)
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
 #        hbox1.Add(self.toolbar_left)
         hbox1.Add(self.toolbar_left_panel)
         hbox1.Add(self.plot_panel, proportion=1, flag=wx.EXPAND|wx.CENTER, border=8)
         vbox.Add(hbox1, proportion=1, flag=wx.LEFT|wx.RIGHT|wx.EXPAND, border=10)
-        main_panel.SetSizer(vbox)
+        self.main_panel.SetSizer(vbox)
 
         self.create_toolbar()
         self.statusbar = self.CreateStatusBar(2)
@@ -208,6 +210,11 @@ class Main_Window(wx.Frame):
 #        vbox.Add((-1, 5))
         vbox.Add((-1,40))
 
+        hbox_label = wx.BoxSizer(wx.HORIZONTAL)
+        self.stattext_label = wx.StaticText(self.toolbar_left_panel, label = "Selection")        
+        hbox_label.Add(self.stattext_label, border=10)
+        vbox.Add(hbox_label, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         self.btnSelectData = wx.Button(self.toolbar_left_panel, label="Data Select.")
         hbox1.Add(self.btnSelectData, border=10)
@@ -227,43 +234,71 @@ class Main_Window(wx.Frame):
         hbox2.Add(self.btnRefresh, border=10)
         vbox.Add(hbox2, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
-        vbox.Add((-1, 50))
+        vbox.Add((-1, 30))
 
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        hbox_label = wx.BoxSizer(wx.HORIZONTAL)
+        self.stattext_label = wx.StaticText(self.toolbar_left_panel, label = "Plots")        
+        hbox_label.Add(self.stattext_label, border=10)
+        vbox.Add(hbox_label, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
         hbox3 = wx.BoxSizer(wx.HORIZONTAL)
         self.btnRescale = wx.Button(self.toolbar_left_panel, label="Rescale")
         hbox3.Add(self.btnRescale, border=10)
         vbox.Add(hbox3, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
-        vbox.Add((-1, 50))
+        vbox.Add((-1, 30))
 
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        hbox_label = wx.BoxSizer(wx.HORIZONTAL)
+        self.stattext_label = wx.StaticText(self.toolbar_left_panel, label = "Dataset")        
+        hbox_label.Add(self.stattext_label, border=10)
+        vbox.Add(hbox_label, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
         hbox4 = wx.BoxSizer(wx.HORIZONTAL)
         self.btnSave = wx.Button(self.toolbar_left_panel,wx.ID_SAVE, label="Save")
         hbox4.Add(self.btnSave, border=10)
         vbox.Add(hbox4, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
-        vbox.Add((-1, 50))
+        vbox.Add((-1, 30))
 
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        hbox_label = wx.BoxSizer(wx.HORIZONTAL)
+        self.stattext_label = wx.StaticText(self.toolbar_left_panel, label = "Processing")        
+        hbox_label.Add(self.stattext_label, border=10)
+        vbox.Add(hbox_label, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
         hbox5 = wx.BoxSizer(wx.HORIZONTAL)
         self.btnTimeSeries = wx.Button(self.toolbar_left_panel, label = "Time Series")
         hbox5.Add(self.btnTimeSeries, border=10)
         vbox.Add(hbox5, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
-        vbox.Add((-1, 150))
+        vbox.Add((-1, 50))
 
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
         hbox_label = wx.BoxSizer(wx.HORIZONTAL)
-        self.stattext_label = wx.StaticText(self.toolbar_left_panel, label = "Convex hull : ")        
+        self.stattext_label = wx.StaticText(self.toolbar_left_panel, label = "Hooking effect")        
+        hbox_label.Add(self.stattext_label, border=10)
+        vbox.Add(hbox_label, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        hbox_ScanHook = wx.BoxSizer(wx.HORIZONTAL)
+        self.btnScanHook = wx.Button(self.toolbar_left_panel,label="Scan")
+        hbox_ScanHook.Add(self.btnScanHook, border=10)
+        vbox.Add(hbox_ScanHook, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        line = wx.StaticLine(self.toolbar_left_panel)
+        vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        hbox_label = wx.BoxSizer(wx.HORIZONTAL)
+        self.stattext_label = wx.StaticText(self.toolbar_left_panel, label = "Convex hull")        
         hbox_label.Add(self.stattext_label, border=10)
         vbox.Add(hbox_label, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
@@ -273,8 +308,15 @@ class Main_Window(wx.Frame):
         vbox.Add(hbox_ExpEnv, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
         hbox_ImpEnv = wx.BoxSizer(wx.HORIZONTAL)
-        self.btnImpEnv = wx.Button(self.toolbar_left_panel,label="Import")
+        self.btnImpEnv = wx.Button(self.toolbar_left_panel,label="Import", size=wx.Size(55,35))
         hbox_ImpEnv.Add(self.btnImpEnv, border=10)
+#        vbox.Add(hbox_ImpEnv, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+#        hbox_MkEnv = wx.BoxSizer(wx.HORIZONTAL)
+        self.btnMkEnv = wx.Button(self.toolbar_left_panel,label="Apply", size=wx.Size(55,35))
+#        hbox_MkEnv.Add(self.btnMkEnv, border=10)
+        hbox_ImpEnv.Add(self.btnMkEnv, border=10)
+#        vbox.Add(hbox_MkEnv, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
         vbox.Add(hbox_ImpEnv, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
 #        vbox.Add((-1, 50))
@@ -298,8 +340,8 @@ class Main_Window(wx.Frame):
         self.btnTimeSeries.Disable()
         self.btnExpEnv.Disable()
         self.btnImpEnv.Disable()
-
-        
+        self.btnMkEnv.Disable()
+        self.btnScanHook.Disable()
 #--------------------------------------------------------------------------------
         self.btnTimeSeries.Bind(wx.EVT_BUTTON, self.onTimeSeries)
         self.btnExpEnv.Bind(wx.EVT_BUTTON, self.onExpEnv)
@@ -309,8 +351,11 @@ class Main_Window(wx.Frame):
         self.btnRescale.Bind(wx.EVT_BUTTON,self.onRescale)
         self.btnSave.Bind(wx.EVT_BUTTON, self.onSave)
         self.btnCfg.Bind(wx.EVT_BUTTON, self.onCfg)
-
-       
+        self.btnMkEnv.Bind(wx.EVT_BUTTON, self.onAppEnv)
+        self.btnScanHook.Bind(wx.EVT_BUTTON, self.onScanHook)
+        
+        
+        
     def CanvasPanel(self,panel):
         print('plot_panel')
         self.plot_panel=wx.Panel(panel)
@@ -485,7 +530,30 @@ class Main_Window(wx.Frame):
         ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (20,20))
         itemTool = self.toolbar_left.AddTool(wx.ID_ANY, bt_txt, ico, bt_lg_txt)
         return itemTool
+
+    def plot_hull(self,lon_hull,lat_hull,param_hull, color):
         
+        hull_lonlat = ConvexHull(np.array([lon_hull,lat_hull]).T)
+        hull_paramlat = ConvexHull(np.array([param_hull,lat_hull]).T)
+        hull_lonparam = ConvexHull(np.array([lon_hull,param_hull]).T)
+
+        self.plt1_hull = []
+        for s in hull_lonlat.simplices:
+            s = np.append(s, s[0])  # Here we cycle back to the first coordinate
+            self.plt1_hull.extend(self.ax1.plot(lon_hull[s], lat_hull[s], color=color, marker='.', linestyle='-', linewidth=0.5, markersize=5,transform=ccrs.PlateCarree()))
+
+        self.plt2_hull = []
+        for s in hull_paramlat.simplices:
+            s = np.append(s, s[0])  # Here we cycle back to the first coordinate
+            self.plt2_hull.extend(self.ax2.plot(param_hull[s], lat_hull[s], color=color, marker='.', linestyle='-', linewidth=0.5, markersize=5))
+
+        self.plt3_hull = []
+        for s in hull_lonparam.simplices:
+            s = np.append(s, s[0])  # Here we cycle back to the first coordinate
+            self.plt3_hull.extend(self.ax3.plot(lon_hull[s], param_hull[s], color=color, marker='.', linestyle='-', linewidth=0.5, markersize=5))
+
+        self.canvas.draw()
+
     def onExpEnv(self,event):
         mask = self.common_data.CYCLE_SEL\
              &  self.common_data.DATA_MASK_SEL[-1]\
@@ -502,18 +570,19 @@ class Main_Window(wx.Frame):
         lat = lat.data.reshape(-1)[mask_nan]
         param = param.data.reshape(-1)[mask_nan]
         
-        import csv
-        from scipy.spatial import ConvexHull
-        
         hull = ConvexHull(np.array([lon,lat,param]).T)
-#        hull.simplices
 
+        lon_hull = hull.points[hull.vertices,0]
+        lat_hull = hull.points[hull.vertices,1]
+        param_hull = hull.points[hull.vertices,2]
+        
+#        self.plot_hull(lon_hull,lat_hull,param_hull, 'r')
+        
         if min(self.tracks[mask.any(axis=1)]) == max(self.tracks[mask.any(axis=1)]):
             track_value = str(min(self.tracks[mask.any(axis=1)]))
         else:
             track_value = 'Tracks'
 
-#        pdb.set_trace()            
         cycle_min = np.min(self.cycle[self.common_data.CYCLE_SEL.any(axis=1)])
         cycle_max = np.max(self.cycle[self.common_data.CYCLE_SEL.any(axis=1)])
         mission = self.data_sel_config['mission']
@@ -532,18 +601,86 @@ class Main_Window(wx.Frame):
                 with open(pathname, 'w', newline='') as csvfile:
                     spamwriter = csv.writer(csvfile, dialect='excel',delimiter=',',
                                             quotechar='#', quoting=csv.QUOTE_MINIMAL)
-                    spamwriter.writerow(['lon', 'lat', self.param])
-                    for idx in hull.simplices:
-                        spamwriter.writerow([lon[idx[0]],lat[idx[1]],param[idx[2]]])
+#                    spamwriter.writerow(['lon', 'lat', self.param])
+                    for idx in hull.vertices:
+                        spamwriter.writerow(hull.points[idx]) #[lon[idx[0]],lat[idx[1]],param[idx[2]]])
             except IOError:
                 wx.LogError("Cannot save current data in file '%s'." % pathname)
 
-            
-                
-        
              
     def onImpEnv(self,event):
-        pass
+
+        with wx.FileDialog(self, message="Import Convex Hull Dataset as CSV file" ,
+               defaultDir=self.data_sel_config['data_dir'], defaultFile='' ,wildcard="CSV files (*.csv)|*.csv",
+               style=wx.FD_OPEN |wx.FD_FILE_MUST_EXIST,) as fileDialog:
+
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return     # the user changed their mind
+
+            # save the current contents in the file
+            pathname = fileDialog.GetPath()
+            hull_pts=[]
+            try:
+                with open(pathname, 'r', newline='') as csvfile:
+                    reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
+                    for line in reader:
+                        hull_pts.append(line)
+            except IOError:
+                wx.LogError("Cannot read current data in file '%s'." % pathname)
+
+            self.hull=np.array(hull_pts)
+
+            lon_hull = self.hull[:,0]
+            lat_hull = self.hull[:,1]
+            param_hull = self.hull[:,2]
+
+            self.plot_hull(lon_hull,lat_hull,param_hull, 'r')
+            self.btnMkEnv.Enable()
+
+    def in_hull(self,p, hull):
+        if not isinstance(hull,Delaunay):
+            hull = Delaunay(hull)
+
+        return hull.find_simplex(p)>=0        
+
+    def onAppEnv(self,event):
+        mask = self.common_data.CYCLE_SEL\
+             &  self.common_data.DATA_MASK_SEL[-1]\
+             & self.common_data.DATA_MASK_PARAM
+             
+        param = self.common_data.param.where(mask)
+        lon = self.common_data.lon.where(mask)
+        lat = self.common_data.lat.where(mask)
+
+        mask_nan = ~np.isnan(lon) & ~np.isnan(lat) & ~np.isnan(param)
+
+        mask_nan = mask_nan.data.reshape(-1)
+        lon = lon.data.reshape(-1)[mask_nan]
+        lat = lat.data.reshape(-1)[mask_nan]
+        param = param.data.reshape(-1)[mask_nan]
+        
+        pts = np.array([lon,lat,param]).T
+
+        mask_hull = self.in_hull(pts, self.hull)
+
+        mask_output = np.ones(mask_nan.shape,dtype='bool')
+        mask_index = np.where(mask_output)[0]
+        mask_index_sel = mask_index [mask_nan]
+        
+        output_mask_index_sel = mask_index_sel[mask_hull]
+
+        mask_nan[:] = False
+        mask_nan[output_mask_index_sel] = True
+        
+        mask_output = mask_nan.reshape(mask.shape)
+        self.common_data.DATA_MASK_SEL.append(mask_output)
+        
+        _ = [b.remove() for b in self.plt1_hull]
+        _ = [b.remove() for b in self.plt2_hull]
+        _ = [b.remove() for b in self.plt3_hull]
+        
+        self.update_plot()
+        
         
     def onCfg(self,event):
         message = ('You have specific parameters in Normpass or GDR pass files.\n\n'+
@@ -575,8 +712,7 @@ class Main_Window(wx.Frame):
             except IOError:
                 wx.LogError("Cannot export Altis configuration file '%s'." % export_pathname)
         
-                
-    def onHooking(self,event):
+    def onScanHook(self,event):
         print('Hooking !!')
 
     def onColAnalysis(self,event): 
@@ -782,7 +918,7 @@ class Main_Window(wx.Frame):
                         verticalalignment='center',color='r',fontweight='bold', fontsize=15,\
                         transform=self.ax1.transAxes)
         self.canvas.draw()
-        selection = DatasetSelection(self.figure,
+        selection = DatasetSelection(self.main_panel, self.figure,
                                 [self.plt1,self.plt2,self.plt3,self.plt4],
                                 [self.ax1,self.ax2,self.ax3,self.ax4],
                                 self.select_text_info)
@@ -1202,6 +1338,7 @@ class Main_Window(wx.Frame):
 
         if hasattr(self,"plt1"):
 #            delattr(self,'plt1')
+#            print('self.plt1.get_visible() :',self.plt1.get_visible())
             self.plt1.remove()
             self.plt2.remove()
             self.plt3.remove()

@@ -143,20 +143,26 @@ class Time_Series_Panel ( wx.Frame ):
         self.median_sel.remove()
         self.median_plt.remove()
         _ = [b.remove() for b in self.median_bars]
-        self.std_plt.remove()
-        _ = [b.remove() for b in self.std_bars]
+        self.std_abs_dev_plt.remove()
+        _ = [b.remove() for b in self.std_abs_dev_bars]
 
         if self.checkMean.IsChecked():
             self.mean_plt.remove()
             _ = [b.remove() for b in self.mean_bars]
+            self.std_plt.remove()
+            _ = [b.remove() for b in self.std_bars]
             self.mean_plt, = self.ax1.plot(self.abcisse,self.mean_param,'-+b', label='mean' ,alpha=0.5)
             counts, bins, self.mean_bars = self.ax2.hist(self.mean_param,50,color='b',label='mean',alpha=0.5)
+
+            self.std_plt, = self.ax3.plot(self.abcisse,self.std_param,'-+g', label='std' ,alpha=0.5)
+            counts, bins, self.std_bars = self.ax4.hist(self.std_param,50,color='g',label='std',alpha=0.5)
 
         self.median_plt, = self.ax1.plot(self.abcisse,self.median_param, '.-r',label='median',alpha=0.5)
         self.median_sel, = self.ax1.plot(self.abcisse,self.median_param, 'o',picker=5,alpha=0.0)
         counts, bins, self.median_bars = self.ax2.hist(self.median_param,50, color='r',label='median',alpha=0.5)
-        self.std_plt, = self.ax3.plot(self.abcisse,self.std_param,'-+g', label='std' ,alpha=0.5)
-        counts, bins, self.std_bars = self.ax4.hist(self.std_param,50,color='g',label='std',alpha=0.5)
+
+        self.std_abs_dev_plt, = self.ax3.plot(self.abcisse,self.std_abs_dev_param,'-+y', label='std_abs_dev' ,alpha=0.5)
+        counts, bins, self.std_abs_dev_bars = self.ax4.hist(self.std_abs_dev_param,50,color='y',label='std_abs_dev',alpha=0.5)
 
         self.ax1.set_ylabel(self.param_name+' ('+self.param_units+')')
         self.ax2.set_xlabel(self.param_name+' ('+self.param_units+')')

@@ -31,8 +31,9 @@ class DatasetSelection(object):
     
     """
 
-    def __init__(self, fig, plt_list,axes_list, select_text_info,DEBUG=True):
-        wx.SetCursor(wx.StockCursor(wx.CURSOR_PENCIL))
+    def __init__(self, main_panel, fig, plt_list,axes_list, select_text_info,DEBUG=True):
+        self.main_panel = main_panel
+        self.main_panel.SetCursor(wx.StockCursor(wx.CURSOR_PENCIL))
         self.fig = fig
         self.canvas = fig.canvas
         self.axes = axes_list 
@@ -90,21 +91,10 @@ class DatasetSelection(object):
                 self.common_data.DATA_MASK_SEL.append(self.mask_output)
                 
                 self.progress.Destroy()
-#                message = 'You have to press Refresh button to apply the new selection.'
-#                with wx.MessageDialog(None, message=message, caption='Info',
-#                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_INFORMATION) as save_dataset_dlg:
-#                
-#                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
-#                        print('Done!')
-#                wx.Cursor(wx.StockCursor(wx.CURSOR_DEFAULT))
                 del cursor_wait
-#                self.select_text_info = self.fig.text(-0.1, 1.2, \
-#                        'Press refresh ...', horizontalalignment='center',\
-#                        verticalalignment='center',color='r',fontweight='bold',\
-#                        transform=self.ax1.transAxes)
                 self.select_text_info.set_text('Press refresh ...')
                 self.canvas.draw_idle()
-                wx.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
+                self.main_panel.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
                                 
             elif event.key == "r":  # revers selection
                 self.plot_selection(alpha = 0.01)
@@ -116,9 +106,9 @@ class DatasetSelection(object):
                     self.plot_selection_inside(alpha=1.0)
                 self.canvas.mpl_disconnect(self.cid_axes)
                 self.canvas.mpl_disconnect(self.cid_key)
+                self.select_text_info.set_text('')
                 del cursor_wait
-                wx.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
-
+                self.main_panel.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
 
         self.cid_axes = self.canvas.mpl_connect('button_press_event', get_axes)
         self.cid_key = self.canvas.mpl_connect("key_press_event", accept)          
