@@ -16,9 +16,7 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-import xarray as xr
 import pkg_resources
-import re
 import pdb
 import tempfile
 import shutil
@@ -37,11 +35,10 @@ from scipy.spatial import ConvexHull, Delaunay
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
-from altis_utils.tools import __config_load__,update_progress,__regex_file_parser__
 
 import cartopy.crs as ccrs
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
-from cartopy.feature import ShapelyFeature,NaturalEarthFeature,COLORS,GSHHSFeature
+from cartopy.feature import NaturalEarthFeature,COLORS,GSHHSFeature
 
 #try:
 from cartopy.io.img_tiles import StamenTerrain  
@@ -54,11 +51,10 @@ from cartopy.io.img_tiles import StamenTerrain
 from altis.track_structure import Track, Normpass, GDR_altis
 from altis.data_selection_gui import DatasetSelection
 
-from matplotlib.widgets import MultiCursor, Cursor
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx as NavigationToolbar
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
+from matplotlib.cm import ScalarMappable
 
 from altis.common_data import Singleton
 
@@ -67,7 +63,6 @@ from altis.help_gui import Help_Window
 
 from altis.time_series import Time_Series_Panel
 from altis.colinear_analysis import ColinAnal_Panel
-
 from altis.patch_code_oswlib_wmts import *
 
 from altis_utils.tools import FileNotFoundError
@@ -206,14 +201,18 @@ class Main_Window(wx.Frame):
         self.toolbar_left_panel = wx.Panel(panel)
 
         vbox = wx.BoxSizer(wx.VERTICAL)
+
+        line = wx.StaticLine(self.toolbar_left_panel)
+        vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
         
 #        vbox.Add((-1, 5))
-        vbox.Add((-1,40))
+#        vbox.Add((-1,40))
 
         hbox_label = wx.BoxSizer(wx.HORIZONTAL)
         self.stattext_label = wx.StaticText(self.toolbar_left_panel, label = "Selection")        
-        hbox_label.Add(self.stattext_label, border=10)
-        vbox.Add(hbox_label, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+        hbox_label.Add(self.stattext_label, flag=wx.EXPAND|wx.CENTER, border=10)
+        vbox.Add(hbox_label, flag=wx.EXPAND|wx.ALIGN_CENTER|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         self.btnSelectData = wx.Button(self.toolbar_left_panel, label="Data Select.")
@@ -234,7 +233,7 @@ class Main_Window(wx.Frame):
         hbox2.Add(self.btnRefresh, border=10)
         vbox.Add(hbox2, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
-        vbox.Add((-1, 30))
+#        vbox.Add((-1, 30))
 
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
@@ -249,7 +248,7 @@ class Main_Window(wx.Frame):
         hbox3.Add(self.btnRescale, border=10)
         vbox.Add(hbox3, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
-        vbox.Add((-1, 30))
+#        vbox.Add((-1, 30))
 
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
@@ -264,7 +263,7 @@ class Main_Window(wx.Frame):
         hbox4.Add(self.btnSave, border=10)
         vbox.Add(hbox4, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
-        vbox.Add((-1, 30))
+#        vbox.Add((-1, 30))
 
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
@@ -279,7 +278,7 @@ class Main_Window(wx.Frame):
         hbox5.Add(self.btnTimeSeries, border=10)
         vbox.Add(hbox5, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
 
-        vbox.Add((-1, 50))
+#        vbox.Add((-1, 50))
 
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
@@ -377,7 +376,6 @@ class Main_Window(wx.Frame):
         self.mpl_toolbar = NavigationToolbar(self.canvas)
 
         vbox = wx.BoxSizer(wx.VERTICAL)
-        hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         
         vbox.Add(self.mpl_toolbar, proportion=0, flag=wx.CENTER, border=8)
         vbox.Add(self.canvas, proportion=1, flag=wx.EXPAND|wx.CENTER, border=8)
@@ -387,8 +385,6 @@ class Main_Window(wx.Frame):
         self.mouseMoveID = self.figure.canvas.mpl_connect('motion_notify_event',self.onMotion)
 
     def onMotion(self, event):
-        x = event.x
-        y = event.y
         xdata = event.xdata
         ydata = event.ydata
         if event.inaxes in self.list_axes:
@@ -416,25 +412,26 @@ class Main_Window(wx.Frame):
         self.figure.suptitle(main_plot_title, fontsize=16)
         
         self.plt1 = self.ax1.scatter(lon,lat,c=param, marker='+',cmap=cm,transform=ccrs.PlateCarree())
+#        self.ax1.grid(True)
 
         
         gl = self.ax1.gridlines(linewidth=0.5)
 
-#        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(),draw_labels=True)
+##        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(),draw_labels=True)
         gl.xlabels_top = gl.ylabels_right = False
         gl.xformatter = LONGITUDE_FORMATTER
         gl.yformatter = LATITUDE_FORMATTER   
-             
-#        self.ax1.plot(x,y,transform=ccrs.PlateCarree())
-#        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
-#                          linewidth=0.5, color='white', alpha=1.0, linestyle='--')
-#        gl.xlabels_top = True
-#        gl.ylabels_left = True
-#        gl.xlabels_bottom = False
-#        gl.ylabels_right = False
-#        gl.xlines = True
-#        gl.xformatter = LONGITUDE_FORMATTER
-#        gl.yformatter = LATITUDE_FORMATTER
+#             
+##        self.ax1.plot(x,y,transform=ccrs.PlateCarree())
+##        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+##                          linewidth=0.5, color='white', alpha=1.0, linestyle='--')
+##        gl.xlabels_top = True
+##        gl.ylabels_left = True
+##        gl.xlabels_bottom = False
+##        gl.ylabels_right = False
+##        gl.xlines = True
+##        gl.xformatter = LONGITUDE_FORMATTER
+##        gl.yformatter = LATITUDE_FORMATTER
 
         self.ax1.set_aspect('auto', adjustable='datalim', anchor='C', share=False)
             
@@ -452,17 +449,17 @@ class Main_Window(wx.Frame):
         self.ax4.grid(True)
         self.ax4.set_xlabel('Time (YYYY-MM)')
         self.ax4.set_ylabel(param.attrs['long_name'])
-
+        self.rescale(coord=True)
+        
         if hasattr(self,"cbar"):
-            self.cbar.set_clim(vmin=np.min(param),vmax=np.max(param))
-            self.cbar.set_cmap(cmap=cm)
+            self.scalarmap.set_clim(vmin=np.min(param),vmax=np.max(param))
+            self.scalarmap.set_cmap(cmap=cm)
             self.cbar.set_label(param.attrs['long_name'], rotation=270)
             self.cbar.draw_all()
         else:
-            self.cbar = self.figure.colorbar(self.plt1, ax=[self.ax2,self.ax4],orientation='vertical')
+            self.scalarmap = ScalarMappable(cmap=cm)
+            self.cbar = self.figure.colorbar(self.scalarmap, ax=[self.ax2,self.ax4],orientation='vertical')
             self.cbar.set_label(param.attrs['long_name'], rotation=270)
-#        self.figure.tight_layout()
-#        self.cursor = MultiCursor(self.figure.canvas, (self.ax1, self.ax2, self.ax3), color='black', lw=0.5, horizOn=True, vertOn=True, useblit=True)
 
     def create_toolbar(self):
         """
@@ -572,9 +569,9 @@ class Main_Window(wx.Frame):
         
         hull = ConvexHull(np.array([lon,lat,param]).T)
 
-        lon_hull = hull.points[hull.vertices,0]
-        lat_hull = hull.points[hull.vertices,1]
-        param_hull = hull.points[hull.vertices,2]
+#        lon_hull = hull.points[hull.vertices,0]
+#        lat_hull = hull.points[hull.vertices,1]
+#        param_hull = hull.points[hull.vertices,2]
         
 #        self.plot_hull(lon_hull,lat_hull,param_hull, 'r')
         
@@ -716,18 +713,18 @@ class Main_Window(wx.Frame):
         print('Hooking !!')
 
     def onColAnalysis(self,event): 
-        mask = self.common_data.CYCLE_SEL\
-             &  self.common_data.DATA_MASK_SEL[-1]\
-             & self.common_data.DATA_MASK_PARAM
+#        mask = self.common_data.CYCLE_SEL\
+#             &  self.common_data.DATA_MASK_SEL[-1]\
+#             & self.common_data.DATA_MASK_PARAM
 
         self.colana_panel = ColinAnal_Panel(self,self.data_sel_config,self.param)
         self.colana_panel.Show()
     
     
     def onTimeSeries(self,event):
-        mask = self.common_data.CYCLE_SEL\
-             &  self.common_data.DATA_MASK_SEL[-1]\
-             & self.common_data.DATA_MASK_PARAM
+#        mask = self.common_data.CYCLE_SEL\
+#             &  self.common_data.DATA_MASK_SEL[-1]\
+#             & self.common_data.DATA_MASK_PARAM
 
         self.ts_panel = Time_Series_Panel(self,self.data_sel_config)
         self.ts_panel.Show()
@@ -741,20 +738,50 @@ class Main_Window(wx.Frame):
         self.update_plot()
 
     def onRescale(self,event):
+        self.rescale()
+        
+    def rescale(self,coord=False):
         cursor_wait = wx.BusyCursor()
         print('On Refresh')
         xy_coord=self.plt1.get_offsets()
         xy_data=self.plt2.get_offsets()
+        rato_threshold_coord=0.001
         rato_threshold=0.05
-        lon_lim = [np.min(xy_coord[:,0])-np.min(xy_coord[:,0])*rato_threshold
-                        ,np.max(xy_coord[:,0])+np.max(xy_coord[:,0])*rato_threshold]
-        lat_lim = [np.min(xy_coord[:,1])-np.min(xy_coord[:,1])*rato_threshold
-                        ,np.max(xy_coord[:,1])+np.max(xy_coord[:,1])*rato_threshold]
-        param_lim = [np.min(xy_data[:,0])-np.min(xy_data[:,0])*rato_threshold
-                        ,np.max(xy_data[:,0])+np.max(xy_data[:,0])*rato_threshold]
+        if coord :
+            mean_lon = (np.min(xy_coord[:,0])+np.max(xy_coord[:,0]))/2.
+            delta_lon = np.abs(np.max(xy_coord[:,0])-np.min(xy_coord[:,0]))
+            lon_min = mean_lon - (delta_lon + delta_lon * rato_threshold_coord)
+            lon_max = mean_lon + (delta_lon + delta_lon * rato_threshold_coord)
+            lon_lim = [lon_min, lon_max]
+            
+            mean_lat = (np.min(xy_coord[:,1])+np.max(xy_coord[:,1]))/2.
+            delta_lat = np.abs(np.max(xy_coord[:,1])-np.min(xy_coord[:,1]))
+            lat_min = mean_lat - (delta_lat + delta_lat * rato_threshold_coord)
+            lat_max = mean_lat + (delta_lat + delta_lat * rato_threshold_coord)
+            lat_lim = [lat_min, lat_max]
+
+            self.ax1.set_xlim(lon_lim)
+            self.ax1.set_ylim(lat_lim)
+            print('coord_lim', lon_lim,lat_lim)
+
+
+
+        mean_data = (np.min(xy_data[:,0])+np.max(xy_data[:,0]))/2.
+        delta_data = np.abs(np.max(xy_data[:,0])-np.min(xy_data[:,0]))
+        data_min = mean_data - (delta_data + delta_data * rato_threshold)
+        data_max = mean_data + (delta_data + delta_data * rato_threshold)
+        param_lim = [data_min, data_max]
+
+
+#        lon_lim = [np.min(xy_coord[:,0])-np.min(xy_coord[:,0])*rato_threshold
+#                        ,np.max(xy_coord[:,0])+np.max(xy_coord[:,0])*rato_threshold]
+#        lat_lim = [np.min(xy_coord[:,1])-np.min(xy_coord[:,1])*rato_threshold
+#                        ,np.max(xy_coord[:,1])+np.max(xy_coord[:,1])*rato_threshold]
+#        param_lim = [np.min(xy_data[:,0])-np.min(xy_data[:,0])*rato_threshold
+#                        ,np.max(xy_data[:,0])+np.max(xy_data[:,0])*rato_threshold]
+#        if (lon_lim[0]<0.0) & (lon_lim[1]<0.0) & (lon_lim[0]>lon_lim[1]): 
+#            lon_lim = lon_lim[::-1]
         print('param_lim', param_lim)
-#        self.ax1.set_xlim(lat_lim)
-#        self.ax1.set_ylim(lon_lim)
         self.ax2.set_xlim(param_lim)
         self.ax3.set_ylim(param_lim)
         self.ax4.set_ylim(param_lim)
@@ -856,10 +883,10 @@ class Main_Window(wx.Frame):
         if self.groundmap == 'LandSat':
             altis_cfg = pkg_resources.resource_filename('altis', '../etc/altis_config.yml')
             with open(altis_cfg) as f:
-                try:
-                    yaml_data = yaml.safe_load(f)
-                except:
-                    yaml_data = yaml.safe_load(f, Loader=yaml.FullLoader) # A revoir pour créer un vrai loader
+#                try:
+#                    yaml_data = yaml.safe_load(f)
+#                except:
+                yaml_data = yaml.load(f, Loader=yaml.FullLoader) # A revoir pour créer un vrai loader
             url = yaml_data['wmts']['ground_map']['url']
             layer = yaml_data['wmts']['ground_map']['layer']
         elif self.groundmap == 'Open Street Map':
@@ -1036,7 +1063,7 @@ class Main_Window(wx.Frame):
         self.plt4 = self.ax4.scatter(np.array(time),param,c=param, marker='+',cmap=self.cm ) 
 
 #        self.cbar.remove()
-        self.cbar.set_cmap(cmap=self.cm)
+        self.scalarmap.set_cmap(cmap=self.cm)
         self.cbar.set_label(param.attrs['long_name'], rotation=270)
         self.cbar.draw_all()
 
@@ -1072,22 +1099,22 @@ class Main_Window(wx.Frame):
             and (self.data_sel_config['track'] == self.current_track):
 
             self.ax1_zoom = {'x':self.ax1.get_xlim(),'y':self.ax1.get_ylim()}
-#            self.plt1.remove()
-#            self.plt2.remove()
-#            self.plt3.remove()
-#            self.plt4.remove()
-
-#        else:
-#            self.ax1_zoom = {'x':None,'y':None}
         self.cm = self.comboColorMap.GetValue()
         self.groundmap = self.comboGroundMap.GetValue()
         print('Drawing... ',self.param,self.cm,self.groundmap)
         
 
-        self.ax1.clear()
-        self.ax2.clear()
-        self.ax3.clear()
-        self.ax4.clear()
+        if hasattr(self,"plt1"):
+            self.plt1.remove()
+            del self.plt1
+            self.plt2.remove()
+            del self.plt2
+            self.plt3.remove()
+            del self.plt3
+            self.plt4.remove()
+            del self.plt4
+            self.canvas.draw()
+
         self.draw(lon,lat,time,param,mask,self.cm,self.groundmap)
 
         if (self.data_sel_config['mission'] == self.current_mission) \
@@ -1340,19 +1367,23 @@ class Main_Window(wx.Frame):
 #            delattr(self,'plt1')
 #            print('self.plt1.get_visible() :',self.plt1.get_visible())
             self.plt1.remove()
+            del self.plt1
             self.plt2.remove()
+            del self.plt2
             self.plt3.remove()
+            del self.plt3
             self.plt4.remove()
+            del self.plt4
             self.canvas.draw()
-        if hasattr(self,"grd_map"):
-            self.comboGroundMap.SetValue("Ground Map None")
-            self.grd_map.remove()
-            self.grd_map = None
-            self.canvas.draw()
-        if hasattr(self,"rivers"):
-            self.checkRiversLakes.SetValue(False)
-            self.rivers.remove()
-            self.canvas.draw()
+#        if hasattr(self,"grd_map"):
+#            self.comboGroundMap.SetValue("Ground Map None")
+#            self.grd_map.remove()
+#            self.grd_map = None
+#            self.canvas.draw()
+#        if hasattr(self,"rivers"):
+#            self.checkRiversLakes.SetValue(False)
+#            self.rivers.remove()
+#            self.canvas.draw()
 
         self.initDataSelect(event)
                     
@@ -1396,10 +1427,10 @@ class Main_Window(wx.Frame):
         if os.path.isfile(altis_tmp_file):
             print('altis.tmp trouvé')
             with open(altis_tmp_file,'r') as f:
-                try:
-                    yaml_data = yaml.load(f)
-                except:
-                    yaml_data = yaml.load(f, Loader=yaml.FullLoader) # A revoir pour créer un vrai loader
+#                try:
+#                    yaml_data = yaml.load(f)
+#                except:
+                yaml_data = yaml.load(f, Loader=yaml.FullLoader) # A revoir pour créer un vrai loader
 
             self.data_sel_config = dict()
             for k in yaml_data.keys():

@@ -102,10 +102,10 @@ def __config_load__(mission,mission_config_file):
             raise Exception('Mission configuration file not found.')
         
     with open(mission_file_cfg) as f:
-        try:
-            yaml_data = yaml.load(f)
-        except:
-            yaml_data = yaml.load(f, Loader=yaml.FullLoader) # A revoir pour créer un vrai loader
+#        try:
+#            yaml_data = yaml.load(f)
+#        except:
+        yaml_data = yaml.load(f, Loader=yaml.FullLoader) # A revoir pour créer un vrai loader
 
     if mission in yaml_data.keys():
         return yaml_data[mission]

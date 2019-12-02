@@ -719,16 +719,16 @@ class Load_data_Window(wx.Dialog):
     def __config_load__(self):
         config_file = pkg_resources.resource_filename('altis', '../etc/altis_config.yml')        
         with open(config_file) as f:
-            try:
-                self.altis_gui = yaml.safe_load(f)
-            except:
-                self.altis_gui = yaml.safe_load(f, Loader=yaml.FullLoader)
+#            try:
+#                self.altis_gui = yaml.safe_load(f)
+#            except:
+            self.altis_gui = yaml.load(f, Loader=yaml.FullLoader)
 
         config_file = pkg_resources.resource_filename('altis', '../etc/config_mission.yml')        
         with open(config_file) as f:
-            try:
-                self.mission_config = yaml.safe_load(f)
-            except:
-                self.mission_config = yaml.safe_load(f, Loader=yaml.FullLoader)
+#            try:
+#                self.mission_config = yaml.safe_load(f)
+#            except:
+            self.mission_config = yaml.load(f, Loader=yaml.FullLoader)
 #        return altis_gui,mission_config
 
