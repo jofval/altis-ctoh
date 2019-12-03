@@ -65,6 +65,8 @@ from altis.time_series import Time_Series_Panel
 from altis.colinear_analysis import ColinAnal_Panel
 from altis.patch_code_oswlib_wmts import *
 
+from altis.para_detection import hough_transform,hough_transform_linear
+
 from altis_utils.tools import FileNotFoundError
 
 from altis._version import __version__,__revision__
@@ -710,7 +712,99 @@ class Main_Window(wx.Frame):
                 wx.LogError("Cannot export Altis configuration file '%s'." % export_pathname)
         
     def onScanHook(self,event):
-        print('Hooking !!')
+        cursor_wait = wx.BusyCursor()
+
+        self.progress = wx.ProgressDialog("Hooking effect", "please wait", maximum=100, parent=self, style=wx.PD_SMOOTH|wx.PD_AUTO_HIDE)
+        self.progress.Update(0, "Cycle scanning...")
+
+        mask = self.common_data.CYCLE_SEL\
+             &  self.common_data.DATA_MASK_SEL[-1]\
+             & self.common_data.DATA_MASK_PARAM
+
+        param = self.common_data.param.where(mask)
+        lon = self.common_data.lon.where(mask)
+        lat = self.common_data.lat.where(mask)
+        time = self.common_data.time.where(mask)
+        
+        if 'gdr_index' in self.common_data.param.dims:
+            self.dim_index = 'gdr_index'
+            self.dim_cycle = 'cycle_index'
+        else:
+            self.dim_index = 'norm_index'
+            self.dim_cycle = 'cycle'
+
+        lat_SV = lat.mean(dim=self.dim_index)
+        
+        all_x_tab = []
+        all_y_tab = []
+        all_a = []
+        all_err_a = []
+        all_b = []
+        all_err_b = []
+        all_cu = []
+        all_nb = []
+        
+        all_lon = []
+        all_lat = []
+        
+        all_x_tab_line = []
+        all_y_tab_line = []
+        all_h = []
+        all_nwf = []
+        all_nb_line = []
+        
+        x_idx = np.array(param.coords[self.dim_index].data,dtype='int')
+        self.lonlat_para_center = []
+        self.lonparam_para_center = []
+        self.paramlat_para_center = []
+        for cy_idx,cycle in enumerate(param.coords[self.dim_cycle].data):
+            self.progress.Update(100*(cy_idx/len(param.coords[self.dim_cycle].data)), "Cycle scanning...")
+            print('cy_idx,cycle',cy_idx,cycle)
+            y = param[cy_idx,:].data
+            mask = ~np.isnan(y)
+            x = x_idx[mask]
+            y = y[mask]
+            
+            x_tab,y_tab,a,err_a,b,err_b,cu,nb = hough_transform(lat_SV[cy_idx], x, y)
+            all_x_tab.append(x_tab)
+            all_y_tab.append(y_tab)
+            all_a.append(a)
+            all_err_a.append(err_a)
+            all_b.append(b)
+            all_err_b.append(err_b)
+            all_cu.append(cu)
+            all_nb.append(nb)
+            
+            if nb > 0:
+                i = []
+                for idx in b:
+#                    print ('idx',idx)
+                    int_idx = int(idx)
+                    i.append(np.where(x_idx == int_idx)[0][0])
+                    print('i,',i)                    
+#                print ('>>>> a, b, cu, nb : ',a,b,lon[cy_idx,i].data,lat[cy_idx,i].data,cu,nb )
+                all_lon.append(lon[cy_idx,i].data)
+                all_lat.append(lat[cy_idx,i].data)
+                self.lonlat_para_center.extend(self.ax1.plot(lon[cy_idx,i].data,lat[cy_idx,i].data,'.k'))
+                self.lonparam_para_center.extend(self.ax3.plot(lon[cy_idx,i].data,param[cy_idx,i].data,'.k'))
+                self.paramlat_para_center.extend(self.ax2.plot(param[cy_idx,i].data,lat[cy_idx,i].data,'.k'))
+                self.canvas.draw()
+            else:
+                all_lon.append(None)
+                all_lat.append(None)
+            
+            
+            
+        
+#            x_tab_line,y_tab_line,h,nwf,nb_line = hough_transform_linear(x,y)
+#            all_x_tab_line.append(x_tab_line)
+#            all_y_tab_line.append(y_tab_line)
+#            all_h.append(h)
+#            all_nwf.append(nwf)
+#            all_nb_line.append(nb_line)
+        self.progress.Update(100, "Done.")
+        self.progress.Destroy()
+        del cursor_wait
 
     def onColAnalysis(self,event): 
 #        mask = self.common_data.CYCLE_SEL\
@@ -1140,7 +1234,7 @@ class Main_Window(wx.Frame):
         self.btnExpEnv.Enable()
         self.btnImpEnv.Enable()
         self.btnRescale.Enable()
-
+        self.btnScanHook.Enable()
         
     def onOpen(self,event):
     
