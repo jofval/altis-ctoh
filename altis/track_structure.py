@@ -788,7 +788,5 @@ class Track(object):
         print('AlTiS GDR pass file created :  '+filename)
         dataset_merge.to_netcdf(filename,format='NETCDF4_CLASSIC') 
         
-        
-                    
                 
 

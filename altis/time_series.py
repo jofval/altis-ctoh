@@ -286,6 +286,8 @@ class Time_Series_Panel ( wx.Frame ):
                 header_csvfile.extend([param+'_mean (deg)'])
 
             for param in list_param:
+                if not 'units' in self.common_data.tr[param].attrs.keys():
+                    self.common_data.tr[param].attrs['units']='None'
                 array.append(self.common_data.tr[param].where(mask).median(dim=self.dim_index).data)
                 array.append(std_abs_dev(self.common_data.tr[param].where(mask),self.dim_index).data)
                 array.append(self.common_data.tr[param].where(mask).mean(dim=self.dim_index).data)

@@ -25,12 +25,12 @@ from scipy.spatial import ConvexHull, Delaunay
 
 # Performance GUI
 # Line segment simplification and Using the fast style
-#import matplotlib.style as mplstyle
-#import matplotlib as mpl
-#mplstyle.use('fast')
-#mpl.rcParams['path.simplify'] = True
-#mpl.rcParams['path.simplify_threshold'] = 1.0
-#mpl.rcParams['agg.path.chunksize'] = 10000
+import matplotlib.style as mplstyle
+import matplotlib as mpl
+mplstyle.use('fast')
+mpl.rcParams['path.simplify'] = True
+mpl.rcParams['path.simplify_threshold'] = 1.0
+mpl.rcParams['agg.path.chunksize'] = 10000
 
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
