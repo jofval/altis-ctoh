@@ -17,6 +17,8 @@ mission :
     - s3lanOT
     - c2SesaB
     - c2SesaC
+    - s3a_a_lan_v0607
+    - s3b_b_lan_v0614
     
     
 surface_types :
