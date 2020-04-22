@@ -465,7 +465,7 @@ class Track(object):
                 if len(dataset[param].dims) == 2:
                     data_disk[param] = dataset[param].data.flatten()
                 elif len(dataset[param].dims) == 1:
-                    if dataset[param].dims[0] == self.dim_lf:
+                    if (dataset[param].dims[0] == self.dim_lf) | (self.dim_lf is None):
                         try:
                             data_disk[param] = np.interp(time_hf,time_lf,dataset[param].data)
                         except ValueError:

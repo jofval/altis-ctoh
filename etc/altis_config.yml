@@ -8,24 +8,24 @@
 # ----------------------------------------------------------------------
 
 mission :
-    - j2D
-    - j3Ds
-    - envisat.v21
-    - saral.s
-    - ers2.c.v1
-    - j1E
-    - s3lanOT
     - c2SesaB
     - c2SesaC
+    - envisat.v21
+    - ers2.c.v1
+    - j1E
+    - j2D
+    - j3Ds
+    - saral.s
+    - s3lanOT
     - s3a_a_lan_v0607
     - s3b_b_lan_v0614
     
     
 surface_types :
     - None
-    - RiversLakes
     - GreatLakes
     - Ocean
+    - RiversLakes
 
 wmts:   # Web Map Tile Service
     ground_map :

@@ -15,7 +15,7 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 from altis.common_data import Singleton
-from altis_utils.tools import std_abs_dev
+from altis_utils.tools import med_abs_dev
 import warnings
 import pdb
 
@@ -143,8 +143,8 @@ class Time_Series_Panel ( wx.Frame ):
         self.median_sel.remove()
         self.median_plt.remove()
         _ = [b.remove() for b in self.median_bars]
-        self.std_abs_dev_plt.remove()
-        _ = [b.remove() for b in self.std_abs_dev_bars]
+        self.med_abs_dev_plt.remove()
+        _ = [b.remove() for b in self.med_abs_dev_bars]
 
         if self.checkMean.IsChecked():
             self.mean_plt.remove()
@@ -161,8 +161,8 @@ class Time_Series_Panel ( wx.Frame ):
         self.median_sel, = self.ax1.plot(self.abcisse,self.median_param, 'o',picker=5,alpha=0.0)
         counts, bins, self.median_bars = self.ax2.hist(self.median_param,50, color='r',label='median',alpha=0.5)
 
-        self.std_abs_dev_plt, = self.ax3.plot(self.abcisse,self.std_abs_dev_param,'-+y', label='std_abs_dev' ,alpha=0.5)
-        counts, bins, self.std_abs_dev_bars = self.ax4.hist(self.std_abs_dev_param,50,color='y',label='std_abs_dev',alpha=0.5)
+        self.med_abs_dev_plt, = self.ax3.plot(self.abcisse,self.med_abs_dev_param,'-+y', label='med_abs_dev' ,alpha=0.5)
+        counts, bins, self.med_abs_dev_bars = self.ax4.hist(self.med_abs_dev_param,50,color='y',label='med_abs_dev',alpha=0.5)
 
         self.ax1.set_ylabel(self.param_name+' ('+self.param_units+')')
         self.ax2.set_xlabel(self.param_name+' ('+self.param_units+')')
@@ -217,7 +217,7 @@ class Time_Series_Panel ( wx.Frame ):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self.median_param = self.common_data.param.where(self.mask).median(dim=self.dim_index)  #,skipna=True)
-            self.std_abs_dev_param = std_abs_dev(self.common_data.param.where(self.mask),self.dim_index)  #,skipna=True)
+            self.med_abs_dev_param = med_abs_dev(self.common_data.param.where(self.mask),self.dim_index)  #,skipna=True)
             self.mean_param = self.common_data.param.where(self.mask).mean(dim=self.dim_index)  #,skipna=True)
             self.std_param = self.common_data.param.where(self.mask).std(dim=self.dim_index)    #,skipna=True)
             self.abcisse = np.array(self.common_data.param.coords['date'].where(self.mask.any(axis=1)))
@@ -244,13 +244,13 @@ class Time_Series_Panel ( wx.Frame ):
         self.ax2.grid(True)
 
         self.std_plt, = self.ax3.plot(self.abcisse,self.std_param,'-+g', label='std' ,alpha=0.5)
-        self.std_abs_dev_plt, = self.ax3.plot(self.abcisse,self.std_abs_dev_param,'-+y', label='std_abs_dev' ,alpha=0.5)
+        self.med_abs_dev_plt, = self.ax3.plot(self.abcisse,self.med_abs_dev_param,'-+y', label='med_abs_dev' ,alpha=0.5)
         self.ax3.legend()
         self.ax3.set_ylabel(self.param_name+' ('+self.param_units+')')
         self.ax3.grid(True)
 
         counts, bins, self.std_bars = self.ax4.hist(self.std_param,50,color='g',label='std',alpha=0.5)
-        counts, bins, self.std_abs_dev_bars = self.ax4.hist(self.std_abs_dev_param,50,color='y',label='std_abs_dev',alpha=0.5)
+        counts, bins, self.med_abs_dev_bars = self.ax4.hist(self.med_abs_dev_param,50,color='y',label='med_abs_dev',alpha=0.5)
         self.ax4.legend()
         self.ax4.set_xlabel(self.param_name+' ('+self.param_units+')')
         self.ax4.grid(True)
@@ -270,34 +270,37 @@ class Time_Series_Panel ( wx.Frame ):
         
         list_param_coord = [self.common_data.lon_hf_name, self.common_data.lat_hf_name]
         
+            
+        mask_cycle = mask.any(axis=1)
+        
         array = list()
         header_csvfile = list()
-        array.append(np.array(self.common_data.param.coords['cycle'].where(mask.any(axis=1)),dtype='int'))
+        array.append(np.array(self.common_data.param.coords['cycle'].where(mask.any(axis=1)),dtype='int')[mask_cycle])
         if 'tracks' in self.common_data.param.coords._names:
-            array.append(np.array(self.common_data.param.coords['tracks'].where(mask.any(axis=1)),dtype='int'))
+            array.append(np.array(self.common_data.param.coords['tracks'].where(mask.any(axis=1)),dtype='int')[mask_cycle])
         else:
-            array.append([int(self.data_sel_config['track'])]*len(self.common_data.param.coords['cycle']))
-        array.append(np.array(pd.Series(self.common_data.param.coords['date'].where(mask.any(axis=1))).dt.strftime("%Y-%m-%d")))
+            array.append([int(self.data_sel_config['track'])]*len(self.common_data.param.coords['cycle'])[mask_cycle])
+        array.append(np.array(pd.Series(self.common_data.param.coords['date'].where(mask.any(axis=1))).dt.strftime("%Y-%m-%d"))[mask_cycle])
         
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             for param in list_param_coord:
-                array.append(self.common_data.tr[param].where(mask).mean(dim=self.dim_index).data)
+                array.append(self.common_data.tr[param].where(mask).mean(dim=self.dim_index).data[mask_cycle])
                 header_csvfile.extend([param+'_mean (deg)'])
 
             for param in list_param:
                 if not 'units' in self.common_data.tr[param].attrs.keys():
                     self.common_data.tr[param].attrs['units']='None'
-                array.append(self.common_data.tr[param].where(mask).median(dim=self.dim_index).data)
-                array.append(std_abs_dev(self.common_data.tr[param].where(mask),self.dim_index).data)
-                array.append(self.common_data.tr[param].where(mask).mean(dim=self.dim_index).data)
-                array.append(self.common_data.tr[param].where(mask).std(dim=self.dim_index).data)
+                array.append(self.common_data.tr[param].where(mask).median(dim=self.dim_index).data[mask_cycle])
+                array.append(med_abs_dev(self.common_data.tr[param].where(mask),self.dim_index).data[mask_cycle])
+                array.append(self.common_data.tr[param].where(mask).mean(dim=self.dim_index).data[mask_cycle])
+                array.append(self.common_data.tr[param].where(mask).std(dim=self.dim_index).data[mask_cycle])
                 header_csvfile.extend([param+'_median ('+self.common_data.tr[param].units+')',\
-                                        param+'_std_abs_dev ('+self.common_data.tr[param].units+')',\
+                                        param+'_med_abs_dev ('+self.common_data.tr[param].units+')',\
                                         param+'_mean ('+self.common_data.tr[param].units+')',\
                                         param+'_std ('+self.common_data.tr[param].units+')'])
       
-        array.append(np.sum(mask,axis=1).data)
+        array.append(np.sum(mask,axis=1).data[mask_cycle])
         array = pd.DataFrame(array).T
         header_csvfile = ['Cycle number','Track number','date (Year-Month-Day)'] + header_csvfile + ['number of sample']
 

@@ -32,17 +32,32 @@ class FileNotFoundError(Error):
 #--------------------------------------------------------------------------
 # Computation of stand absolute deviation (deviation in L1 norm) of a
 # variable
-#
+# From MAPS
 #--------------------------------------------------------------------------
 # 2014/04/04 | F. FRAPPART   | Creation 
 #--------------------------------------------------------------------------
-def std_abs_dev(vec,dim_label):
-    mask_nan = np.isnan(vec.median(dim=dim_label))
-    sum_abs_diff = np.abs(vec-vec.median(dim=dim_label)).sum(dim=dim_label)
-    sum_abs_diff[mask_nan] = np.nan
-    N = len(vec.coords[dim_label])
-    return (1/N)*sum_abs_diff
+#def std_abs_dev(vec,dim_label):
+#    mask_nan = np.isnan(vec.median(dim=dim_label))
+#    sum_abs_diff = np.abs(vec-vec.median(dim=dim_label)).sum(dim=dim_label)
+#    sum_abs_diff[mask_nan] = np.nan
+#    N = len(vec.coords[dim_label])
+#    return (1/N)*sum_abs_diff
 
+    
+#--------------------------------------------------------------------------
+# Compute the median absolute deviation of the data along the given axis.
+# 
+# https://github.com/scipy/scipy/blob/v1.3.3/scipy/stats/stats.py#L2658
+# "Median absolute deviation" https://en.wikipedia.org/wiki/Median_absolute_deviation
+#--------------------------------------------------------------------------
+# 2020/04/22 | F. BLAREL   | Creation 
+#--------------------------------------------------------------------------
+def med_abs_dev(vec,dim_label,scale=1.4826):
+    mask_nan = np.isnan(vec.median(dim=dim_label))
+    med_abs_diff = np.abs(vec-vec.median(dim=dim_label)).median(dim=dim_label)
+    med_abs_diff[mask_nan] = np.nan
+    return scale*med_abs_diff
+    
 
 def kml_poly_select(kml_file,lon_mean,lat_mean):
     '''
