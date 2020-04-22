@@ -445,9 +445,9 @@ s3lanOT : &s3
 #        - c
     
     freq : 20.0
+   
     
     param :
-    
         # Coordinates
         time_lf : time_01
         time_hf : time_20_ku
@@ -483,7 +483,7 @@ s3lanOT : &s3
         # Geoid correction (for RiversLakes, GreatLakes Surface Type)
         geoid : geoid_01
         # 2d Geoid correction (not applied to the surface height compute)
-        geoid_2d_sol : geoid_eigen6c4d
+        # geoid_2d_sol : geoid_eigen6c4d
 
         # Backscatter
         ice1_sig0_ku : sig0_ocog_20_ku
@@ -509,9 +509,16 @@ s3lanOT : &s3
 ################################################################################
 s3a_a_lan_v0607 :
     <<: *s3
+    # dimensions parameters
+    dim_lf : time_01
+    dim_hf : [time_20_ku, time_20_c]
+    
 ################################################################################
 s3b_b_lan_v0607 :
     <<: *s3
+    # dimensions parameters
+    dim_lf : time_01
+    dim_hf : [time_20_ku, time_20_c]
 
 
 

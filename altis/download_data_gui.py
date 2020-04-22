@@ -154,7 +154,7 @@ class Load_data_Window(wx.Dialog):
         else:
             last_mission_sel = self.altis_gui['mission'][0]
         
-        self.sel_mission = wx.ComboBox(scroll_panel,value=last_mission_sel,choices=sampleLis, style=wx.CB_DROPDOWN | wx.CB_SORT | wx.TE_READONLY)
+        self.sel_mission = wx.ComboBox(scroll_panel,value=last_mission_sel,choices=sampleLis, style=wx.CB_DROPDOWN | wx.TE_READONLY)
         sizer.Add(self.sel_mission, pos=(2, 1), span=(1, 5), flag=wx.LEFT|wx.EXPAND)
         
 
@@ -262,7 +262,7 @@ class Load_data_Window(wx.Dialog):
             last_mission_sel = mission
         else:
             last_mission_sel = self.altis_gui['mission'][0]
-        self.sel_mission = wx.ComboBox(scroll_panel,value=last_mission_sel,choices=sampleLis, style=wx.CB_DROPDOWN | wx.CB_SORT | wx.TE_READONLY)
+        self.sel_mission = wx.ComboBox(scroll_panel,value=last_mission_sel,choices=sampleLis, style=wx.CB_DROPDOWN | wx.TE_READONLY)
         sizer.Add(self.sel_mission, pos=(2, 1), span=(1, 5), flag=wx.LEFT|wx.EXPAND,border=10)
         
 
@@ -368,7 +368,7 @@ class Load_data_Window(wx.Dialog):
             last_mission_sel = mission
         else:
             last_mission_sel = self.altis_gui['mission'][0]
-        self.sel_mission = wx.ComboBox(scroll_panel,value=last_mission_sel,choices=sampleLis, style=wx.CB_DROPDOWN | wx.CB_SORT | wx.TE_READONLY)
+        self.sel_mission = wx.ComboBox(scroll_panel,value=last_mission_sel,choices=sampleLis, style=wx.CB_DROPDOWN | wx.TE_READONLY)
         sizer.Add(self.sel_mission, pos=(2, 1), span=(1, 5), flag=wx.TOP|wx.EXPAND,border=10)
         
         # Surface Type       
@@ -376,7 +376,7 @@ class Load_data_Window(wx.Dialog):
         sizer.Add(label_surf_type, pos=(3, 0), span=(1, 1), flag=wx.LEFT|wx.TOP, border=10)
         
         sampleList = self.altis_gui['surface_types']   #['Rivers and Lakes', 'Great Lakes', 'Ocean']
-        self.sel_surf_type = wx.ComboBox(scroll_panel, value=self.altis_gui['surface_types'][0],choices=sampleList, style=wx.CB_DROPDOWN | wx.CB_SORT | wx.TE_READONLY)
+        self.sel_surf_type = wx.ComboBox(scroll_panel, value=self.altis_gui['surface_types'][0],choices=sampleList, style=wx.CB_DROPDOWN | wx.TE_READONLY)
         sizer.Add(self.sel_surf_type, pos=(3, 1), span=(1, 5), flag=wx.TOP|wx.EXPAND,border=10)
         
         self.chkbox_kml = wx.CheckBox(scroll_panel, label="KML file")
@@ -415,7 +415,7 @@ class Load_data_Window(wx.Dialog):
         label_sel_track = wx.StaticText(scroll_panel, label = "Track")
         sizer.Add(label_sel_track, pos=(6, 0), flag=wx.LEFT|wx.TOP, border=10)
         
-        self.sel_track = wx.ComboBox(scroll_panel,value='',choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT | wx.TE_READONLY)
+        self.sel_track = wx.ComboBox(scroll_panel,value='',choices=[], style=wx.CB_DROPDOWN | wx.TE_READONLY)
         sizer.Add(self.sel_track, pos=(6, 1), span=(1, 5), flag=wx.TOP|wx.EXPAND,border=10)
         self.sel_track.AppendItems(self.data_sel_config['list_track'])
         if len(self.data_sel_config['list_track']) > 0 :

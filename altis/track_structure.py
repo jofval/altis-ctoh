@@ -182,7 +182,7 @@ class Normpass(object):
         self.time_lf_name = param_config['param']['time_lf']
         self.lon_hf_name = param_config['param']['lon_hf']
         self.lat_hf_name = param_config['param']['lat_hf']
-
+        
         if not os.path.isfile(filename):
             message = (('File not found !\n\n- %s')%(filename))
             print(message)
@@ -323,6 +323,16 @@ class Track(object):
         self.lon_hf_name = param_config['param']['lon_hf']
         self.lat_hf_name = param_config['param']['lat_hf']
 
+        # on récupére les informations de dimmenssion.
+        # pour les missions en une dimension.
+        if 'dim_hf' in param_config.keys():
+            self.dim_hf = param_config['dim_hf']
+            self.dim_lf = param_config['dim_lf']
+        else:
+            self.dim_hf = None
+            self.dim_lf = None
+
+
         # Création de la liste de paramétres sans le parametre 'self.time_lf_name'
         # car la fonction np.interp ne peut interpoler un np.dtype('M8[ns])'
         param_list = [param_config['param'][param] for param in param_config['param'].keys()]
@@ -455,19 +465,22 @@ class Track(object):
                 if len(dataset[param].dims) == 2:
                     data_disk[param] = dataset[param].data.flatten()
                 elif len(dataset[param].dims) == 1:
-                    try:
-                        data_disk[param] = np.interp(time_hf,time_lf,dataset[param].data)
-                    except ValueError:
-                        message = (('[Error] Interpolation : GDR file not '
-                        +'conform.\n\nCheck this file : '
-                        +'\n\n- Parameter : %s \n\n- Mission : %s '
-                        +'\n- Pass number : %s \n- Cycle number : %s '
-                        +'\n\n- Filename : \n%s\n\n\n'
-                        +' The GDR files loading is Aborted.')\
-                        % (param,dataset.mission_name,str(dataset.pass_number),\
-                        str(dataset.cycle_number),filename))
-                        print(message)                                                                        
-                        raise self.InterpolationError(message)
+                    if dataset[param].dims[0] == self.dim_lf:
+                        try:
+                            data_disk[param] = np.interp(time_hf,time_lf,dataset[param].data)
+                        except ValueError:
+                            message = (('[Error] Interpolation : GDR file not '
+                            +'conform.\n\nCheck this file : '
+                            +'\n\n- Parameter : %s \n\n- Mission : %s '
+                            +'\n- Pass number : %s \n- Cycle number : %s '
+                            +'\n\n- Filename : \n%s\n\n\n'
+                            +' The GDR files loading is Aborted.')\
+                            % (param,dataset.mission_name,str(dataset.pass_number),\
+                            str(dataset.cycle_number),filename))
+                            print(message)                                                                        
+                            raise self.InterpolationError(message)
+                    else:
+                        data_disk[param] = dataset[param].data
                     
         return data_disk,cycle,date,track
 
