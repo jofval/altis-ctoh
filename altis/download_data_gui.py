@@ -26,7 +26,7 @@ import re
 import pdb
 import tempfile
 
-from altis_utils.tools import __config_load__,update_progress,__regex_file_parser__,FileNotFoundError
+from altis_utils.tools import __read_cfg_file__,__config_load__,update_progress,__regex_file_parser__,FileNotFoundError
 
  
 class Bottom_Bar(wx.Panel):
@@ -123,7 +123,7 @@ class Load_data_Window(wx.Dialog):
 
         sizer = wx.GridBagSizer(6, 11)
 
-        self.__config_load__()
+#        self.__config_load__()
         
         font = wx.SystemSettings.GetFont(wx.SYS_SYSTEM_FONT)
         font.SetPointSize(16)
@@ -146,15 +146,7 @@ class Load_data_Window(wx.Dialog):
         label_mission = wx.StaticText(scroll_panel, label = "Mission")
         sizer.Add(label_mission, pos=(2, 0), flag=wx.LEFT,border=10)
         
-        sampleLis = self.altis_gui['mission']
-        
-        mission = self.data_sel_config['mission'] #None
-        if not mission is None:
-            last_mission_sel = mission
-        else:
-            last_mission_sel = self.altis_gui['mission'][0]
-        
-        self.sel_mission = wx.ComboBox(scroll_panel,value=last_mission_sel,choices=sampleLis, style=wx.CB_DROPDOWN | wx.TE_READONLY)
+        self.sel_mission = self.mission_sel_field(scroll_panel)        
         sizer.Add(self.sel_mission, pos=(2, 1), span=(1, 5), flag=wx.LEFT|wx.EXPAND)
         
 
@@ -232,7 +224,7 @@ class Load_data_Window(wx.Dialog):
 
         sizer = wx.GridBagSizer(8, 11)
 
-        self.__config_load__()
+#        self.__config_load__()
 
         font = wx.SystemSettings.GetFont(wx.SYS_SYSTEM_FONT)
         font.SetPointSize(16)
@@ -256,13 +248,7 @@ class Load_data_Window(wx.Dialog):
         label_mission = wx.StaticText(scroll_panel, label = "Mission")
         sizer.Add(label_mission, pos=(2, 0), flag=wx.LEFT,border=10)
         
-        sampleLis = self.altis_gui['mission']
-        mission = self.data_sel_config['mission'] #None
-        if not mission is None:
-            last_mission_sel = mission
-        else:
-            last_mission_sel = self.altis_gui['mission'][0]
-        self.sel_mission = wx.ComboBox(scroll_panel,value=last_mission_sel,choices=sampleLis, style=wx.CB_DROPDOWN | wx.TE_READONLY)
+        self.sel_mission = self.mission_sel_field(scroll_panel)
         sizer.Add(self.sel_mission, pos=(2, 1), span=(1, 5), flag=wx.LEFT|wx.EXPAND,border=10)
         
 
@@ -336,6 +322,24 @@ class Load_data_Window(wx.Dialog):
         self.chkbox_cfgfile.Bind(wx.EVT_CHECKBOX, self.onCheckCFGFILE)
         self.btn_cfgfile.Bind(wx.EVT_BUTTON, self.onCFGfile)
 
+    def mission_sel_field(self,scroll_panel):
+        mission_list = list(__read_cfg_file__(None).keys())
+        mission = self.data_sel_config['mission'] #None
+        if not mission is None:
+            last_mission_sel = mission
+        else:
+            last_mission_sel = mission_list[0]
+        return wx.ComboBox(scroll_panel,value=last_mission_sel,choices=mission_list, style=wx.CB_DROPDOWN | wx.TE_READONLY)
+
+    def surf_type_sel_field(self,scroll_panel):
+        self.__altis_config_load__()
+        surf_type_list = self.altis_gui['surface_types']   #['Rivers and Lakes', 'Great Lakes', 'Ocean']
+        surf_type = self.data_sel_config['surf_type']
+        if not surf_type is None:
+            last_surf_type_sel = surf_type
+        else:
+            last_surf_type_sel = surf_type_list[0]
+        return wx.ComboBox(scroll_panel, value=last_surf_type_sel,choices=surf_type_list, style=wx.CB_DROPDOWN | wx.TE_READONLY)
 
     def GDR_Panel(self):
         scroll_panel = wx.lib.scrolledpanel.ScrolledPanel(self)
@@ -343,7 +347,7 @@ class Load_data_Window(wx.Dialog):
 
         sizer = wx.GridBagSizer(14,20)
 
-        self.__config_load__()
+#        self.__config_load__()
         
         font = wx.SystemSettings.GetFont(wx.SYS_SYSTEM_FONT)
         font.SetPointSize(16)
@@ -358,25 +362,18 @@ class Load_data_Window(wx.Dialog):
         line = wx.StaticLine(scroll_panel)
         sizer.Add(line, pos=(1, 0), span=(1, 11),
             flag=wx.EXPAND|wx.BOTTOM, border=10)
+        
         # Mission
         label_mission = wx.StaticText(scroll_panel, label = "Mission")
         sizer.Add(label_mission, pos=(2, 0), flag=wx.TOP|wx.LEFT,border=10)
-        
-        sampleLis = self.altis_gui['mission']
-        mission = self.data_sel_config['mission'] #None
-        if not mission is None:
-            last_mission_sel = mission
-        else:
-            last_mission_sel = self.altis_gui['mission'][0]
-        self.sel_mission = wx.ComboBox(scroll_panel,value=last_mission_sel,choices=sampleLis, style=wx.CB_DROPDOWN | wx.TE_READONLY)
+        self.sel_mission = self.mission_sel_field(scroll_panel)
         sizer.Add(self.sel_mission, pos=(2, 1), span=(1, 5), flag=wx.TOP|wx.EXPAND,border=10)
         
         # Surface Type       
         label_surf_type = wx.StaticText(scroll_panel, label= "Surface type")
         sizer.Add(label_surf_type, pos=(3, 0), span=(1, 1), flag=wx.LEFT|wx.TOP, border=10)
         
-        sampleList = self.altis_gui['surface_types']   #['Rivers and Lakes', 'Great Lakes', 'Ocean']
-        self.sel_surf_type = wx.ComboBox(scroll_panel, value=self.altis_gui['surface_types'][0],choices=sampleList, style=wx.CB_DROPDOWN | wx.TE_READONLY)
+        self.sel_surf_type = self.surf_type_sel_field(scroll_panel)
         sizer.Add(self.sel_surf_type, pos=(3, 1), span=(1, 5), flag=wx.TOP|wx.EXPAND,border=10)
         
         self.chkbox_kml = wx.CheckBox(scroll_panel, label="KML file")
@@ -715,8 +712,8 @@ class Load_data_Window(wx.Dialog):
 #            self.Close()
             event.Skip()            
 
-    #safe_load ensures that the function is secured and not deprecated
-    def __config_load__(self):
+#    #safe_load ensures that the function is secured and not deprecated
+    def __altis_config_load__(self):
         config_file = pkg_resources.resource_filename('altis', '../etc/altis_config.yml')        
         with open(config_file) as f:
 #            try:
@@ -724,11 +721,4 @@ class Load_data_Window(wx.Dialog):
 #            except:
             self.altis_gui = yaml.load(f, Loader=yaml.FullLoader)
 
-        config_file = pkg_resources.resource_filename('altis', '../etc/config_mission.yml')        
-        with open(config_file) as f:
-#            try:
-#                self.mission_config = yaml.safe_load(f)
-#            except:
-            self.mission_config = yaml.load(f, Loader=yaml.FullLoader)
-#        return altis_gui,mission_config
 

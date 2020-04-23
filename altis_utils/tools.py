@@ -104,7 +104,7 @@ def update_progress(progress, title = ''):
     sys.stdout.flush()
 
 
-def __config_load__(mission,mission_config_file):
+def __read_cfg_file__(mission_config_file):
     '''
         lecture des parametres de la mission
     '''
@@ -121,6 +121,15 @@ def __config_load__(mission,mission_config_file):
 #            yaml_data = yaml.load(f)
 #        except:
         yaml_data = yaml.load(f, Loader=yaml.FullLoader) # A revoir pour créer un vrai loader
+    return yaml_data
+
+
+
+def __config_load__(mission,mission_config_file):
+    '''
+        lecture et selection des parametres de la mission
+    '''
+    yaml_data = __read_cfg_file__(mission_config_file)
 
     if mission in yaml_data.keys():
         return yaml_data[mission]

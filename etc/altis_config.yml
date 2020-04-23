@@ -7,19 +7,18 @@
 # Created by Fabien Blarel on 2019-04-19. 
 # ----------------------------------------------------------------------
 
-mission :
-    - c2SesaB
-    - c2SesaC
-    - envisat.v21
-    - ers2.c.v1
-    - j1E
-    - j2D
-    - j3Ds
-    - saral.s
-    - s3lanOT
-    - s3a_a_lan_v0607
-    - s3b_b_lan_v0614
-    
+#mission :
+#    - c2SesaB
+#    - c2SesaC
+#    - envisat.v21
+#    - ers2.c.v1
+#    - j1E
+#    - j2D
+#    - j3Ds
+#    - saral.s
+#    - s3lanOT
+#    - s3a_a_lan_v0607
+#    - s3b_b_lan_v0614
     
 surface_types :
     - None

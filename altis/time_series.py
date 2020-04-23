@@ -270,7 +270,14 @@ class Time_Series_Panel ( wx.Frame ):
         
         list_param_coord = [self.common_data.lon_hf_name, self.common_data.lat_hf_name]
         
-            
+        export_param_list = list_param
+        
+        list_param = self.export_control_dialog(export_param_list)
+        print (list_param)
+        
+        if list_param is None:
+            return
+        
         mask_cycle = mask.any(axis=1)
         
         array = list()
@@ -331,6 +338,22 @@ class Time_Series_Panel ( wx.Frame ):
             except IOError:
                 wx.LogError("Cannot save current data in file '%s'." % pathname)
 
+
+    def export_control_dialog(self, export_param_list):
+        """
+            Appel de la fenetre de dialogue pour la selection dee paramétres à exporter dans les fichiers CSV.
+        """
+        with Export_param_sel_Window(export_param_list) as param_output_diag:
+             param_output_diag.Center()
+             param_output_diag.Show()
+             if param_output_diag.ShowModal() == wx.ID_OK:
+                 print("ShowModal == wx.ID_OK")
+                 return param_output_diag.param_sel
+             else:
+                 return None
+                 print('Cancel')
+        
+
     def onpick(self,event):
 
         if event.artist!=self.median_sel: return True
@@ -353,3 +376,84 @@ class Time_Series_Panel ( wx.Frame ):
         figi.show()
         return True
 
+
+
+
+class Export_param_sel_Window(wx.Dialog):
+    def __init__(self,param_sel_default):    #,data_opt):
+        super().__init__(None,title = "Export Parameters Selection",style=wx.RESIZE_BORDER) #,size = wx.GetClientSize()) #wx.DisplaySize())
+
+        self.param_sel = param_sel_default
+
+        self.IU_Panel()
+
+        self.Show()
+        
+    def IU_Panel(self):
+        scroll_panel = wx.lib.scrolledpanel.ScrolledPanel(self)
+        scroll_panel.SetupScrolling()
+
+        sizer = wx.GridBagSizer(6, 15)
+        
+        self.checked_param = {}
+        sb = wx.StaticBox(scroll_panel, label="Default Parameters")
+        boxsizer = wx.StaticBoxSizer(sb, wx.VERTICAL)
+
+        for p in ['Cycle number','Track number','date (Year-Month-Day)', 'lon', 'lat','number of sample']:
+            boxsizer.Add(wx.StaticText(scroll_panel, label=p),
+                flag=wx.LEFT|wx.TOP, border=5) 
+
+        sizer.Add(boxsizer, pos=(1, 0), span=(1, 5),
+            flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=10)        
+        
+
+        sb = wx.StaticBox(scroll_panel, label="Parameters")
+        boxsizer = wx.StaticBoxSizer(sb, wx.VERTICAL)
+
+        for p in self.param_sel:
+            self.checked_param[p]=wx.CheckBox(scroll_panel, label=p)
+            boxsizer.Add(self.checked_param[p],
+                flag=wx.LEFT|wx.TOP, border=5)
+            
+            if 'SurfHeight' in p:
+                self.checked_param[p].SetValue(True)
+
+        sizer.Add(boxsizer, pos=(2, 0), span=(1, 5),
+            flag=wx.EXPAND|wx.TOP|wx.LEFT|wx.RIGHT , border=10)        
+        
+        btn_help = wx.Button(scroll_panel, label='Help')
+        sizer.Add(btn_help, pos=(7, 0), flag=wx.LEFT, border=10)
+
+        btn_ok = wx.Button(scroll_panel, wx.ID_OK, label="Ok")
+        sizer.Add(btn_ok, pos=(7, 3))
+
+        btn_cancel = wx.Button(scroll_panel, wx.ID_CANCEL, label="Cancel")
+        sizer.Add(btn_cancel, pos=(7, 4), span=(1, 1),
+            flag=wx.BOTTOM|wx.RIGHT, border=10)
+        
+        
+        for p in self.checked_param.keys():
+            self.checked_param[p].Bind(wx.EVT_CHECKBOX, self.update_checked_param_list)
+        
+        self.param_sel = []
+        for p in self.checked_param.keys():
+            if self.checked_param[p].IsChecked():
+                self.param_sel.append(p)
+        
+        sizer.AddGrowableCol(2)
+
+        scroll_panel.SetSizer(sizer)
+        sizer.Fit(self)
+        
+        
+    def update_checked_param_list(self,event):
+        self.param_sel = []
+        for p in self.checked_param.keys():
+            if self.checked_param[p].IsChecked():
+                self.param_sel.append(p)
+                
+        
+        
+        
+    
+ 

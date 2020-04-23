@@ -509,13 +509,15 @@ s3lanOT : &s3
 ################################################################################
 s3a_a_lan_v0607 :
     <<: *s3
+    filename_tracks_pattern : .*_s3a_a_lan_v0607_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     # dimensions parameters
     dim_lf : time_01
     dim_hf : [time_20_ku, time_20_c]
     
 ################################################################################
-s3b_b_lan_v0607 :
+s3b_b_lan_v0614 :
     <<: *s3
+    filename_tracks_pattern : .*_s3b_b_lan_v0614_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     # dimensions parameters
     dim_lf : time_01
     dim_hf : [time_20_ku, time_20_c]
