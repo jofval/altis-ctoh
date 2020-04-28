@@ -278,7 +278,7 @@ class Time_Series_Panel ( wx.Frame ):
         if list_param is None:
             return
         
-        mask_cycle = mask.any(axis=1)
+        mask_cycle = np.any(mask,axis=1).data
         
         array = list()
         header_csvfile = list()
