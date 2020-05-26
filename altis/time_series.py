@@ -213,7 +213,6 @@ class Time_Series_Panel ( wx.Frame ):
             self.dim_index = 'norm_index'
             self.dim_cycle = 'cycle'
         
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self.median_param = self.common_data.param.where(self.mask).median(dim=self.dim_index)  #,skipna=True)
@@ -228,7 +227,17 @@ class Time_Series_Panel ( wx.Frame ):
     def draw(self):
         
         self.figure.suptitle(self.param_name, fontsize=16)
-        
+
+#        if len(np.unique(self.median_param.coords['tracks'].data)) > 1 :
+#            for t in np.unique(self.median_param.coords['tracks'].data):
+#                idx_t = np.where(self.median_param.coords['tracks'].data == t)
+#                self.mean_plt, = self.ax1.plot(self.abcisse[idx_t],self.mean_param[idx_t],'-+', label='mean' ,alpha=0.5)
+#                self.median_plt, = self.ax1.plot(self.abcisse[idx_t],self.median_param[idx_t], '.-',label='median',alpha=0.5)
+#                self.median_sel, = self.ax1.plot(self.abcisse[idx_t],self.median_param[idx_t], 'o', picker=5,alpha=0.0) 
+#                self.ax1.legend((self.mean_plt,self.median_plt),('mean','median'))
+#        
+#        else:
+
         self.mean_plt, = self.ax1.plot(self.abcisse,self.mean_param,'-+b', label='mean' ,alpha=0.5)
         self.median_plt, = self.ax1.plot(self.abcisse,self.median_param, '.-r',label='median',alpha=0.5)
         self.median_sel, = self.ax1.plot(self.abcisse,self.median_param, 'o', picker=5,alpha=0.0) 

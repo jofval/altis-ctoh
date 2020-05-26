@@ -474,7 +474,7 @@ class Main_Window(wx.Frame):
 
         self.toolbar.AddSeparator()
         
-        self.ListKindData = ['Import data ... ','Normpass', 'AlTiS GDR', 'GDR Tracks']
+        self.ListKindData = ['Import data ... ', 'GDR Tracks', 'AlTiS GDR','Normpass']
         self.comboKindData = wx.ComboBox( self.toolbar, value = self.ListKindData[0], choices = self.ListKindData[1:],size=(130,30))
         self.toolbar.AddControl(self.comboKindData, label="Kind of data to import" )
 
