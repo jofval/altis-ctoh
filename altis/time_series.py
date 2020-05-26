@@ -362,11 +362,13 @@ class Time_Series_Panel ( wx.Frame ):
         if not N: return True
         
         figi = plt.figure()
-        print('event.ind',event.ind)
+        print('event.ind',event.ind) #self.common_data.param.coords['cycle']
+        
         for subplotnum, dataind in enumerate(event.ind):
             ax = figi.add_subplot(N,1,subplotnum+1)
             ax.plot(self.lon_sel[dataind],self.param_sel[dataind],'.')
-            ax.set_title('Cycle number : %04d,\nMedian value = %1.3f, Mean value = %1.3f, Std = %1.3f '%(dataind,self.median_param[dataind],self.mean_param[dataind],self.std_param[dataind]))
+            ax.set_title('Cycle number : %04d,\nMedian value = %1.3f, Mean value = %1.3f, Std = %1.3f '%(int(self.common_data.param.cycle[dataind].data)
+,self.median_param[dataind],self.mean_param[dataind],self.std_param[dataind]))
             ax.set_ylabel(self.param_name+' ('+self.param_units+')')
             ax.set_xlabel('Longitude (deg)')
             ax.grid()
