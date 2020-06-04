@@ -25,6 +25,14 @@ clean:
 	find . -name *.so | xargs \rm -f
 	python setup.py clean
 
+clean_all:
+	\rm -rf build _*.so
+	find . -name *.egg-info | xargs \rm -rf
+	find . -name *.eggs | xargs \rm -rf
+	find . -name __pycache__ | xargs \rm -rf
+	find . -name *.pyc | xargs \rm -f
+	find . -name *.so | xargs \rm -f
+
 tests:
 #	nosetests -w tests 
 	nosetests -v tests 
