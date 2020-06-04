@@ -564,6 +564,7 @@ class Track(object):
         date = []
         data_attributs = dict()
         cy_idx = 0
+        
         for filename in file_list:
             update_progress(cy_idx/len(file_list), title = 'Track files loading')
             data_disk,cycle_return,date_return,track_return = \
@@ -629,6 +630,7 @@ class Track(object):
         cycle_index = list()
         mask = np.zeros(data_struct.shape,dtype=np.bool)
         if not kml_file is None:
+            
             for cy_idx,cy in enumerate(cycle):
                 mask_nan = ~np.isnan(data_struct.data[self.lon_hf_name][cy_idx,:])
                 mask_kml = kml_poly_select(kml_file,\
@@ -661,11 +663,11 @@ class Track(object):
             self.data_val[param].attrs['long_name']=data_attributs[param]['long_name']
             self.data_val[param].attrs['comment']=data_attributs[param]['comment']
 
-
         for param in param_list:
 #            print(param,self.data_val[param].shape,xr_mask.shape)
 #            pdb.set_trace()
             self.data_val[param] = self.data_val[param].where(xr_mask,drop=True)
+            
 
                 
     def __surf_height__(self,surf_type,param_config):
@@ -674,43 +676,44 @@ class Track(object):
         '''
         
         if surf_type == 'RiversLakes':
-            try:
+#            try:
             
-                for band in param_config['band']:
-                    for retracker in param_config['retracker']:
-                        param_name = retracker+'_'+band+'_'+'SurfHeight_alti'
-                        # initialisation du nouveau paramétre dans la structure xarray
-                        self.data_val[param_name] = self.data_val[param_config['param']['alt_hf']]*np.nan
-                        
-                        for cy_idx,cy in enumerate(self.cycle):
-                            update_progress(cy_idx/len(self.cycle), title = surf_type+' | Surface height : '+param_name)
-                            self.data_val[param_name][cy_idx,:] = \
-                                self.data_val[param_config['param']['alt_hf']][cy_idx,:]\
-                                    -self.data_val[param_config['param'][retracker+'_range_'+band]][cy_idx,:]\
-                                    -self.data_val[param_config['param']['model_wet_tropo_corr']][cy_idx,:]\
-                                    -self.data_val[param_config['param']['model_dry_tropo_corr']][cy_idx,:]\
-                                    -self.data_val[param_config['param']['solid_earth_tide']][cy_idx,:]\
-                                    -self.data_val[param_config['param']['geoid']][cy_idx,:]\
-                                    -self.data_val[param_config['param']['iono_corr_gim_'+band]][cy_idx,:]\
-                                    -self.data_val[param_config['param']['pole_tide']][cy_idx,:]   
+            for band in param_config['band']:
+                for retracker in param_config['retracker']:
+                    param_name = retracker+'_'+band+'_'+'SurfHeight_alti'
+                    # initialisation du nouveau paramétre dans la structure xarray
+                    self.data_val[param_name] = self.data_val[param_config['param']['alt_hf']]*np.nan
 
-                        update_progress(1.0, title = surf_type+' | Surface height : '+param_name)
-                        self.data_val[param_name].attrs['units']='meters'
-                        self.data_val[param_name].attrs['standard_name']='surface_height'
-                        self.data_val[param_name].attrs['long_name']=str(param_config['freq'])+' Hz '+band+' band surface height ('+retracker+' retracking)'
-                        self.data_val[param_name].attrs['comment']='Altimetric Surfurce Height = '+param_config['param']['alt_hf']\
-                        +' - '+param_config['param'][retracker+'_range_'+band]+' - '+param_config['param']['model_wet_tropo_corr']\
-                        +' - '+param_config['param']['model_dry_tropo_corr']+' - '+param_config['param']['solid_earth_tide']\
-                        +' - '+param_config['param']['geoid']+' - '+param_config['param']['iono_corr_gim_'+band]\
-                        +' - '+param_config['param']['pole_tide']
-            except KeyError as k:
-                message= (('They is KeyError issue : \n '+
-                           '\t- %s\n\n'+
-                           'In order to compute the "%s" '+
-                           'surface height the key parametre '+
-                           '%s is needed. Check your configuration file!'  )%(str(k),surf_type,str(k),))
-                print('test : ',message)
-                raise self.SurfaceHeightError(message)
+                    cycles=self.data_val[param_config['param']['alt_hf']].coords['cycle_index'].data
+                    for cy_idx,cy in enumerate(cycles):
+                        update_progress(cy_idx/len(self.cycle), title = surf_type+' | Surface height : '+param_name)
+                        self.data_val[param_name][cy_idx,:] = \
+                            self.data_val[param_config['param']['alt_hf']][cy_idx,:]\
+                                -self.data_val[param_config['param'][retracker+'_range_'+band]][cy_idx,:]\
+                                -self.data_val[param_config['param']['model_wet_tropo_corr']][cy_idx,:]\
+                                -self.data_val[param_config['param']['model_dry_tropo_corr']][cy_idx,:]\
+                                -self.data_val[param_config['param']['solid_earth_tide']][cy_idx,:]\
+                                -self.data_val[param_config['param']['geoid']][cy_idx,:]\
+                                -self.data_val[param_config['param']['iono_corr_gim_'+band]][cy_idx,:]\
+                                -self.data_val[param_config['param']['pole_tide']][cy_idx,:]   
+
+                    update_progress(1.0, title = surf_type+' | Surface height : '+param_name)
+                    self.data_val[param_name].attrs['units']='meters'
+                    self.data_val[param_name].attrs['standard_name']='surface_height'
+                    self.data_val[param_name].attrs['long_name']=str(param_config['freq'])+' Hz '+band+' band surface height ('+retracker+' retracking)'
+                    self.data_val[param_name].attrs['comment']='Altimetric Surfurce Height = '+param_config['param']['alt_hf']\
+                    +' - '+param_config['param'][retracker+'_range_'+band]+' - '+param_config['param']['model_wet_tropo_corr']\
+                    +' - '+param_config['param']['model_dry_tropo_corr']+' - '+param_config['param']['solid_earth_tide']\
+                    +' - '+param_config['param']['geoid']+' - '+param_config['param']['iono_corr_gim_'+band]\
+                    +' - '+param_config['param']['pole_tide']
+#            except KeyError as k:
+#                message= (('They is KeyError issue : \n '+
+#                           '\t- %s\n\n'+
+#                           'In order to compute the "%s" '+
+#                           'surface height the key parametre '+
+#                           '%s is needed. Check your configuration file!'  )%(str(k),surf_type,str(k),))
+#                print('test : ',message)
+#                raise self.SurfaceHeightError(message)
                 
         elif surf_type == 'None':
             pass

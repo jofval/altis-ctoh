@@ -77,7 +77,7 @@ from altis._version import __version__,__revision__
 #-------------------------------------------------------------------------------
 class Ctrl_Window(wx.Frame):
     def __init__(self,parent): #,cycle,date):        
-        super().__init__(parent, title = "AlTiS : Dataset Selection",
+        super().__init__(parent, title = "AlTiS : Dataset Display",
             style=wx.FRAME_FLOAT_ON_PARENT | wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX |\
              wx.RESIZE_BORDER | wx.SYSTEM_MENU | wx.CAPTION ,\
              pos=(10,50),size=(250,700))
@@ -113,7 +113,22 @@ class Ctrl_Window(wx.Frame):
             index = self.lctrlSelectCycle.InsertItem(index,'{:04d}/{:02d}/{:02d}'.format(i[1][0],i[1][1],i[1][2]) ) 
             self.lctrlSelectCycle.SetItem(index, 1, '{:03d}'.format(i[0])) 
             self.lctrlSelectCycle.SetItem(index, 2, '{:04d}'.format(i[2]) ) 
-            index += 1  
+            index += 1
+
+        list_track = np.unique(tracks)
+        self.comboSelPass.Clear()
+#        self.comboSelPass.Append('All-Tracks')
+        for track in list_track:
+            self.comboSelPass.Append(str(track))
+        self.comboSelPass.SetValue('All-Tracks')
+          
+#        list_cycle = np.unique(cycle)
+#        self.comboSelCycle.Clear()
+#        self.comboSelCycle.Append('All-Cycles')
+#        for cycle in list_cycle:
+#            self.comboSelCycle.Append(str(cycle))
+#        self.comboSelCycle.SetValue('All-Cycles')
+          
 
     def create_toolbar(self):
         """
@@ -124,6 +139,13 @@ class Ctrl_Window(wx.Frame):
  
         self.btnSelectAll = wx.Button(self.toolbar, label='Select All')
         self.toolbar.AddControl(self.btnSelectAll)
+        
+#        self.comboSelCycle = wx.ComboBox( self.toolbar, value = "Select_cycle", choices = [],size=(120,30))
+#        self.toolbar.AddControl(self.comboSelCycle, label="Select a cycle" )
+
+        self.comboSelPass = wx.ComboBox( self.toolbar, value = "Select_pass", choices = [],size=(120,30))
+        self.toolbar.AddControl(self.comboSelPass, label="Select a pass" )
+
         self.toolbar.AddStretchableSpace()
         self.iconHelp = self.mk_iconbar("Help",wx.ART_HELP,"Help on AlTiS")
 
@@ -132,6 +154,8 @@ class Ctrl_Window(wx.Frame):
         self.btnSelectAll.Disable()
 
         self.Bind(wx.EVT_BUTTON, self.parent.onSelectAll, self.btnSelectAll)
+#        self.comboSelCycle.Bind(wx.EVT_COMBOBOX, self.parent.onSelectCycleCombox)
+        self.comboSelPass.Bind(wx.EVT_COMBOBOX, self.parent.onSelectPassCombox)
  
     def mk_iconbar(self,bt_txt,art_id,bt_lg_txt):
     
@@ -143,13 +167,53 @@ class Ctrl_Window(wx.Frame):
         for idx in range(self.lctrlSelectCycle.GetItemCount()):
             self.lctrlSelectCycle.Select(idx)
         print('onSelectAll')
+        self.comboSelPass.SetValue('All-Tracks')
         return np.ones((self.lctrlSelectCycle.GetItemCount()),dtype=bool)
+            
+#    def onSelectCycleCombox(self,event):
+#        mask_pass=self.onSelectPassCombox(event)
+#        if self.comboSelCycle.GetValue() == 'All-Cycles':
+#            return self.onSelectAll(event) & mask_pass    
+#        else:
+#            mask=[]
+#            for idx in range(self.lctrlSelectCycle.GetItemCount()):
+#                if int(self.comboSelCycle.GetValue()) == int(self.lctrlSelectCycle.GetItem(idx,1).GetText()):
+#                    if not self.lctrlSelectCycle.IsSelected(idx):
+#                        self.lctrlSelectCycle.Select(idx)
+#                else:
+#                    if self.lctrlSelectCycle.IsSelected(idx):
+#                        self.lctrlSelectCycle.Select(idx,on=0)
+
+#                mask.extend([self.lctrlSelectCycle.IsSelected(idx)])
+#            print('onSelectCycleCombox')
+#            return np.array(mask) & mask_pass
+
+    def onSelectPassCombox(self,event):
+#        mask_cycle=self.onSelectCycleCombox(event)
+#        if self.comboSelCycle.GetValue() == 'All-Tracks':
+#            return self.onSelectAll(event)
+#        else:
+        mask=[]
+        for idx in range(self.lctrlSelectCycle.GetItemCount()):
+            if int(self.comboSelPass.GetValue()) == int(self.lctrlSelectCycle.GetItem(idx,2).GetText()):
+                if not self.lctrlSelectCycle.IsSelected(idx):
+                    self.lctrlSelectCycle.Select(idx)
+            else:
+                if self.lctrlSelectCycle.IsSelected(idx):
+                    self.lctrlSelectCycle.Select(idx,on=0)
+
+            mask.extend([self.lctrlSelectCycle.IsSelected(idx)])
+        print('onSelectPassCombox')
+        return np.array(mask)
+
             
     def getselectcyle(self):
         mask=[]
         for idx in range(self.lctrlSelectCycle.GetItemCount()):
             mask.extend([self.lctrlSelectCycle.IsSelected(idx)])
         print('getSelectCycle')
+#        self.comboSelCycle.SetValue('------')
+        self.comboSelPass.SetValue('-------')
         return np.array(mask)
         
 #-------------------------------------------------------------------------------
@@ -1143,6 +1207,7 @@ class Main_Window(wx.Frame):
         mask = self.common_data.CYCLE_SEL\
              &  self.common_data.DATA_MASK_SEL[-1]\
              & self.common_data.DATA_MASK_PARAM
+             
         param = self.common_data.param.where(mask)
         lon = self.common_data.lon.where(mask)
         lat = self.common_data.lat.where(mask)
@@ -1349,9 +1414,6 @@ class Main_Window(wx.Frame):
                 print(
                     "Exception in Track class: type %s value %s " % (tbe[0], tbe[1])
                 )
-#                print("Traceback: ")
-#                print(traceback.print_tb(tbe[2]))
-#                raise
                 message = ('An error has occured during the data loading : \n'
                 +' - Check the mission name suitability with the dataset file.\n'
                 +' - Check the consol for Warning messages.')
@@ -1510,6 +1572,22 @@ class Main_Window(wx.Frame):
     def onSelectAll(self,event):
         print('ok on Select all')  
         cycle_mask = self.data_selection_frame.onSelectAll(event)
+        cycle_mask = np.tile(cycle_mask,(len(self.norm_index),1)).T
+        self.common_data.CYCLE_SEL = cycle_mask
+        self.update_plot()
+#        self.onSelParam(event)
+
+#    def onSelectCycleCombox(self,event):
+#        print('ok on Select Cycle')  
+#        cycle_mask = self.data_selection_frame.onSelectCycleCombox(event)
+#        cycle_mask = np.tile(cycle_mask,(len(self.norm_index),1)).T
+#        self.common_data.CYCLE_SEL = cycle_mask
+#        self.update_plot()
+##        self.onSelParam(event)
+
+    def onSelectPassCombox(self,event):
+        print('ok on Select Pass')  
+        cycle_mask = self.data_selection_frame.onSelectPassCombox(event)
         cycle_mask = np.tile(cycle_mask,(len(self.norm_index),1)).T
         self.common_data.CYCLE_SEL = cycle_mask
         self.update_plot()
