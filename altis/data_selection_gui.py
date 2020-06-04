@@ -56,8 +56,8 @@ class DatasetSelection(object):
         
         self.common_data = Singleton()
         self.MASTER_mask = self.common_data.DATA_MASK_SEL[-1]\
-                             & self.common_data.DATA_MASK_PARAM\
-                             & self.common_data.CYCLE_SEL
+                             & self.common_data.DATA_MASK_PARAM #\
+#                             & self.common_data.CYCLE_SEL
 
         self.mask_output = np.ones(self.MASTER_mask.shape,dtype='bool')
         self.input_mask_index = np.where(self.mask_output)
@@ -149,21 +149,27 @@ class DatasetSelection(object):
 
         cursor_wait = wx.BusyCursor()
         for ax in range(len(self.axes)):
-            self.fc[ax][:, -1] = 0.01
+            self.fc[ax][:, -1] = 0.05
             self.fc[ax][self.ind, -1] = 1
             self.axes[ax].collections[0].set_facecolors(self.fc[ax])
         self.canvas.draw_idle()
         
         self.input_mask_index_sel = self.input_mask_index[:,self.ind]
-        self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = False 
-#        x = xr.DataArray(self.input_mask_index[0], dims=['cycle'])
-#        y = xr.DataArray(self.input_mask_index[1], dims=['norm_index'])
-####        self.mask_output [x,y] = True
-#        for ix,iy in zip(x,y):
-#            self.mask_output [ix,iy] = True
+        
+        # on récupère le numéro d'index des cycles selectionnés
+        self.idx_cy_sel = np.unique(self.input_mask_index_sel[0,:])
 
+        # on initilalise à True par défaut le mask_ouput
+        self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = True
+        
+        # on initialise à False que les cycles qui ont été selectionnés
+        self.mask_output [self.idx_cy_sel,:] = False
+        
+        # on met uniquement à True les points à l'intérieure de la selection graphique des cycles selectionnés
         self.mask_output [self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
-#        self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
+
+#        pdb.set_trace()
+
         self.disconnect()
                             
     def plot_selection(self,alpha):
@@ -173,8 +179,16 @@ class DatasetSelection(object):
                 self.mask_xys[:] = True
                 self.mask_xys[self.ind] = False
 
-                self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = True 
+#                self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = True 
+#                self.mask_output [self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = False
+
+                # on initialise à False que les cycles qui ont été selectionnés
+                self.mask_output [self.idx_cy_sel,:] = True
+                
+                # on met uniquement à True les points à l'intérieure de la selection graphique des cycles selectionnés
                 self.mask_output [self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = False
+
+
 
 #                self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
                 self.select_flag = "outside"
@@ -185,8 +199,14 @@ class DatasetSelection(object):
                 self.mask_xys[:] = False
                 self.mask_xys[self.ind] = True
 
-                self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = False
-                self.mask_output[self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
+#                self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = False
+#                self.mask_output[self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
+
+                # on initialise à False que les cycles qui ont été selectionnés
+                self.mask_output [self.idx_cy_sel,:] = False
+                
+                # on met uniquement à True les points à l'intérieure de la selection graphique des cycles selectionnés
+                self.mask_output [self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
 
 #                self.mask_output = self.mask_output & np.array(self.common_data.DATA_MASK_PARAM & self.common_data.CYCLE_SEL)
                 self.select_flag = "inside"

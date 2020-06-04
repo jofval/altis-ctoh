@@ -1349,9 +1349,9 @@ class Main_Window(wx.Frame):
                 print(
                     "Exception in Track class: type %s value %s " % (tbe[0], tbe[1])
                 )
-                print("Traceback: ")
-                print(traceback.print_tb(tbe[2]))
-                raise
+#                print("Traceback: ")
+#                print(traceback.print_tb(tbe[2]))
+#                raise
                 message = ('An error has occured during the data loading : \n'
                 +' - Check the mission name suitability with the dataset file.\n'
                 +' - Check the consol for Warning messages.')
