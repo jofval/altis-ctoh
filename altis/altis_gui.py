@@ -1096,6 +1096,19 @@ class Main_Window(wx.Frame):
     
 
     def onSelectData(self,event):
+        
+        print('toolbar status:',self.mpl_toolbar._active)
+        # Switch Off le zoom
+        if self.mpl_toolbar._active == 'ZOOM':
+            self.mpl_toolbar.ToggleTool(self.mpl_toolbar.wx_ids['Zoom'],False)
+            self.mpl_toolbar.zoom()
+        
+        # Switch Off le pan
+        if self.mpl_toolbar._active == 'PAN':
+            self.mpl_toolbar.ToggleTool(self.mpl_toolbar.wx_ids['Pan'],False)
+            self.mpl_toolbar.pan()
+        
+        
         print('onSelectData')
 #        pdb.set_trace()
         self.btnSelectData.Disable()
