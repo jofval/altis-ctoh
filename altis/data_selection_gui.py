@@ -146,7 +146,9 @@ class DatasetSelection(object):
         self.select_flag = "inside"
         self.mask_xys[:] = False
         self.mask_xys[self.ind] = True
-
+        
+        self.ind_not_sel=np.where(self.mask_xys == False)[0]
+        
         cursor_wait = wx.BusyCursor()
         for ax in range(len(self.axes)):
             self.fc[ax][:, -1] = 0.05
@@ -155,15 +157,22 @@ class DatasetSelection(object):
         self.canvas.draw_idle()
         
         self.input_mask_index_sel = self.input_mask_index[:,self.ind]
+        #self.input_mask_index_not_sel = self.input_mask_index[:,self.ind_not_sel]
         
         # on récupère le numéro d'index des cycles selectionnés
         self.idx_cy_sel = np.unique(self.input_mask_index_sel[0,:])
+
+        # on récupère le numéro d'index des cycles non selectionnés 
+        # mais visible dans la fenétre graphique
+        #self.idx_cy_not_sel = np.unique(self.input_mask_index_not_sel[0,:])
 
         # on initilalise à True par défaut le mask_ouput
         self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = True
         
         # on initialise à False que les cycles qui ont été selectionnés
         self.mask_output [self.idx_cy_sel,:] = False
+        # on initialise à False que les cycles qui n'ont pas été selectionnés
+        #self.mask_output [self.idx_cy_not_sel,:] = False
         
         # on met uniquement à True les points à l'intérieure de la selection graphique des cycles selectionnés
         self.mask_output [self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
