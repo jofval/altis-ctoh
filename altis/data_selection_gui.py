@@ -63,23 +63,23 @@ class DatasetSelection(object):
         self.input_mask_index = np.where(self.mask_output)
         self.input_mask_index = np.array([self.input_mask_index[0],self.input_mask_index[1]])
         
-        if self.debug:
-            print('self.MASTER_mask.shape',self.MASTER_mask.shape)
-            print('self.input_mask_index.shape',self.input_mask_index.shape)
-            print('self.mask_xys.shape',self.mask_xys.shape)
-            print('np.sum(self.xys.mask)',np.sum(self.xys[0].mask))
+#        if self.debug:
+#            print('self.MASTER_mask.shape',self.MASTER_mask.shape)
+#            print('self.input_mask_index.shape',self.input_mask_index.shape)
+#            print('self.mask_xys.shape',self.mask_xys.shape)
+#            print('np.sum(self.xys.mask)',np.sum(self.xys[0].mask))
 
         def get_axes( event):
             if hasattr(self,'current_axes'):
                 pass                
             else:
                 self.current_axes = event.inaxes
-                if self.debug:
-                    print('button_press_event',self.axes.index(self.current_axes))
+#                if self.debug:
+#                    print('button_press_event',self.axes.index(self.current_axes))
 
         def accept(event):
             cursor_wait = wx.BusyCursor()
-            print('event.key, ',event.key)
+#            print('event.key, ',event.key)
             if (event.key == "enter")or(event.key == "v"):
                 self.progress = wx.ProgressDialog("Data Selection Processing ...", "please wait", maximum=100, style=wx.PD_SMOOTH|wx.PD_AUTO_HIDE)
                 self.progress.Update(10, "Mask processing...")
@@ -99,8 +99,8 @@ class DatasetSelection(object):
             elif event.key == "r":  # revers selection
                 self.plot_selection(alpha = 0.01)
             elif event.key == "escape":  # Abort
-                if self.debug:
-                    print("Aborted selection.")
+#                if self.debug:
+#                    print("Aborted selection.")
                 if hasattr(self,'axes_idx'):
                     self.axes[self.axes_idx].set_title("      ")
                     self.plot_selection_inside(alpha=1.0)
@@ -135,13 +135,13 @@ class DatasetSelection(object):
         self.axes_idx = self.axes.index(self.current_axes)
         if self.debug:
             print('self.axes_idx',self.axes_idx)
-        self.axes[self.axes_idx].set_title("Data selection : 'r' key to reverse,\n'Enter' (or 'v') key to validate, 'Escape' key to aborte. ",color='r',fontweight='bold')
+        self.axes[self.axes_idx].set_title("Data selection : 'r' key to reverse,\n'Enter' (or 'v') key to validate, 'Escape' key to abort. ",color='r',fontweight='bold')
         
         self.ind = np.nonzero([path.contains_point(xy) for xy in self.xys[self.axes_idx]])[0]
         
-        if self.debug:
-            print('self.xys[self.axes_idx].shape : ',self.xys[self.axes_idx].shape)
-            print('len(self.ind) : ',len(self.ind), np.max(self.ind), np.min(self.ind))
+#        if self.debug:
+#            print('self.xys[self.axes_idx].shape : ',self.xys[self.axes_idx].shape)
+#            print('len(self.ind) : ',len(self.ind), np.max(self.ind), np.min(self.ind))
         
         self.select_flag = "inside"
         self.mask_xys[:] = False

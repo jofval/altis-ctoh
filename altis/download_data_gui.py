@@ -690,8 +690,11 @@ class Load_data_Window(wx.Dialog):
             event.Skip()            
 #        elif self.gdr_panel.IsShown():
         elif self.flag_gdr_panel:
-            if len(self.gdr_filename) == 0 :
-                wx.MessageBox('Download completed', 'Info', wx.OK | wx.ICON_INFORMATION)
+            if hasattr(self,'gdr_filename'):
+                if len(self.gdr_filename) == 0 :
+                    wx.MessageBox('List of tracks has to be selected.', 'Info', wx.OK | wx.ICON_INFORMATION)
+            else:
+                wx.MessageBox('List of tracks has to be selected.', 'Info', wx.OK | wx.ICON_INFORMATION)
             self.data_sel_config['normpass_flag'] = False
             self.data_sel_config['gdr_flag'] = True
             self.data_sel_config['gdr_altis_flag'] = False

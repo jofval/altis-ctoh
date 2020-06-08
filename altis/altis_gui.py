@@ -21,7 +21,13 @@ import pdb
 import tempfile
 import shutil
 import csv
+import warnings
 from scipy.spatial import ConvexHull, Delaunay
+
+# pour déactiver les warning des modules utilisant yaml
+yaml.warnings({'YAMLLoadWarning': False})
+# pour déactiver les FutureWarning des différents modules.
+warnings.filterwarnings("ignore")
 
 # Performance GUI
 # Line segment simplification and Using the fast style
@@ -166,33 +172,11 @@ class Ctrl_Window(wx.Frame):
     def onSelectAll(self,event):
         for idx in range(self.lctrlSelectCycle.GetItemCount()):
             self.lctrlSelectCycle.Select(idx)
-        print('onSelectAll')
         self.comboSelPass.SetValue('All-Tracks')
         return np.ones((self.lctrlSelectCycle.GetItemCount()),dtype=bool)
             
-#    def onSelectCycleCombox(self,event):
-#        mask_pass=self.onSelectPassCombox(event)
-#        if self.comboSelCycle.GetValue() == 'All-Cycles':
-#            return self.onSelectAll(event) & mask_pass    
-#        else:
-#            mask=[]
-#            for idx in range(self.lctrlSelectCycle.GetItemCount()):
-#                if int(self.comboSelCycle.GetValue()) == int(self.lctrlSelectCycle.GetItem(idx,1).GetText()):
-#                    if not self.lctrlSelectCycle.IsSelected(idx):
-#                        self.lctrlSelectCycle.Select(idx)
-#                else:
-#                    if self.lctrlSelectCycle.IsSelected(idx):
-#                        self.lctrlSelectCycle.Select(idx,on=0)
-
-#                mask.extend([self.lctrlSelectCycle.IsSelected(idx)])
-#            print('onSelectCycleCombox')
-#            return np.array(mask) & mask_pass
 
     def onSelectPassCombox(self,event):
-#        mask_cycle=self.onSelectCycleCombox(event)
-#        if self.comboSelCycle.GetValue() == 'All-Tracks':
-#            return self.onSelectAll(event)
-#        else:
         mask=[]
         for idx in range(self.lctrlSelectCycle.GetItemCount()):
             if int(self.comboSelPass.GetValue()) == int(self.lctrlSelectCycle.GetItem(idx,2).GetText()):
@@ -203,7 +187,6 @@ class Ctrl_Window(wx.Frame):
                     self.lctrlSelectCycle.Select(idx,on=0)
 
             mask.extend([self.lctrlSelectCycle.IsSelected(idx)])
-        print('onSelectPassCombox')
         return np.array(mask)
 
             
@@ -211,8 +194,6 @@ class Ctrl_Window(wx.Frame):
         mask=[]
         for idx in range(self.lctrlSelectCycle.GetItemCount()):
             mask.extend([self.lctrlSelectCycle.IsSelected(idx)])
-        print('getSelectCycle')
-#        self.comboSelCycle.SetValue('------')
         self.comboSelPass.SetValue('-------')
         return np.array(mask)
         
@@ -422,7 +403,7 @@ class Main_Window(wx.Frame):
         
         
     def CanvasPanel(self,panel):
-        print('plot_panel')
+#        print('plot_panel')
         self.plot_panel=wx.Panel(panel)
         self.figure = Figure()
         self.ax1 = self.figure.add_subplot(2,2,1, projection=ccrs.PlateCarree())
@@ -558,7 +539,7 @@ class Main_Window(wx.Frame):
         self.toolbar.AddSeparator()
         self.comboColorMap = wx.ComboBox( self.toolbar, value = "jet", choices = ["jet","hsv","ocean","terrain","coolwarm","RdBu","viridis"])
         self.toolbar.AddControl(self.comboColorMap, label="Color palet" )
-        self.comboGroundMap = wx.ComboBox( self.toolbar, value = "Ground Map None", choices = ["Ground Map None","LandSat","Open Street Map"])
+        self.comboGroundMap = wx.ComboBox( self.toolbar, value = "Ground Map None", choices = ["Ground Map None","LandSat"])    #,"Open Street Map"])
         self.toolbar.AddControl(self.comboGroundMap, label="Ground Map")
 
         self.toolbar.AddStretchableSpace()
@@ -755,7 +736,7 @@ class Main_Window(wx.Frame):
             style=wx.OK | wx.CANCEL | wx.OK_DEFAULT | wx.ICON_INFORMATION) as save_dataset_dlg:
         
             if save_dataset_dlg.ShowModal() == wx.ID_OK:
-                print('Make cofig file!')
+#                print('Make cofig file!')
                 self.mkCfgFile()
         
     def mkCfgFile(self): 
@@ -823,7 +804,7 @@ class Main_Window(wx.Frame):
         self.paramlat_para_center = []
         for cy_idx,cycle in enumerate(param.coords[self.dim_cycle].data):
             self.progress.Update(100*(cy_idx/len(param.coords[self.dim_cycle].data)), "Cycle scanning...")
-            print('cy_idx,cycle',cy_idx,cycle)
+#            print('cy_idx,cycle',cy_idx,cycle)
             y = param[cy_idx,:].data
             mask = ~np.isnan(y)
             x = x_idx[mask]
@@ -845,7 +826,7 @@ class Main_Window(wx.Frame):
 #                    print ('idx',idx)
                     int_idx = int(idx)
                     i.append(np.where(x_idx == int_idx)[0][0])
-                    print('i,',i)                    
+#                    print('i,',i)                    
 #                print ('>>>> a, b, cu, nb : ',a,b,lon[cy_idx,i].data,lat[cy_idx,i].data,cu,nb )
                 all_lon.append(lon[cy_idx,i].data)
                 all_lat.append(lat[cy_idx,i].data)
@@ -900,7 +881,7 @@ class Main_Window(wx.Frame):
         
     def rescale(self,coord=False):
         cursor_wait = wx.BusyCursor()
-        print('On Refresh')
+#        print('On Refresh')
         xy_coord=self.plt1.get_offsets()
         xy_data=self.plt2.get_offsets()
         rato_threshold_coord=0.001
@@ -920,7 +901,7 @@ class Main_Window(wx.Frame):
 
             self.ax1.set_xlim(lon_lim)
             self.ax1.set_ylim(lat_lim)
-            print('coord_lim', lon_lim,lat_lim)
+#            print('coord_lim', lon_lim,lat_lim)
 
 
 
@@ -939,7 +920,7 @@ class Main_Window(wx.Frame):
 #                        ,np.max(xy_data[:,0])+np.max(xy_data[:,0])*rato_threshold]
 #        if (lon_lim[0]<0.0) & (lon_lim[1]<0.0) & (lon_lim[0]>lon_lim[1]): 
 #            lon_lim = lon_lim[::-1]
-        print('param_lim', param_lim)
+#        print('param_lim', param_lim)
         self.ax2.set_xlim(param_lim)
         self.ax3.set_ylim(param_lim)
         self.ax4.set_ylim(param_lim)
@@ -969,16 +950,16 @@ class Main_Window(wx.Frame):
         else:
             resol = 'coarse'
         
-        print(resol_param,resol,self.checkCoast.IsChecked())
+#        print(resol_param,resol,self.checkCoast.IsChecked())
         if self.checkCoast.IsChecked():
             COAST = GSHHSFeature(scale=resol, levels=[1,2,3,4],edgecolor="red")
             self.coast = self.ax1.add_feature(COAST)
             self.canvas.draw()
-            print('Done')
+#            print('Done')
         else:
             self.coast.remove()
             self.canvas.draw()
-            print('removed')
+#            print('removed')
 
     
     def onRiversLakes(self,event):
@@ -1001,17 +982,17 @@ class Main_Window(wx.Frame):
         else:
             resol = 'low'
         
-        print(resol_param,resol,self.checkRiversLakes.IsChecked())
+#        print(resol_param,resol,self.checkRiversLakes.IsChecked())
         if self.checkRiversLakes.IsChecked():
             RIVERS = NaturalEarthFeature('physical','rivers_lake_centerlines', \
                riverslakes_resol[resol], edgecolor=COLORS['water'],facecolor='none')
             self.rivers = self.ax1.add_feature(RIVERS)
             self.canvas.draw()
-            print('Done')
+#            print('Done')
         else:
             self.rivers.remove()
             self.canvas.draw()
-            print('removed')
+#            print('removed')
 
     def onColorMap(self,event):
         cursor_wait = wx.BusyCursor()
@@ -1022,10 +1003,10 @@ class Main_Window(wx.Frame):
         self.cm = self.comboColorMap.GetValue()
         self.groundmap = self.comboGroundMap.GetValue()
         self.param = self.comboSelParam.GetValue()
-        print(self.cm)
+#        print(self.cm)
         self.update_plot()
 
-        print('done')
+#        print('done')
 
 
     def onGroundMap(self,event):
@@ -1054,7 +1035,7 @@ class Main_Window(wx.Frame):
             pass            
 
         if self.groundmap == 'LandSat':
-            print('ground : url,layer ',url,layer)
+#            print('ground : url,layer ',url,layer)
             if hasattr(self,"grd_map"):
                 if self.grd_map is None:
                     self.grd_map = self.ax1.add_wmts(url,layer)
@@ -1090,18 +1071,19 @@ class Main_Window(wx.Frame):
                     self.grd_map = None
             else:
                 self.grd_map = None
-        print(self.groundmap)
+#        print(self.groundmap)
         self.canvas.draw()
-        print('done')
+#        print('done')
     
 
     def onSelectData(self,event):
         
-        print('toolbar status:',self.mpl_toolbar._active)
+#        print('toolbar status:',self.mpl_toolbar._active)
         # Switch Off le zoom
         if self.mpl_toolbar._active == 'ZOOM':
             self.mpl_toolbar.ToggleTool(self.mpl_toolbar.wx_ids['Zoom'],False)
             self.mpl_toolbar.zoom()
+            
         
         # Switch Off le pan
         if self.mpl_toolbar._active == 'PAN':
@@ -1109,7 +1091,7 @@ class Main_Window(wx.Frame):
             self.mpl_toolbar.pan()
         
         
-        print('onSelectData')
+#        print('onSelectData')
 #        pdb.set_trace()
         self.btnSelectData.Disable()
         self.select_text_info = self.figure.text(-0.1, 1.2, 'Selection processing ...', horizontalalignment='center',\
@@ -1273,7 +1255,7 @@ class Main_Window(wx.Frame):
             self.ax1_zoom = {'x':self.ax1.get_xlim(),'y':self.ax1.get_ylim()}
         self.cm = self.comboColorMap.GetValue()
         self.groundmap = self.comboGroundMap.GetValue()
-        print('Drawing... ',self.param,self.cm,self.groundmap)
+#        print('Drawing... ',self.param,self.cm,self.groundmap)
         
 
         if hasattr(self,"plt1"):
@@ -1354,7 +1336,7 @@ class Main_Window(wx.Frame):
                 self.progress.Destroy()
                 return -1
 
-            print('>>>>>:',mission,filename,kml_file)
+#            print('>>>>>:',mission,filename,kml_file)
             try :
                 self.tr=Normpass(mission,filename,mission_config_file=cfgfile_name,kml_file=kml_file)
             except FileNotFoundError as e:
@@ -1458,7 +1440,7 @@ class Main_Window(wx.Frame):
                 self.progress.Destroy()
                 return -1
 
-            print('>>>>>:',mission,filename,kml_file)
+#            print('>>>>>:',mission,filename,kml_file)
             try:
                 self.tr=GDR_altis(mission,filename,mission_config_file=cfgfile_name,kml_file=kml_file)
             except Exception:
@@ -1575,7 +1557,7 @@ class Main_Window(wx.Frame):
         self.common_data.DATA_MASK_SEL.append(self.cycle_mask)
         
     def onSelectCycle(self,event):
-        print('ok on test')  
+#        print('ok on test')  
         cycle_mask = self.data_selection_frame.getselectcyle()
         cycle_mask = np.tile(cycle_mask,(len(self.norm_index),1)).T
         self.common_data.CYCLE_SEL = cycle_mask
@@ -1583,7 +1565,7 @@ class Main_Window(wx.Frame):
 #        self.onSelParam(event)
         
     def onSelectAll(self,event):
-        print('ok on Select all')  
+#        print('ok on Select all')  
         cycle_mask = self.data_selection_frame.onSelectAll(event)
         cycle_mask = np.tile(cycle_mask,(len(self.norm_index),1)).T
         self.common_data.CYCLE_SEL = cycle_mask
@@ -1599,7 +1581,7 @@ class Main_Window(wx.Frame):
 ##        self.onSelParam(event)
 
     def onSelectPassCombox(self,event):
-        print('ok on Select Pass')  
+#        print('ok on Select Pass')  
         cycle_mask = self.data_selection_frame.onSelectPassCombox(event)
         cycle_mask = np.tile(cycle_mask,(len(self.norm_index),1)).T
         self.common_data.CYCLE_SEL = cycle_mask
@@ -1610,7 +1592,7 @@ class Main_Window(wx.Frame):
         altis_tmp_file = os.path.join(tempfile.gettempdir(),'altis.tmp')
 
         if os.path.isfile(altis_tmp_file):
-            print('altis.tmp trouvé')
+#            print('altis.tmp trouvé')
             with open(altis_tmp_file,'r') as f:
 #                try:
 #                    yaml_data = yaml.load(f)
@@ -1622,7 +1604,7 @@ class Main_Window(wx.Frame):
                 self.data_sel_config[k] = yaml_data[k]
             
         else:
-            print('altis.tmp non trouvé')
+#            print('altis.tmp non trouvé')
             self.data_sel_config = dict()
             self.data_sel_config['cfg_file'] = None
             self.data_sel_config['data_type'] = ''
