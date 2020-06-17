@@ -65,7 +65,7 @@ from matplotlib.cm import ScalarMappable
 from altis.common_data import Singleton
 
 from altis.download_data_gui import Load_data_Window
-from altis.help_gui import Help_Window
+from altis.help_html_gui import Help_Window
 
 from altis.time_series import Time_Series_Panel
 from altis.colinear_analysis import ColinAnal_Panel

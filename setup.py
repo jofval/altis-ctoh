@@ -33,7 +33,6 @@ class CustomInstall(install):
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-
 setup(name=package_name,
       version=version,
       description="Altimetry Times Series Software (AlTiS Software)",
@@ -41,17 +40,19 @@ setup(name=package_name,
       classifiers=[
                 "Topic :: Scientific/Engineering :: Physics",
                 "Intended Audience :: Science/Research",
+                "Topic :: Scientific/Engineering :: Hydrology",
                 "Development Status :: 4 - Beta",
                 "Programming Language :: Python :: 3",
-                "License :: CCby",
-                "Operating System :: OS Independent",
+                "License :: OSI Approved :: CEA CNRS Inria Logiciel Libre License, version 2.1 (CeCILL-2.1)",
+                "Operating System :: Microsoft :: Windows",
+                "Operating System :: POSIX :: Linux",
+                "Operating System :: MacOS",
                 ], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-      keywords='radar altimetry, time series, hydrology, normalized pass',
+      keywords='radar altimetry, time series, CTOH',
       author='CTOH',
-      author_email='frappart@legos.obs-mip.fr,  blarel@legos.obs-mip.fr, \
-                    ctoh_products@legos.obs-mip.fr',
-      url='http://ctoh.legos.obs-mip.fr/land_surfaces/softwares/...',
-      license='CCby',
+      author_email='blarel@legos.obs-mip.fr, ctoh_products@legos.obs-mip.fr, altis@groupes.renater.fr',
+      url='http://ctoh.legos.obs-mip.fr',
+      license = 'CeCiLL-2.1',
       packages=find_namespace_packages('.',exclude=['tests']),
       
       package_data={package_name : ['HELP.txt'],

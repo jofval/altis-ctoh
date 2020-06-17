@@ -12,6 +12,7 @@
 # ----------------------------------------------------------------------
 import wx
 import wx.adv
+import wx.html
 import yaml
 import os
 #import sys
@@ -45,6 +46,12 @@ class Help_Window(wx.Frame):
         help_file = pkg_resources.resource_filename('altis', 'HELP.txt')
         with open(help_file, 'r') as file:
             wx.TextCtrl.SetValue(st1, file.read())
+#        help_file = pkg_resources.resource_filename('altis', 'HELP.html')
+#        print(help_file)
+#        helpWin = wx.html.HtmlWindow(self.help_panel, style=wx.NO_BORDER)   #, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL | wx.TE_RICH)
+#        helpWin.LoadPage('HELP.html')
+        
+        
         hbox2.Add(st1, proportion=1, flag=wx.EXPAND)
         vbox.Add(hbox2, proportion=1, flag=wx.LEFT|wx.RIGHT| wx.BOTTOM | wx.EXPAND, border=10)
         
@@ -76,16 +83,20 @@ class Help_Window(wx.Frame):
             "suppled by the French Observation Service CTOH (Centre of Topography "+
             "of the Oceans and the Hydrosphere).")
 
-        licence = """AlTiS (Altimetric Time Series) software is free software;
-        you can redistribute it and/or modify it under the terms of the GNU General 
-        Public License as published by the Free Software Foundation; either version 
-        3 of the License, or (at your option) any later version.
+        licence = """All of AlTiS the source code is available under the CeCiLL License. What does it means? You have the freedom to:
 
-        AlTiS is distributed in the hope that it will be useful,
-        but WITHOUT ANY WARRANTY; without even the implied warranty of
-        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-        See the GNU General Public License for more details."""
+                    - use the software for any purpose,
+                    - change the software to suit your needs,
+                    - share the software with your friends and neighbors, and
+                    - share the changes you make.
 
+                For more detail, you can refer to the CeCiLL License.
+
+                AlTiS is distributed in the hope that it will be useful,
+                but WITHOUT ANY WARRANTY; without even the implied warranty of
+                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."""
+        
+        
 
         info = wx.adv.AboutDialogInfo()
 
@@ -93,13 +104,13 @@ class Help_Window(wx.Frame):
         info.SetName('AlTiS\n')
         info.SetVersion('Version '+__version__+'\n'+__revision__)
         info.SetDescription(description)
-        info.SetCopyright('2019 - CTOH')
-        info.SetWebSite('http://ctoh.legos.obs-mip.fr/applications/land_surfaces/softwares/maps')
+        info.SetCopyright('CeCill FREE SOFTWARE LICENSE - 2019 - CTOH')
+        info.SetWebSite('http://ctoh.legos.obs-mip.fr/applications/land_surfaces/softwares/maps', 'AlTiS Web Site')
         info.SetLicence(licence)
         info.AddDeveloper('CTOH')
-        info.AddDocWriter('CTOH')
-        info.AddArtist('The CTOH crew')
-        info.AddTranslator('CTOH')
+        #info.AddDocWriter('CTOH')
+        #info.AddArtist('The CTOH crew')
+        #info.AddTranslator('CTOH')
 
         wx.adv.AboutBox(info)
 
