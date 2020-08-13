@@ -30,21 +30,6 @@ class FileNotFoundError(Error):
         self.message_gui = message
 
 #--------------------------------------------------------------------------
-# Computation of stand absolute deviation (deviation in L1 norm) of a
-# variable
-# From MAPS
-#--------------------------------------------------------------------------
-# 2014/04/04 | F. FRAPPART   | Creation 
-#--------------------------------------------------------------------------
-#def std_abs_dev(vec,dim_label):
-#    mask_nan = np.isnan(vec.median(dim=dim_label))
-#    sum_abs_diff = np.abs(vec-vec.median(dim=dim_label)).sum(dim=dim_label)
-#    sum_abs_diff[mask_nan] = np.nan
-#    N = len(vec.coords[dim_label])
-#    return (1/N)*sum_abs_diff
-
-    
-#--------------------------------------------------------------------------
 # Compute the median absolute deviation of the data along the given axis.
 # 
 # https://github.com/scipy/scipy/blob/v1.3.3/scipy/stats/stats.py#L2658

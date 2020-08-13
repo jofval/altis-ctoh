@@ -8,13 +8,17 @@
 # matplotlib collection 
 #
 # Created by Fabien Blarel on 2019-04-19. 
-# Copyright (c) 2019 Legos/CTOH. All rights reserved.
+# CeCILL Licence 2019 CTOH-LEGOS.
 # ----------------------------------------------------------------------
 
-
-
 class Singleton(object):
-   def __new__(cls):
-       if not hasattr(cls, 'instance'):
-           cls.instance = super(Singleton, cls).__new__(cls)
-       return cls.instance
+    """
+        Singleton class
+    """
+    def __new__(cls):
+        """
+            __new__ method
+        """
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(Singleton, cls).__new__(cls)
+        return cls.instance

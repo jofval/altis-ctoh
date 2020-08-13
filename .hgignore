@@ -1,0 +1,10 @@
+syntax:glob
+*.pyc
+build/*
+*.egg-info/*
+*.eggs/*
+*version*
+.hgignore
+examples/*
+dist/*
+*old*

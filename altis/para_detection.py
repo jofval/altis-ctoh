@@ -1,5 +1,14 @@
 #!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
+# ----------------------------------------------------------------------
+#
+# 
+# Detection de parabole.
+#
+# Created by Denis Blumstien and Lea Lasson (Volodia Project)
+# Modified by Fabien Blarel on 2019-04-19. 
+# CeCILL Licence 2019 CTOH-LEGOS.
+# ----------------------------------------------------------------------
 import math
 import numpy as np
 import matplotlib.pyplot as plt
