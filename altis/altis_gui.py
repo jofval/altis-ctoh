@@ -928,9 +928,9 @@ class Main_Window(wx.Frame):
             Export the configuration file
         """
         altis_mission_cfg = pkg_resources.resource_filename(
-            "altis", "../etc/config_mission.yml"
+            "altis", "../etc/products_config.yaml"
         )
-        default_filename = "AlTiS_mission_config.yml"
+        default_filename = "AlTiS_products_config.yaml"
         with wx.FileDialog(
             self,
             message="Export AlTiS configuration file",
@@ -1253,7 +1253,7 @@ class Main_Window(wx.Frame):
 
         if self.groundmap == "LandSat":
             altis_cfg = pkg_resources.resource_filename(
-                "altis", "../etc/altis_config.yml"
+                "altis", "../etc/altis_config.yaml"
             )
             with open(altis_cfg) as f:
                 #                try:

@@ -929,7 +929,7 @@ class Load_data_Window(wx.Dialog):
             LOAD CfgFile.
         """
         config_file = pkg_resources.resource_filename(
-            "altis", "../etc/altis_config.yml"
+            "altis", "../etc/altis_config.yaml"
         )
         with open(config_file) as f:
             #            try:

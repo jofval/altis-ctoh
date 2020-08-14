@@ -46,7 +46,7 @@ class GDR_altis(object):
 
         if mission_config_file is None:
             mission_file_cfg = pkg_resources.resource_filename(
-                "altis", "../etc/config_mission.yml"
+                "altis", "../etc/products_config.yaml"
             )
         else:
             if os.path.isfile(mission_config_file):
@@ -213,7 +213,7 @@ class Normpass(object):
 
         if mission_config_file is None:
             mission_file_cfg = pkg_resources.resource_filename(
-                "altis", "../etc/config_mission.yml"
+                "altis", "../etc/products_config.yaml"
             )
         else:
             if os.path.isfile(mission_config_file):
@@ -394,7 +394,7 @@ class Track(object):
 
         if mission_config_file is None:
             mission_file_cfg = pkg_resources.resource_filename(
-                "altis", "../etc/config_mission.yml"
+                "altis", "../etc/products_config.yaml"
             )
         else:
             if os.path.isfile(mission_config_file):
@@ -436,7 +436,7 @@ class Track(object):
 
         if len(file_list) == 0:
             mission_file_cfg = pkg_resources.resource_filename(
-                "altis", "../etc/config_mission.yml"
+                "altis", "../etc/products_config.yaml"
             )
             message = (
                 "[Error] None files have all valid parameters for AlTiS.\n\n"

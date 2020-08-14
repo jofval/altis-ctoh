@@ -2,7 +2,7 @@
 # ----------------------------------------------------------------------
 #
 # 
-# Altimetric mission configuration parameter for AlTiS Software.
+# Altimetric product configuration parameter for AlTiS Software.
 #
 # Created by Fabien Blarel on 2019-04-19. 
 # ----------------------------------------------------------------------
@@ -12,10 +12,10 @@
 ################################################################################
 # Jason-1
 ################################################################################
-j1E :
-    filename_normpass_pattern : .*_j1E_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
-    filename_tracks_pattern : .*_j1E_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
-    filename_pattern : 2PeP\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+ja1 :
+    filename_normpass_pattern : .*_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_pattern : 2P.*P\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{3})(_)
     cycle_pattern : (P)(\d{3})(_)
 
@@ -75,16 +75,16 @@ j1E :
 ################################################################################
 # Jason-2
 ################################################################################
-j2D :
+ja2 :
     #---------------------------------------------------------------------------
     # Filename regular expression (DO NOT TOUCH!)
     #---------------------------------------------------------------------------
     # Normpass file patern
-    filename_normpass_pattern : .*j2D_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_normpass_pattern : .*_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     # AlTiS multi-track GDR file patern
-    filename_tracks_pattern : .*j2D_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     # GDR file patern
-    filename_pattern : 2PdP\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    filename_pattern : 2P.*P\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
     # track
     track_pattern : (_)(\d{3})(_)
     # cycle
@@ -167,9 +167,9 @@ j2D :
 ################################################################################
 # Jason-3
 ################################################################################
-j3Ds :
-    filename_normpass_pattern : .*_j3Ds_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
-    filename_tracks_pattern : .*_j3Ds_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+ja3 :
+    filename_normpass_pattern : .*_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : 2P.*P\d{3}_\d{3}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{3})(_)
     cycle_pattern : (P)(\d{3})(_)
@@ -230,9 +230,9 @@ j3Ds :
 ################################################################################
 # envisat.v21
 ################################################################################
-envisat.v21 :
-    filename_normpass_pattern : .*_envisat.v21_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
-    filename_tracks_pattern : .*_envisat.v21_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+envisat_v21 :
+    filename_normpass_pattern : .*_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : _\d{3}_\d{4}_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1\.nc 
     track_pattern : (_)(\d{4})(_)
     cycle_pattern : (_)(\d{3})(_)
@@ -294,9 +294,9 @@ envisat.v21 :
 ################################################################################
 # ers2 CTOH
 ################################################################################
-ers2.c.v1 :
-    filename_normpass_pattern : .*_esr2.c.v1_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
-    filename_tracks_pattern : .*_esr2.c.v1_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+ers2_ctoh :
+    filename_normpass_pattern : .*_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : P\d{3}_\d{4}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
     track_pattern : (_)(\d{4})(_)
     cycle_pattern : (P)(\d{3})(_)
@@ -359,9 +359,9 @@ ers2.c.v1 :
 ################################################################################
 # saral
 ################################################################################
-saral.s :
-    filename_normpass_pattern : .*_saral.s_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
-    filename_tracks_pattern : .*_saral.s_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+saral :
+    filename_normpass_pattern : .*_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : 2PTP\d{3}_\d{4}_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d.CNES\.nc
     track_pattern : (_)(\d{4})(_)
     cycle_pattern : (P)(\d{3})(_)
@@ -385,7 +385,7 @@ saral.s :
         lat_hf : lat_40hz
         
         # Index of normalized pass
-        norm_index_hf : norm_index_40hz
+        norm_index_hf : None    #norm_index_40hz
         
         # Altitude
         alt_hf : alt_40hz
@@ -426,8 +426,8 @@ saral.s :
 # Sentinel-3
 ################################################################################
 s3lanOT : &s3
-    filename_normpass_pattern : .*_s3lanOT_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
-    filename_tracks_pattern : .*_s3lanOT_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_normpass_pattern : .*_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : _\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_.*T.*_.*_C\d{3}_P\d{3}_L.*_.*_NT_.*\.nc
     track_pattern : (P)(\d{3})(_)
     cycle_pattern : (C)(\d{3})(_)
@@ -507,25 +507,25 @@ s3lanOT : &s3
         instr_op_mode : instr_op_mode_20_ku
 
 ################################################################################
-s3a_a_lan :
+s3a_lan :
     <<: *s3
-    filename_tracks_pattern : .*_s3a_a_lan_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     # dimensions parameters
     dim_lf : time_01
     dim_hf : [time_20_ku, time_20_c]
     
 ################################################################################
-s3b_a_lan :
+s3b_lan :
     <<: *s3
-    filename_tracks_pattern : .*_s3b_a_lan_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     # dimensions parameters
     dim_lf : time_01
     dim_hf : [time_20_ku, time_20_c]
 
 ################################################################################
-s3b_b_lan :
+s3b_lan :
     <<: *s3
-    filename_tracks_pattern : .*_s3b_b_lan_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     # dimensions parameters
     dim_lf : time_01
     dim_hf : [time_20_ku, time_20_c]
