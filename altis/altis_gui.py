@@ -1907,6 +1907,16 @@ class Main_Window(wx.Frame):
         self.progress.Destroy()
         del cursor_wait
 
+        message = ("The data loading has been successfully done.\n\n"
+                    +" You have to choose an altimetric parameter in \n\tthe selection menu to display it.")
+        
+        with wx.MessageDialog(None, message=message, caption="Info",
+                style=wx.OK | wx.OK_DEFAULT | wx.ICON_INFORMATION,)as mssg_dlg:
+
+            if mssg_dlg.ShowModal() == wx.ID_OK:
+                return -1
+        
+
     def initDataSelect(self, event):
         """
             Initialisation mask data selection
