@@ -13,7 +13,7 @@
 import os
 import sys
 
-# import pdb
+import pdb
 import tempfile
 import shutil
 import csv
@@ -50,11 +50,11 @@ from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 from cartopy.feature import NaturalEarthFeature, COLORS, GSHHSFeature
 
 # try:
-from cartopy.io.img_tiles import StamenTerrain
+#from cartopy.io.img_tiles import StamenTerrain
 
 # else:
 # from cartopy.io.img_tiles import Stamen
-# import cartopy.io.img_tiles as cimgt
+import cartopy.io.img_tiles as cimgt
 
 
 from altis.track_structure import Track, Normpass, GDR_altis
@@ -236,6 +236,7 @@ class Main_Window(wx.Frame):
             None, title="Altimetry Time Series (AlTiS) Software", size=wx.DisplaySize()
         )
         self.common_data = Singleton()
+
         self.InitUI()
         self.Center()
 
@@ -250,6 +251,7 @@ class Main_Window(wx.Frame):
 
         self.mk_left_toolbar(self.main_panel)
         #        self.mk_left_toolbar()
+        
 
         self.CanvasPanel(self.main_panel)
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
@@ -260,19 +262,21 @@ class Main_Window(wx.Frame):
         self.main_panel.SetSizer(vbox)
 
         self.create_toolbar()
-        self.statusbar = self.CreateStatusBar(2)
-        #        self.SetStatusText(0,"\tCentered")
-        #        self.SetStatusText(1,"\t\tRight Aligned")
-        status_bar_right_text = "AlTiS - version : " + __version__ + "           "
-        print(status_bar_right_text)
-        version_size = wx.Window.GetTextExtent(self, status_bar_right_text)
-        self.SetStatusWidths([-1, version_size.width])
-        self.statusbar.SetStatusText(status_bar_right_text, 1)
+        if not hasattr(self,'statusbar'):
+            self.statusbar = self.CreateStatusBar(2)
+            #        self.SetStatusText(0,"\tCentered")
+            #        self.SetStatusText(1,"\t\tRight Aligned")
+            status_bar_right_text = "AlTiS - version : " + __version__ + "                  "
+            print(status_bar_right_text)
+            version_size = wx.Window.GetTextExtent(self, status_bar_right_text)
+            self.SetStatusWidths([-1, version_size.width])
+            self.statusbar.SetStatusText(status_bar_right_text, 1)
 
-        self.cycle = []
-        self.date = []
-        self.data_selection_frame = CtrlWindow(self)
-        self.data_selection_frame.Show()
+        if not hasattr(self,'data_selection_frame'):
+            self.cycle = []
+            self.date = []
+            self.data_selection_frame = CtrlWindow(self)
+            self.data_selection_frame.Show()
 
     #        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.onTest, self.data_selection_frame.lctrlSelectCycle)
     #        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.onSelectCycle, self.lctrlSelectCycle)
@@ -455,17 +459,21 @@ class Main_Window(wx.Frame):
         """
             Matplotlib canvas initialisation
         """
+        self.projection=ccrs.PlateCarree()
+        self.transform = ccrs.PlateCarree()
+        self.crs_lonlat = ccrs.PlateCarree()
+        
         self.plot_panel = wx.Panel(panel)
         self.figure = Figure()
-        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
+        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
         self.ax1.set_xlabel("Longitude (deg)")
         self.ax1.set_ylabel("Latitude (deg)")
         self.ax1.autoscale()
-        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1)
+        self.ax2 = self.figure.add_subplot(2, 2, 2) #, sharey=self.ax1)
         self.ax2.set_ylabel("Latitude (deg)")
-        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1)
+        self.ax3 = self.figure.add_subplot(2, 2, 3) #, sharex=self.ax1)
         self.ax3.set_xlabel("Longitude (deg)")
-        self.ax4 = self.figure.add_subplot(2, 2, 4, sharey=self.ax3)
+        self.ax4 = self.figure.add_subplot(2, 2, 4) #, sharey=self.ax3)
         self.ax4.set_xlabel("Time (YYYY-MM)")
         self.canvas = FigureCanvas(self.plot_panel, -1, self.figure)
 
@@ -498,8 +506,11 @@ class Main_Window(wx.Frame):
         if event.inaxes in self.list_axes:
             idx = self.list_axes.index(event.inaxes)
             [xlabel, ylabel] = self.list_axes_coord[idx]
+            if idx == 0:
+                if not 'PlateCarree' in ('%s' % getattr(self.ax1.projection,'__class__')):
+                    xdata,ydata = self.crs_lonlat.transform_point(xdata, ydata, self.ax1.projection)
             self.statusbar.SetStatusText(
-                "Coordinates :\t%s : %s, %s : %s"
+                    "Coordinates :\t%s : %s, %s : %s"
                 % (xlabel, "{: 10.6f}".format(xdata), ylabel, "{: 10.6f}".format(ydata))
             )
         else:
@@ -536,19 +547,19 @@ class Main_Window(wx.Frame):
         self.figure.suptitle(main_plot_title, fontsize=16)
 
         self.plt1 = self.ax1.scatter(
-            lon, lat, c=param, marker="+", cmap=cm, transform=ccrs.PlateCarree()
+            lon, lat, c=param, marker="+", cmap=cm, transform=self.transform
         )
         #        self.ax1.grid(True)
 
         gl = self.ax1.gridlines(linewidth=0.5)
 
-        #        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(),draw_labels=True)
+        #        gl = self.ax1.gridlines(crs=self.projection,draw_labels=True)
         gl.xlabels_top = gl.ylabels_right = False
         gl.xformatter = LONGITUDE_FORMATTER
         gl.yformatter = LATITUDE_FORMATTER
         #
-        #        self.ax1.plot(x,y,transform=ccrs.PlateCarree())
-        #        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+        #        self.ax1.plot(x,y,transform=self.projection)
+        #        gl = self.ax1.gridlines(crs=self.projection, draw_labels=True,
         #                          linewidth=0.5, color='white', alpha=1.0, linestyle='--')
         #        gl.xlabels_top = True
         #        gl.ylabels_left = True
@@ -594,70 +605,71 @@ class Main_Window(wx.Frame):
         """
         Create a toolbar
         """
-        self.toolbar = self.CreateToolBar(style=wx.TB_HORZ_TEXT)
-        self.toolbar.SetToolBitmapSize((20, 20))
+        if not hasattr(self,'toolbar'):
+            self.toolbar = self.CreateToolBar(style=wx.TB_HORZ_TEXT)
+            self.toolbar.SetToolBitmapSize((20, 20))
 
-        self.iconQuit = self.mk_iconbar("Quit", wx.ART_QUIT, "Quit AlTiS")
+            self.iconQuit = self.mk_iconbar("Quit", wx.ART_QUIT, "Quit AlTiS")
 
-        self.toolbar.AddSeparator()
+            self.toolbar.AddSeparator()
 
-        self.ListKindData = ["Import data ... ", "GDR Tracks", "AlTiS GDR", "Normpass"]
-        self.comboKindData = wx.ComboBox(
-            self.toolbar,
-            value=self.ListKindData[0],
-            choices=self.ListKindData[1:],
-            size=(130, 30),
-        )
-        self.toolbar.AddControl(self.comboKindData, label="Kind of data to import")
+            self.ListKindData = ["Import data ... ", "GDR Tracks", "AlTiS GDR", "Normpass"]
+            self.comboKindData = wx.ComboBox(
+                self.toolbar,
+                value=self.ListKindData[0],
+                choices=self.ListKindData[1:],
+                size=(130, 30),
+            )
+            self.toolbar.AddControl(self.comboKindData, label="Kind of data to import")
 
-        self.toolbar.AddSeparator()
+            self.toolbar.AddSeparator()
 
-        self.comboSelParam = wx.ComboBox(
-            self.toolbar, value="Select_parameter", choices=[], size=(200, 30)
-        )
-        self.toolbar.AddControl(self.comboSelParam, label="Select a paramter")
+            self.comboSelParam = wx.ComboBox(
+                self.toolbar, value="Select_parameter", choices=[], size=(200, 30)
+            )
+            self.toolbar.AddControl(self.comboSelParam, label="Select a paramter")
 
-        self.toolbar.AddSeparator()
+            self.toolbar.AddSeparator()
 
-        self.checkCoast = wx.CheckBox(self.toolbar, label="Coastline")
-        self.toolbar.AddControl(self.checkCoast, label="Show Coastline")
+            self.checkCoast = wx.CheckBox(self.toolbar, label="Coastline")
+            self.toolbar.AddControl(self.checkCoast, label="Show Coastline")
 
-        self.checkRiversLakes = wx.CheckBox(self.toolbar, label="Rivers-Lakes")
-        self.toolbar.AddControl(self.checkRiversLakes, label="Show Rivers-Lakes")
+            self.checkRiversLakes = wx.CheckBox(self.toolbar, label="Rivers-Lakes")
+            self.toolbar.AddControl(self.checkRiversLakes, label="Show Rivers-Lakes")
 
-        self.toolbar.AddSeparator()
-        self.comboColorMap = wx.ComboBox(
-            self.toolbar,
-            value="jet",
-            choices=["jet", "hsv", "ocean", "terrain", "coolwarm", "RdBu", "viridis"],
-        )
-        self.toolbar.AddControl(self.comboColorMap, label="Color palet")
-        self.comboGroundMap = wx.ComboBox(
-            self.toolbar,
-            value="Ground Map None",
-            choices=["Ground Map None", "LandSat"],
-        )  # ,"Open Street Map"])
-        self.toolbar.AddControl(self.comboGroundMap, label="Ground Map")
+            self.toolbar.AddSeparator()
+            self.comboColorMap = wx.ComboBox(
+                self.toolbar,
+                value="jet",
+                choices=["jet", "hsv", "ocean", "terrain", "coolwarm", "RdBu", "viridis"],
+            )
+            self.toolbar.AddControl(self.comboColorMap, label="Color palet")
+            self.comboGroundMap = wx.ComboBox(
+                self.toolbar,
+                value="Ground Map None",
+                choices=["Ground Map None", "OSM Street", "OSM Satellite", "OSM Terrain", "LandSat"],
+            )  # ,"Open Street Map"])
+            self.toolbar.AddControl(self.comboGroundMap, label="Ground Map")
 
-        self.toolbar.AddStretchableSpace()
-        self.iconHelp = self.mk_iconbar("Help", wx.ART_HELP, "Help on AlTiS")
+            self.toolbar.AddStretchableSpace()
+            self.iconHelp = self.mk_iconbar("Help", wx.ART_HELP, "Help on AlTiS")
 
-        self.toolbar.Realize()
+            self.toolbar.Realize()
 
-        self.checkCoast.Disable()
-        self.checkRiversLakes.Disable()
-        self.comboColorMap.Disable()
-        self.comboGroundMap.Disable()
+            self.checkCoast.Disable()
+            self.checkRiversLakes.Disable()
+            self.comboColorMap.Disable()
+            self.comboGroundMap.Disable()
 
-        self.Bind(wx.EVT_MENU, self.onQuit, self.iconQuit)
-        self.comboKindData.Bind(wx.EVT_COMBOBOX, self.onOpen)
-        self.comboSelParam.Bind(wx.EVT_COMBOBOX, self.onSelParam)
-        self.btnSelectData.Bind(wx.EVT_BUTTON, self.onSelectData)
-        self.checkCoast.Bind(wx.EVT_CHECKBOX, self.onCoast)
-        self.checkRiversLakes.Bind(wx.EVT_CHECKBOX, self.onRiversLakes)
-        self.comboColorMap.Bind(wx.EVT_COMBOBOX, self.onColorMap)
-        self.comboGroundMap.Bind(wx.EVT_COMBOBOX, self.onGroundMap)
-        self.Bind(wx.EVT_MENU, self.onHelp, self.iconHelp)
+            self.Bind(wx.EVT_MENU, self.onQuit, self.iconQuit)
+            self.comboKindData.Bind(wx.EVT_COMBOBOX, self.onOpen)
+            self.comboSelParam.Bind(wx.EVT_COMBOBOX, self.onSelParam)
+            self.btnSelectData.Bind(wx.EVT_BUTTON, self.onSelectData)
+            self.checkCoast.Bind(wx.EVT_CHECKBOX, self.onCoast)
+            self.checkRiversLakes.Bind(wx.EVT_CHECKBOX, self.onRiversLakes)
+            self.comboColorMap.Bind(wx.EVT_COMBOBOX, self.onColorMap)
+            self.comboGroundMap.Bind(wx.EVT_COMBOBOX, self.onGroundMap)
+            self.Bind(wx.EVT_MENU, self.onHelp, self.iconHelp)
 
     def mk_iconbar(self, bt_txt, art_id, bt_lg_txt):
         """
@@ -695,7 +707,7 @@ class Main_Window(wx.Frame):
                     linestyle="-",
                     linewidth=0.5,
                     markersize=5,
-                    transform=ccrs.PlateCarree(),
+                    transform=self.projection,
                 )
             )
 
@@ -1134,7 +1146,6 @@ class Main_Window(wx.Frame):
         data_min = mean_data - (delta_data + delta_data * rato_threshold)
         data_max = mean_data + (delta_data + delta_data * rato_threshold)
         param_lim = [data_min, data_max]
-
         self.ax2.set_xlim(param_lim)
         self.ax3.set_ylim(param_lim)
         self.ax4.set_ylim(param_lim)
@@ -1243,6 +1254,26 @@ class Main_Window(wx.Frame):
             To display the groundMAP
         """
         cursor_wait = wx.BusyCursor()
+
+        import io
+        from urllib.request import urlopen, Request
+        from PIL import Image
+
+##################################################################################
+        def image_spoof(self, tile): # this function pretends not to be a Python script
+            url = self._image_url(tile) # get the url of the street map API
+            req = Request(url) # start request
+#            req.add_header('User-agent','Anaconda 3') # add user agent to request
+            req.add_header('User-agent','CartoPy/0.18.0') # add user agent to request
+            fh = urlopen(req) 
+            im_data = io.BytesIO(fh.read()) # get image
+            fh.close() # close url
+            img = Image.open(im_data) # open image with PIL
+            img = img.convert(self.desired_tile_form) # set image format
+            return img, self.tileextent(tile), 'lower' # reformat for cartopy
+##################################################################################
+
+
         if hasattr(self, "plt1"):
             self.ax1_zoom = {"x": self.ax1.get_xlim(), "y": self.ax1.get_ylim()}
         else:
@@ -1256,61 +1287,90 @@ class Main_Window(wx.Frame):
                 "altis", "../etc/altis_config.yaml"
             )
             with open(altis_cfg) as f:
-                #                try:
-                #                    yaml_data = yaml.safe_load(f)
-                #                except:
                 yaml_data = yaml.load(
                     f, Loader=yaml.FullLoader
                 )  # A revoir pour créer un vrai loader
             url = yaml_data["wmts"]["ground_map"]["url"]
             layer = yaml_data["wmts"]["ground_map"]["layer"]
-        elif self.groundmap == "Open Street Map":
-            tiler = StamenTerrain()
-        #            tiler = Stamen('terrain-background')
+        elif self.groundmap == "OSM Street":
+            cimgt.OSM.get_image = image_spoof
+            osm_img =  cimgt.OSM(style='street',)
+        elif self.groundmap == "OSM Satellite":
+            cimgt.OSM.get_image = image_spoof
+            osm_img =  cimgt.QuadtreeTiles()
+        elif self.groundmap == "OSM Terrain":
+            cimgt.OSM.get_image = image_spoof
+            osm_img =  cimgt.StamenTerrain() #.OSM(style='terrain',) #cimgt.QuadtreeTiles()
         elif self.groundmap == "Ground Map None":
             pass
 
         if self.groundmap == "LandSat":
-            #            print('ground : url,layer ',url,layer)
-            if hasattr(self, "grd_map"):
-                if self.grd_map is None:
-                    self.grd_map = self.ax1.add_wmts(url, layer)
-                else:
-                    self.grd_map.remove()
-                    self.grd_map = self.ax1.add_wmts(url, layer)
-            else:
-
+                scale=self.update_map_plot(ccrs.PlateCarree())
                 self.grd_map = self.ax1.add_wmts(url, layer)
 
-        elif self.groundmap == "Open Street Map":
-            if hasattr(self, "grd_map"):
-                if self.grd_map is None:
-                    x0, x1 = self.ax1.get_xlim()
-                    y0, y1 = self.ax1.get_ylim()
-                    self.ax1.set_extent([x0, x1, y0, y1])
-                    self.grd_map = self.ax1.add_image(tiler, 6)
-                else:
-                    self.grd_map.remove()
-                    x0, x1 = self.ax1.get_xlim()
-                    y0, y1 = self.ax1.get_ylim()
-                    self.ax1.set_extent([x0, x1, y0, y1])
-                    self.grd_map = self.ax1.add_image(tiler, 6)
-            else:
-                x0, x1 = self.ax1.get_xlim()
-                y0, y1 = self.ax1.get_ylim()
-                self.ax1.set_extent([x0, x1, y0, y1])
-                self.grd_map = self.ax1.add_image(tiler, 6)
-        elif self.groundmap == "Ground Map None":
-            if hasattr(self, "grd_map"):
-                if self.grd_map is not None:
-                    self.grd_map.remove()
-                    self.grd_map = None
-            else:
-                self.grd_map = None
-        #        print(self.groundmap)
-        self.canvas.draw()
+        elif self.groundmap == "OSM Street":
+            scale = self.update_map_plot(osm_img.crs)
+            print('scale',scale)
+            self.grd_map = self.ax1.add_image(osm_img, scale)
+        elif self.groundmap == "OSM Satellite" :
+            scale = self.update_map_plot(osm_img.crs)
+            print('scale',scale)
+            self.grd_map = self.ax1.add_image(osm_img, scale)
+        elif self.groundmap == "OSM Terrain":
+            scale = self.update_map_plot(osm_img.crs)
+            print('scale',scale)
+            self.grd_map = self.ax1.add_image(osm_img, scale)
 
+        elif self.groundmap == "Ground Map None":
+            scale = self.update_map_plot(ccrs.PlateCarree())
+
+        self.update_plot()
         del cursor_wait
+
+    def update_map_plot(self,new_projection):
+        """
+            To update the projection of the map plot
+        """
+        print ('x0, x1 = ',self.ax1.get_xlim(),'y0, y1 = ', self.ax1.get_ylim())
+        print ('self.ax1.name',self.ax1.name,getattr(self.projection,'__class__'))
+        x0, x1 = self.ax1.get_xlim()
+        y0, y1 = self.ax1.get_ylim()
+        x0, y0 = self.get_xylim_PlateCarree(x0, y0, self.projection)
+        x1, y1 = self.get_xylim_PlateCarree(x1, y1, self.projection)
+        print ('>>> x0, x1 = ',x0, x1 ,'y0, y1 = ', y0, y1 )
+        self.ax1.clear()
+        self.ax1.remove()
+        self.projection = new_projection
+        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
+        self.ax1.set_xlabel("Longitude (deg)")
+        self.ax1.set_ylabel("Latitude (deg)")
+        self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
+        self.ax1.set_aspect('auto', 'datalim')
+
+        zoom = max([abs(x0 - x1), abs(y0 - y1)])
+
+        self.figure.canvas.mpl_disconnect(self.mouseMoveID)
+        self.list_axes = [self.ax1, self.ax2, self.ax3, self.ax4]
+        self.mouseMoveID = self.figure.canvas.mpl_connect(
+            "motion_notify_event", self.onMotion
+        )
+
+        scale = int(np.ceil(-np.sqrt(2)*np.log(np.divide(zoom,350.0))))+2
+        scale = (scale<20) and scale or 19 
+        return scale
+
+    def get_xylim_PlateCarree(self,x,y, proj):
+        """
+            return x,y coordinates in lon/lat
+        """
+        if not 'PlateCarree' in ('%s' % getattr(proj,'__class__')):
+            x, y = self.crs_lonlat.transform_point(x, y, proj)
+            print('true')
+            
+#        print ('x =', x, ', y =', y)
+        return x, y
+
+
 
     def onSelectData(self, event):
         """
@@ -1488,7 +1548,7 @@ class Main_Window(wx.Frame):
         time = self.common_data.time.where(mask)
         self.plt1.remove()
         self.plt1 = self.ax1.scatter(
-            lon, lat, c=param, marker="+", cmap=self.cm, transform=ccrs.PlateCarree()
+            lon, lat, c=param, marker="+", cmap=self.cm, transform=self.transform
         )
         self.plt2.remove()
         self.plt2 = self.ax2.scatter(param, lat, c=param, marker="+", cmap=self.cm)
