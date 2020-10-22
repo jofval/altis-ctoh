@@ -62,7 +62,10 @@ from altis.data_selection_gui import DatasetSelection
 
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx as NavigationToolbar
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.figure import Figure
+#from matplotlib.figure import Figure
+from matplotlib.pyplot import Figure
+import matplotlib.pyplot as plt
+
 from matplotlib.cm import ScalarMappable
 
 from altis.common_data import Singleton
@@ -459,8 +462,8 @@ class Main_Window(wx.Frame):
         """
             Matplotlib canvas initialisation
         """
-        self.projection=ccrs.PlateCarree()
-        self.transform = ccrs.PlateCarree()
+        self.projection=cimgt.OSM().crs #ccrs.PlateCarree()
+        self.transform =ccrs.PlateCarree()
         self.crs_lonlat = ccrs.PlateCarree()
         
         self.plot_panel = wx.Panel(panel)
@@ -476,7 +479,9 @@ class Main_Window(wx.Frame):
         self.ax4 = self.figure.add_subplot(2, 2, 4) #, sharey=self.ax3)
         self.ax4.set_xlabel("Time (YYYY-MM)")
         self.canvas = FigureCanvas(self.plot_panel, -1, self.figure)
-
+        
+#        plt.ion()        
+        
         self.list_axes = [self.ax1, self.ax2, self.ax3, self.ax4]
         self.list_axes_coord = [
             ["Lon", "Lat"],
@@ -647,7 +652,7 @@ class Main_Window(wx.Frame):
             self.comboGroundMap = wx.ComboBox(
                 self.toolbar,
                 value="Ground Map None",
-                choices=["Ground Map None", "OSM Street", "OSM Satellite", "OSM Terrain", "LandSat"],
+                choices=["Ground Map None", "OSM Street", "OSM Satellite", "OSM Terrain"]   #, "LandSat"],
             )  # ,"Open Street Map"])
             self.toolbar.AddControl(self.comboGroundMap, label="Ground Map")
 
@@ -1153,19 +1158,41 @@ class Main_Window(wx.Frame):
         
         del cursor_wait
 
+    def get_ax1_xylim(self,):
+        """
+            get xlim and ylim of the plt1 into ax1.
+        """
+        if hasattr(self, "plt1"):
+            x0, x1 = self.ax1.get_xlim()
+            y0, y1 = self.ax1.get_ylim()
+            x0,y0 = self.get_xylim_PlateCarree(x0, y0, self.projection)
+            x1,y1 = self.get_xylim_PlateCarree(x1, y1, self.projection)
+            self.ax1_zoom = {"x": (x0,x1), "y": (y0,y1)}
+            
+        else:
+            self.ax1_zoom = {"x": None, "y": None}
+
+
     def onCoast(self, event):
+        """
+            event to display the coast line
+        """
+        self.update_CoastFeatures()
+        self.canvas.draw()
+    
+    def update_CoastFeatures(self,):
         """
             To display the coast line.
         """
         cursor_wait = wx.BusyCursor()
-        if hasattr(self, "plt1"):
-            self.ax1_zoom = {"x": self.ax1.get_xlim(), "y": self.ax1.get_ylim()}
-            xlim_diff = np.diff(self.ax1.get_xlim())
-            ylim_diff = np.diff(self.ax1.get_ylim())
+        self.get_ax1_xylim()
+        if self.ax1_zoom['x'] is not None:
+            xlim_diff = np.diff(self.ax1_zoom['x'])
+            ylim_diff = np.diff(self.ax1_zoom['y'])
             resol_param = np.sqrt(xlim_diff * xlim_diff + ylim_diff * ylim_diff)
         else:
-            self.ax1_zoom = {"x": None, "y": None}
             resol_param = None
+
 
         if resol_param < 0.5:
             resol = "full"
@@ -1178,31 +1205,33 @@ class Main_Window(wx.Frame):
         else:
             resol = "coarse"
 
-        #        print(resol_param,resol,self.checkCoast.IsChecked())
         if self.checkCoast.IsChecked():
             COAST = GSHHSFeature(scale=resol, levels=[1, 2, 3, 4], edgecolor="red")
             self.coast = self.ax1.add_feature(COAST)
             self.canvas.draw()
         #            print('Done')
         else:
-            self.coast.remove()
-            self.canvas.draw()
+            if hasattr(self,"coast"):
+                self.coast.remove()
 
         del cursor_wait
 
-    def onRiversLakes(self, event):
+    def update_RiversFeatures(self,):
+        """
+            update map plot display of rivers features (hid/show)
+        """
         """
             To display the rivers and lakes shapeline
         """
         cursor_wait = wx.BusyCursor()
-        if hasattr(self, "plt1"):
-            self.ax1_zoom = {"x": self.ax1.get_xlim(), "y": self.ax1.get_ylim()}
-            xlim_diff = np.diff(self.ax1.get_xlim())
-            ylim_diff = np.diff(self.ax1.get_ylim())
+        self.get_ax1_xylim()
+        if self.ax1_zoom['x'] is not None:
+            xlim_diff = np.diff(self.ax1_zoom['x'])
+            ylim_diff = np.diff(self.ax1_zoom['y'])
             resol_param = np.sqrt(xlim_diff * xlim_diff + ylim_diff * ylim_diff)
         else:
-            self.ax1_zoom = {"x": None, "y": None}
             resol_param = None
+            
 
         riverslakes_resol = {"low": "110m", "medium": "50m", "high": "10m"}
 
@@ -1213,7 +1242,7 @@ class Main_Window(wx.Frame):
         else:
             resol = "low"
 
-
+        print ('resol_river',resol)
 #                print(resol_param,resol,self.checkRiversLakes.IsChecked())
         if self.checkRiversLakes.IsChecked():
             RIVERS = NaturalEarthFeature(
@@ -1227,20 +1256,22 @@ class Main_Window(wx.Frame):
             self.canvas.draw()
 #                    print('Done')
         else:
-            self.rivers.remove()
-            self.canvas.draw()
+            if hasattr(self,"rivers"):
+                self.rivers.remove()
 
         del cursor_wait
 
+    def onRiversLakes(self, event):
+        self.update_RiversFeatures()
+        self.canvas.draw()
+        
     def onColorMap(self, event):
         """
             To change the color bar
         """
         cursor_wait = wx.BusyCursor()
-        if hasattr(self, "plt1"):
-            self.ax1_zoom = {"x": self.ax1.get_xlim(), "y": self.ax1.get_ylim()}
-        else:
-            self.ax1_zoom = {"x": None, "y": None}
+        self.get_ax1_xylim()
+
         self.cm = self.comboColorMap.GetValue()
         self.groundmap = self.comboGroundMap.GetValue()
         self.param = self.comboSelParam.GetValue()
@@ -1260,12 +1291,15 @@ class Main_Window(wx.Frame):
         from PIL import Image
 
 ##################################################################################
+        # Patch to solve the issu of user agent
         def image_spoof(self, tile): # this function pretends not to be a Python script
             url = self._image_url(tile) # get the url of the street map API
             req = Request(url) # start request
 #            req.add_header('User-agent','Anaconda 3') # add user agent to request
             req.add_header('User-agent','CartoPy/0.18.0') # add user agent to request
+            print('>>>',tile, url)
             fh = urlopen(req) 
+            print('>ok.')
             im_data = io.BytesIO(fh.read()) # get image
             fh.close() # close url
             img = Image.open(im_data) # open image with PIL
@@ -1274,10 +1308,8 @@ class Main_Window(wx.Frame):
 ##################################################################################
 
 
-        if hasattr(self, "plt1"):
-            self.ax1_zoom = {"x": self.ax1.get_xlim(), "y": self.ax1.get_ylim()}
-        else:
-            self.ax1_zoom = {"x": None, "y": None}
+        self.get_ax1_xylim()
+
         self.cm = self.comboColorMap.GetValue()
         self.groundmap = self.comboGroundMap.GetValue()
         self.param = self.comboSelParam.GetValue()
@@ -1305,59 +1337,66 @@ class Main_Window(wx.Frame):
             pass
 
         if self.groundmap == "LandSat":
-                scale=self.update_map_plot(ccrs.PlateCarree())
-                self.grd_map = self.ax1.add_wmts(url, layer)
+            pass
+#            x0, x1, y0, y1 = self.ax1.get_extent(ccrs.PlateCarree())
+#            self.ax1.projection=self.projection
+#            self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
+#            self.ax1.set_aspect('auto', adjustable='datalim')
+#            self.grd_map = self.ax1.add_wmts(url, layer)
 
-        elif self.groundmap == "OSM Street":
-            scale = self.update_map_plot(osm_img.crs)
-            print('scale',scale)
-            self.grd_map = self.ax1.add_image(osm_img, scale)
-        elif self.groundmap == "OSM Satellite" :
-            scale = self.update_map_plot(osm_img.crs)
-            print('scale',scale)
-            self.grd_map = self.ax1.add_image(osm_img, scale)
-        elif self.groundmap == "OSM Terrain":
-            scale = self.update_map_plot(osm_img.crs)
-            print('scale',scale)
-            self.grd_map = self.ax1.add_image(osm_img, scale)
+        elif ( (self.groundmap == "OSM Street") |
+                (self.groundmap == "OSM Satellite") |
+                (self.groundmap == "OSM Terrain") ):
+            self.update_map_plot(osm_img,osm_img.crs)
+
+#        elif self.groundmap == "OSM Satellite" :
+#            self.update_map_plot(osm_img,osm_img.crs)
+
+#        elif self.groundmap == "OSM Terrain":
+#            self.update_map_plot(osm_img,osm_img.crs)
 
         elif self.groundmap == "Ground Map None":
-            scale = self.update_map_plot(ccrs.PlateCarree())
+            if hasattr(self,'grd_map'):
+                self.grd_map.clear()
+                
 
+        self.update_RiversFeatures()
+        self.update_CoastFeatures()
         self.update_plot()
         del cursor_wait
 
-    def update_map_plot(self,new_projection):
+    def update_map_plot(self,img_fact,new_projection):
         """
             To update the projection of the map plot
         """
-        print ('x0, x1 = ',self.ax1.get_xlim(),'y0, y1 = ', self.ax1.get_ylim())
-        print ('self.ax1.name',self.ax1.name,getattr(self.projection,'__class__'))
-        x0, x1 = self.ax1.get_xlim()
-        y0, y1 = self.ax1.get_ylim()
-        x0, y0 = self.get_xylim_PlateCarree(x0, y0, self.projection)
-        x1, y1 = self.get_xylim_PlateCarree(x1, y1, self.projection)
-        print ('>>> x0, x1 = ',x0, x1 ,'y0, y1 = ', y0, y1 )
+        if img_fact is None:
+            return None
+        
+        x0, x1, y0, y1 = self.ax1.get_extent(ccrs.PlateCarree())
+        print ('self.ax1.get_extent()',self.ax1.get_extent(ccrs.PlateCarree()))
+        
+        print('self.ax1.projection',self.ax1.projection)
+        self.projection = new_projection
         self.ax1.clear()
         self.ax1.remove()
-        self.projection = new_projection
         self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
-        self.ax1.set_xlabel("Longitude (deg)")
-        self.ax1.set_ylabel("Latitude (deg)")
+#        self.ax1.projection=self.projection
+        print('self.ax1.projection',self.ax1.projection)
         self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
-        self.ax1.set_aspect('auto', 'datalim')
+        self.ax1.set_aspect('auto', adjustable='datalim')
+
+
 
         zoom = max([abs(x0 - x1), abs(y0 - y1)])
-
-        self.figure.canvas.mpl_disconnect(self.mouseMoveID)
-        self.list_axes = [self.ax1, self.ax2, self.ax3, self.ax4]
-        self.mouseMoveID = self.figure.canvas.mpl_connect(
-            "motion_notify_event", self.onMotion
-        )
-
         scale = int(np.ceil(-np.sqrt(2)*np.log(np.divide(zoom,350.0))))+2
         scale = (scale<20) and scale or 19 
-        return scale
+        print('scale',scale)
+        
+        self.grd_map = self.ax1.add_image(img_fact, scale)
+        print ('self.grd_map',self.grd_map)
+
+
+
 
     def get_xylim_PlateCarree(self,x,y, proj):
         """
@@ -1365,9 +1404,7 @@ class Main_Window(wx.Frame):
         """
         if not 'PlateCarree' in ('%s' % getattr(proj,'__class__')):
             x, y = self.crs_lonlat.transform_point(x, y, proj)
-            print('true')
-            
-#        print ('x =', x, ', y =', y)
+
         return x, y
 
 
@@ -1602,11 +1639,11 @@ class Main_Window(wx.Frame):
         lat = self.common_data.lat.where(mask)
         time = self.common_data.time.where(mask)
 
-        if (self.data_sel_config["mission"] == self.current_mission) and (
-            self.data_sel_config["track"] == self.current_track
-        ):
+#        if (self.data_sel_config["mission"] == self.current_mission) and (
+#            self.data_sel_config["track"] == self.current_track
+#        ):
 
-            self.ax1_zoom = {"x": self.ax1.get_xlim(), "y": self.ax1.get_ylim()}
+        x0, x1, y0, y1 = self.ax1.get_extent(ccrs.PlateCarree())
         self.cm = self.comboColorMap.GetValue()
         self.groundmap = self.comboGroundMap.GetValue()
         #        print('Drawing... ',self.param,self.cm,self.groundmap)
@@ -1624,12 +1661,14 @@ class Main_Window(wx.Frame):
 
         self.draw(lon, lat, time, param, mask, self.cm, self.groundmap)
 
-        if (self.data_sel_config["mission"] == self.current_mission) and (
-            self.data_sel_config["track"] == self.current_track
-        ):
-
-            self.ax1.set_xlim(self.ax1_zoom["x"])
-            self.ax1.set_ylim(self.ax1_zoom["y"])
+#        if (self.data_sel_config["mission"] == self.current_mission) and (
+#            self.data_sel_config["track"] == self.current_track
+#        ):
+#            
+        self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
+#            self.ax1.set_xlim(self.ax1_zoom["x"])
+#            self.ax1.set_ylim(self.ax1_zoom["y"])
+        self.ax1.set_aspect('auto', adjustable='datalim')
 
         self.canvas.draw()
         self.current_mission = self.data_sel_config["mission"]
@@ -1956,6 +1995,15 @@ class Main_Window(wx.Frame):
         #            self.rivers.remove()
         #            self.canvas.draw()
 
+        x0 = float(np.min(self.common_data.lon))
+        x1 = float(np.max(self.common_data.lon))
+        y0 = float(np.min(self.common_data.lat))
+        y1 = float(np.max(self.common_data.lat))
+
+        print('x0, x1, y0, y1',x0, x1, y0, y1)
+        self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
+        self.canvas.draw()
+        
         self.initDataSelect(event)
 
         self.comboSelParam.Clear()
