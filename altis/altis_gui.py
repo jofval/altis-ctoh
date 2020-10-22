@@ -471,13 +471,22 @@ class Main_Window(wx.Frame):
         self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
         self.ax1.set_xlabel("Longitude (deg)")
         self.ax1.set_ylabel("Latitude (deg)")
-        self.ax1.autoscale()
-        self.ax2 = self.figure.add_subplot(2, 2, 2) #, sharey=self.ax1)
+        self.ax1.set_aspect('auto', adjustable='datalim')
+        self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True)
+        
+        self.ax1.coastlines()
+        
+        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1)
+        self.ax2.set_aspect('auto', adjustable='datalim')
+        self.ax2.set_yticks(self.ax1.get_yticks())  #, crs=cimgt.OSM().crs)
         self.ax2.set_ylabel("Latitude (deg)")
-        self.ax3 = self.figure.add_subplot(2, 2, 3) #, sharex=self.ax1)
+        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1)
+        self.ax3.set_aspect('auto', adjustable='datalim')
+        self.ax3.set_xticks(self.ax1.get_xticks())  #, crs=cimgt.OSM().crs)
         self.ax3.set_xlabel("Longitude (deg)")
-        self.ax4 = self.figure.add_subplot(2, 2, 4) #, sharey=self.ax3)
+        self.ax4 = self.figure.add_subplot(2, 2, 4, sharey=self.ax3)
         self.ax4.set_xlabel("Time (YYYY-MM)")
+        self.ax4.xaxis_date()
         self.canvas = FigureCanvas(self.plot_panel, -1, self.figure)
         
 #        plt.ion()        
@@ -556,25 +565,26 @@ class Main_Window(wx.Frame):
         )
         #        self.ax1.grid(True)
 
-        gl = self.ax1.gridlines(linewidth=0.5)
+#        gl = self.ax1.gridlines(linewidth=0.5)
 
-        #        gl = self.ax1.gridlines(crs=self.projection,draw_labels=True)
-        gl.xlabels_top = gl.ylabels_right = False
-        gl.xformatter = LONGITUDE_FORMATTER
-        gl.yformatter = LATITUDE_FORMATTER
-        #
-        #        self.ax1.plot(x,y,transform=self.projection)
-        #        gl = self.ax1.gridlines(crs=self.projection, draw_labels=True,
-        #                          linewidth=0.5, color='white', alpha=1.0, linestyle='--')
-        #        gl.xlabels_top = True
-        #        gl.ylabels_left = True
-        #        gl.xlabels_bottom = False
-        #        gl.ylabels_right = False
-        #        gl.xlines = True
-        #        gl.xformatter = LONGITUDE_FORMATTER
-        #        gl.yformatter = LATITUDE_FORMATTER
+#        #        gl = self.ax1.gridlines(crs=self.projection,draw_labels=True)
+#        gl.xlabels_top = gl.ylabels_right = False
+#        gl.xformatter = LONGITUDE_FORMATTER
+#        gl.yformatter = LATITUDE_FORMATTER
+#        #
+#        #        self.ax1.plot(x,y,transform=self.projection)
+#        #        gl = self.ax1.gridlines(crs=self.projection, draw_labels=True,
+#        #                          linewidth=0.5, color='white', alpha=1.0, linestyle='--')
+#        #        gl.xlabels_top = True
+#        #        gl.ylabels_left = True
+#        #        gl.xlabels_bottom = False
+#        #        gl.ylabels_right = False
+#        #        gl.xlines = True
+#        #        gl.xformatter = LONGITUDE_FORMATTER
+#        #        gl.yformatter = LATITUDE_FORMATTER
+        self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True)
 
-        self.ax1.set_aspect("auto", adjustable="datalim", anchor="C", share=False)
+#        self.ax1.set_aspect("auto", adjustable="datalim", anchor="C", share=False)
 
         self.ax2.set_xlabel(param.attrs["long_name"])
         self.ax2.set_ylabel("Latitude (deg)")
@@ -1658,9 +1668,10 @@ class Main_Window(wx.Frame):
             self.plt4.remove()
             del self.plt4
             self.canvas.draw()
-
+    
+#        self.ax1.natural_earth_shp().remove()
+        
         self.draw(lon, lat, time, param, mask, self.cm, self.groundmap)
-
 #        if (self.data_sel_config["mission"] == self.current_mission) and (
 #            self.data_sel_config["track"] == self.current_track
 #        ):
@@ -2002,6 +2013,8 @@ class Main_Window(wx.Frame):
 
         print('x0, x1, y0, y1',x0, x1, y0, y1)
         self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
+        self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True)
+
         self.canvas.draw()
         
         self.initDataSelect(event)
