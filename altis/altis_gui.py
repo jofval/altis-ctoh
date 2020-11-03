@@ -469,27 +469,54 @@ class Main_Window(wx.Frame):
         self.plot_panel = wx.Panel(panel)
         self.figure = Figure()
         self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
-        self.ax1.set_xlabel("Longitude (deg)")
-        self.ax1.set_ylabel("Latitude (deg)")
+        self.ax1.text(-0.05, 0.5, "Latitude (deg)", va='bottom', ha='center',
+        rotation='vertical', rotation_mode='anchor',
+        transform=self.ax1.transAxes)
+        self.ax1.text(0.5, -0.08, 'Longitude (deg)', va='bottom', ha='center',
+        rotation='horizontal', rotation_mode='anchor',
+        transform=self.ax1.transAxes)
         self.ax1.set_aspect('auto', adjustable='datalim')
-        self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True)
-        
         self.ax1.coastlines()
+        self.ax1.set_extent([-179., 179., -85., 85.], crs=ccrs.PlateCarree())
+        self.gl1 = self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True) 
         
-        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1)
+
+        # le sharex et sharey ne marche pas avec des projections différentes
+        # il faut faire un systéme share x et y entre les figures avec le zoom et le pan...
+#        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1, projection=self.projection)
+        self.ax2 = self.figure.add_subplot(2, 2, 2, projection=ccrs.PlateCarree())
+        self.ax2.text(-0.05, 0.5, "Latitude (deg)", va='bottom', ha='center',
+        rotation='vertical', rotation_mode='anchor',
+        transform=self.ax2.transAxes)
+        self.ax2.set_extent([-1., 1., -85., 85.], crs=ccrs.PlateCarree())
         self.ax2.set_aspect('auto', adjustable='datalim')
-        self.ax2.set_yticks(self.ax1.get_yticks())  #, crs=cimgt.OSM().crs)
-        self.ax2.set_ylabel("Latitude (deg)")
-        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1)
+        self.gl2 = self.ax2.gridlines(ccrs.PlateCarree(), draw_labels=True) 
+        self.gl2.xlabels_top = False
+        self.gl2.ylabels_right = False
+        
+
+#        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1, projection=self.projection)
+        self.ax3 = self.figure.add_subplot(2, 2, 3, projection=ccrs.PlateCarree())
+        self.ax3.text(0.5, -0.08, 'Longitude (deg)', va='bottom', ha='center',
+        rotation='horizontal', rotation_mode='anchor',
+        transform=self.ax3.transAxes)
+        self.ax3.set_extent([-179., 179., -1., 1.], crs=ccrs.PlateCarree())
         self.ax3.set_aspect('auto', adjustable='datalim')
-        self.ax3.set_xticks(self.ax1.get_xticks())  #, crs=cimgt.OSM().crs)
-        self.ax3.set_xlabel("Longitude (deg)")
+        self.gl3 = self.ax3.gridlines(ccrs.PlateCarree(), draw_labels=True) 
+        self.gl3.xlabels_top = False
+        self.gl3.ylabels_right = False
+
         self.ax4 = self.figure.add_subplot(2, 2, 4, sharey=self.ax3)
         self.ax4.set_xlabel("Time (YYYY-MM)")
+        self.ax4.set_ylim([-1,1])
         self.ax4.xaxis_date()
+        self.ax4.grid(True)
+
         self.canvas = FigureCanvas(self.plot_panel, -1, self.figure)
         
 #        plt.ion()        
+
+
         
         self.list_axes = [self.ax1, self.ax2, self.ax3, self.ax4]
         self.list_axes_coord = [
@@ -523,6 +550,13 @@ class Main_Window(wx.Frame):
             if idx == 0:
                 if not 'PlateCarree' in ('%s' % getattr(self.ax1.projection,'__class__')):
                     xdata,ydata = self.crs_lonlat.transform_point(xdata, ydata, self.ax1.projection)
+            elif idx == 1:
+                if not 'PlateCarree' in ('%s' % getattr(self.ax2.projection,'__class__')):
+                    xdata,ydata = self.crs_lonlat.transform_point(xdata, ydata, self.ax2.projection)
+            elif idx == 2:
+                if not 'PlateCarree' in ('%s' % getattr(self.ax3.projection,'__class__')):
+                    xdata,ydata = self.crs_lonlat.transform_point(xdata, ydata, self.ax3.projection)
+                    
             self.statusbar.SetStatusText(
                     "Coordinates :\t%s : %s, %s : %s"
                 % (xlabel, "{: 10.6f}".format(xdata), ylabel, "{: 10.6f}".format(ydata))
@@ -547,7 +581,6 @@ class Main_Window(wx.Frame):
                 + self.data_sel_config["kml_file"].split(os.path.sep)[-1]
             )
 
-        #        main_plot_title = 'Mission : '+self.data_sel_config['mission']+' | '+' track number : '+str(self.data_sel_config['track'])+' | '+mode_flag+kml_filename+'\n\n'+self.param
         main_plot_title = (
             "Mission : "
             + self.data_sel_config["mission"]
@@ -563,47 +596,36 @@ class Main_Window(wx.Frame):
         self.plt1 = self.ax1.scatter(
             lon, lat, c=param, marker="+", cmap=cm, transform=self.transform
         )
-        #        self.ax1.grid(True)
-
-#        gl = self.ax1.gridlines(linewidth=0.5)
-
-#        #        gl = self.ax1.gridlines(crs=self.projection,draw_labels=True)
-#        gl.xlabels_top = gl.ylabels_right = False
-#        gl.xformatter = LONGITUDE_FORMATTER
-#        gl.yformatter = LATITUDE_FORMATTER
-#        #
-#        #        self.ax1.plot(x,y,transform=self.projection)
-#        #        gl = self.ax1.gridlines(crs=self.projection, draw_labels=True,
-#        #                          linewidth=0.5, color='white', alpha=1.0, linestyle='--')
-#        #        gl.xlabels_top = True
-#        #        gl.ylabels_left = True
-#        #        gl.xlabels_bottom = False
-#        #        gl.ylabels_right = False
-#        #        gl.xlines = True
-#        #        gl.xformatter = LONGITUDE_FORMATTER
-#        #        gl.yformatter = LATITUDE_FORMATTER
-        self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True)
+#        self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True)
 
 #        self.ax1.set_aspect("auto", adjustable="datalim", anchor="C", share=False)
 
         self.ax2.set_xlabel(param.attrs["long_name"])
-        self.ax2.set_ylabel("Latitude (deg)")
+#        self.ax2.set_ylabel("Latitude (deg)")
         self.plt2 = self.ax2.scatter(param, lat, c=param, marker="+", cmap=cm)
-        self.ax2.grid(True)
+#        self.ax2.grid(True)
 
         self.plt3 = self.ax3.scatter(lon, param, c=param, marker="+", cmap=cm)
-        self.ax3.grid(True)
+#        self.ax3.grid(True)
         self.ax3.set_ylabel(param.attrs["long_name"])
-        self.ax3.set_xlabel("Longitude (deg)")
+#        self.ax3.set_xlabel("Longitude (deg)")
 
         self.plt4 = self.ax4.scatter(
             np.array(time), param, c=param, marker="+", cmap=cm
         )
-        self.ax4.grid(True)
-        self.ax4.set_xlabel("Time (YYYY-MM)")
+#        self.ax4.grid(True)
+#        self.ax4.set_xlabel("Time (YYYY-MM)")
         self.ax4.set_ylabel(param.attrs["long_name"])
-        self.rescale(coord=True)
-
+#        self.rescale(coord=True)
+    
+        self.ax1.autoscale()
+        self.ax2.autoscale()
+        self.ax3.autoscale()
+        self.ax4.autoscale()
+#        pdb.set_trace()
+        self.gl2 = self.ax2.gridlines(ccrs.PlateCarree(), draw_labels=True) 
+        self.gl3 = self.ax3.gridlines(ccrs.PlateCarree(), draw_labels=True) 
+        
         if hasattr(self, "cbar"):
             self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
             self.scalarmap.set_cmap(cmap=cm)
@@ -1388,8 +1410,8 @@ class Main_Window(wx.Frame):
         print('self.ax1.projection',self.ax1.projection)
         self.projection = new_projection
         self.ax1.clear()
-        self.ax1.remove()
-        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
+#        self.ax1.remove()
+#        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
 #        self.ax1.projection=self.projection
         print('self.ax1.projection',self.ax1.projection)
         self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
@@ -2014,6 +2036,10 @@ class Main_Window(wx.Frame):
         print('x0, x1, y0, y1',x0, x1, y0, y1)
         self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
         self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True)
+        self.ax2.set_extent([-1, 1, y0, y1], ccrs.PlateCarree())
+        self.ax2.gridlines(ccrs.PlateCarree(), draw_labels=True)
+        self.ax3.set_extent([x0, x1, -1, 1], ccrs.PlateCarree())
+        self.ax3.gridlines(ccrs.PlateCarree(), draw_labels=True)
 
         self.canvas.draw()
         
