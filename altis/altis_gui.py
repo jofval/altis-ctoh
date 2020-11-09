@@ -48,6 +48,7 @@ register_matplotlib_converters()
 import cartopy.crs as ccrs
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 from cartopy.feature import NaturalEarthFeature, COLORS, GSHHSFeature
+import cartopy.feature as cfeature
 
 # try:
 from cartopy.io.img_tiles import StamenTerrain
@@ -73,6 +74,7 @@ from altis.help_html_gui import Help_Window
 from altis.time_series import Time_Series_Panel
 from altis.colinear_analysis import ColinAnal_Panel
 from altis.patch_code_oswlib_wmts import *
+from altis.connection_check import check_internet
 
 from altis.para_detection import hough_transform    #, hough_transform_linear
 
@@ -263,7 +265,7 @@ class Main_Window(wx.Frame):
         self.statusbar = self.CreateStatusBar(2)
         #        self.SetStatusText(0,"\tCentered")
         #        self.SetStatusText(1,"\t\tRight Aligned")
-        status_bar_right_text = "AlTiS - version : " + __version__ + "           "
+        status_bar_right_text = "AlTiS - version : " + __version__ + "              "
         print(status_bar_right_text)
         version_size = wx.Window.GetTextExtent(self, status_bar_right_text)
         self.SetStatusWidths([-1, version_size.width])
@@ -309,14 +311,18 @@ class Main_Window(wx.Frame):
         #        self.iconUndo = self.mk_iconbar_left("Undo",wx.ART_UNDO,"Undo")
         # Ok button
         hbox_undo = wx.BoxSizer(wx.HORIZONTAL)
-        self.iconUndo = wx.Button(self.toolbar_left_panel, wx.ID_UNDO, label="Undo")
+#        self.iconUndo = wx.Button(self.toolbar_left_panel, wx.ID_UNDO, label="Undo")
+        self.iconUndo = wx.Button(self.toolbar_left_panel, label="Undo")
         hbox_undo.Add(self.iconUndo, border=10)
         vbox.Add(hbox_undo, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
         #        vbox.Add((-1, 5))
 
         hbox2 = wx.BoxSizer(wx.HORIZONTAL)
+#        self.btnRefresh = wx.Button(
+#            self.toolbar_left_panel, wx.ID_REFRESH, label="Refresh"
+#        )
         self.btnRefresh = wx.Button(
-            self.toolbar_left_panel, wx.ID_REFRESH, label="Refresh"
+            self.toolbar_left_panel, label="Refresh"
         )
         hbox2.Add(self.btnRefresh, border=10)
         vbox.Add(hbox2, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
@@ -347,7 +353,8 @@ class Main_Window(wx.Frame):
         vbox.Add(hbox_label, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
         hbox4 = wx.BoxSizer(wx.HORIZONTAL)
-        self.btnSave = wx.Button(self.toolbar_left_panel, wx.ID_SAVE, label="Save")
+#        self.btnSave = wx.Button(self.toolbar_left_panel, wx.ID_SAVE, label="Save")
+        self.btnSave = wx.Button(self.toolbar_left_panel, label="Save")
         hbox4.Add(self.btnSave, border=10)
         vbox.Add(hbox4, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
@@ -419,9 +426,13 @@ class Main_Window(wx.Frame):
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
+#        hbox_cfg = wx.BoxSizer(wx.HORIZONTAL)
+#        self.btnCfg = wx.Button(
+#            self.toolbar_left_panel, wx.ID_PREFERENCES, label="Config. File"
+#        )
         hbox_cfg = wx.BoxSizer(wx.HORIZONTAL)
         self.btnCfg = wx.Button(
-            self.toolbar_left_panel, wx.ID_PREFERENCES, label="Config. File"
+            self.toolbar_left_panel, label="Config. File"
         )
         hbox_cfg.Add(self.btnCfg, border=10)
         vbox.Add(hbox_cfg, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
@@ -451,22 +462,92 @@ class Main_Window(wx.Frame):
         self.btnMkEnv.Bind(wx.EVT_BUTTON, self.onAppEnv)
         self.btnScanHook.Bind(wx.EVT_BUTTON, self.onScanHook)
 
+
+    def mk_subplot_ax1(self,):
+        """
+            create ax1 subplot
+        """
+#        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
+        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
+        self.ax1.text(-0.05, 0.5, "Latitude (deg)", va='bottom', ha='center',
+                    rotation='vertical', rotation_mode='anchor',
+                    transform=self.ax1.transAxes)
+        self.ax1.text(0.5, -0.08, 'Longitude (deg)', va='bottom', ha='center',
+                    rotation='horizontal', rotation_mode='anchor',
+                    transform=self.ax1.transAxes)
+        #self.ax1.set_aspect('auto', adjustable='datalim')
+        self.ax1.set_aspect("auto", adjustable="datalim", anchor="C", share=False)
+        self.gl1 = self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True) 
+#        self.grd_map = self.ax1.add_image(self.osm_img, 1)  #, crs=cimgt.OSM().crs)
+#        print('self.grd_map ',self.grd_map)
+
+    def mk_subplot_ax2(self,):
+        """
+            create ax2 subplot
+        """
+#        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1, projection=self.projection)
+        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1) # , projection=ccrs.PlateCarree())
+        self.ax2.text(-0.05, 0.5, "Latitude (deg)", va='bottom', ha='center',
+        rotation='vertical', rotation_mode='anchor',
+        transform=self.ax2.transAxes)
+        self.ax2.set_aspect('auto', adjustable='datalim')
+        self.ax2.grid(True)
+
+    def mk_subplot_ax3(self,):
+        """
+            create ax3 subplot
+        """
+#        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1, projection=self.projection)
+        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1)    # , projection=ccrs.PlateCarree())
+        self.ax3.text(0.5, -0.08, 'Longitude (deg)', va='bottom', ha='center',
+        rotation='horizontal', rotation_mode='anchor',
+        transform=self.ax3.transAxes)
+        self.ax3.set_aspect('auto', adjustable='datalim')
+        self.ax3.grid(True)
+
+    def mk_subplot_ax4(self,):
+        """
+            create ax4 subplot
+        """
+        self.ax4 = self.figure.add_subplot(2, 2, 4, sharey=self.ax3)
+        self.ax4.set_xlabel("Time (YYYY-MM)")
+        self.ax4.xaxis_date()
+        self.ax4.grid(True)
+
+
+
     def CanvasPanel(self, panel):
         """
             Matplotlib canvas initialisation
         """
+        self.projection = ccrs.PlateCarree()
+        self.crs_lonlat = ccrs.PlateCarree()
+        
         self.plot_panel = wx.Panel(panel)
         self.figure = Figure()
-        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
-        self.ax1.set_xlabel("Longitude (deg)")
-        self.ax1.set_ylabel("Latitude (deg)")
+        
+        self.mk_subplot_ax1()
+        self.ax1.set_extent([-179., 179., -85., 85.], crs=ccrs.PlateCarree())
+        self.ax1.add_feature(cfeature.COASTLINE)
+        self.ax1.add_feature(cfeature.LAKES, color="m")
+        self.ax1.add_feature(cfeature.RIVERS, edgecolor="blue")
         self.ax1.autoscale()
-        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1)
-        self.ax2.set_ylabel("Latitude (deg)")
-        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1)
-        self.ax3.set_xlabel("Longitude (deg)")
-        self.ax4 = self.figure.add_subplot(2, 2, 4, sharey=self.ax3)
-        self.ax4.set_xlabel("Time (YYYY-MM)")
+        
+        self.mk_subplot_ax2()
+#        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1)
+#        self.ax2.set_ylabel("Latitude (deg)")
+
+        self.mk_subplot_ax3()
+#        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1)
+#        self.ax3.set_xlabel("Longitude (deg)")
+
+        self.mk_subplot_ax4()
+#        self.ax4.set_ylim([-1,1])
+#        self.ax4.grid(True)
+
+#        self.ax4 = self.figure.add_subplot(2, 2, 4, sharey=self.ax3)
+#        self.ax4.set_xlabel("Time (YYYY-MM)")
+
         self.canvas = FigureCanvas(self.plot_panel, -1, self.figure)
 
         self.list_axes = [self.ax1, self.ax2, self.ax3, self.ax4]
@@ -498,6 +579,9 @@ class Main_Window(wx.Frame):
         if event.inaxes in self.list_axes:
             idx = self.list_axes.index(event.inaxes)
             [xlabel, ylabel] = self.list_axes_coord[idx]
+            if idx == 0:
+                if not 'PlateCarree' in ('%s' % getattr(self.ax1.projection,'__class__')):
+                    xdata,ydata = self.crs_lonlat.transform_point(xdata, ydata, self.ax1.projection)
             self.statusbar.SetStatusText(
                 "Coordinates :\t%s : %s, %s : %s"
                 % (xlabel, "{: 10.6f}".format(xdata), ylabel, "{: 10.6f}".format(ydata))
@@ -538,43 +622,42 @@ class Main_Window(wx.Frame):
         self.plt1 = self.ax1.scatter(
             lon, lat, c=param, marker="+", cmap=cm, transform=ccrs.PlateCarree()
         )
-        #        self.ax1.grid(True)
 
-        gl = self.ax1.gridlines(linewidth=0.5)
+#        gl = self.ax1.gridlines(linewidth=0.5)
 
-        #        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(),draw_labels=True)
-        gl.xlabels_top = gl.ylabels_right = False
-        gl.xformatter = LONGITUDE_FORMATTER
-        gl.yformatter = LATITUDE_FORMATTER
-        #
-        #        self.ax1.plot(x,y,transform=ccrs.PlateCarree())
-        #        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
-        #                          linewidth=0.5, color='white', alpha=1.0, linestyle='--')
-        #        gl.xlabels_top = True
-        #        gl.ylabels_left = True
-        #        gl.xlabels_bottom = False
-        #        gl.ylabels_right = False
-        #        gl.xlines = True
-        #        gl.xformatter = LONGITUDE_FORMATTER
-        #        gl.yformatter = LATITUDE_FORMATTER
+#        #        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(),draw_labels=True)
+#        gl.xlabels_top = gl.ylabels_right = False
+#        gl.xformatter = LONGITUDE_FORMATTER
+#        gl.yformatter = LATITUDE_FORMATTER
+#        #
+#        #        self.ax1.plot(x,y,transform=ccrs.PlateCarree())
+#        #        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+#        #                          linewidth=0.5, color='white', alpha=1.0, linestyle='--')
+#        #        gl.xlabels_top = True
+#        #        gl.ylabels_left = True
+#        #        gl.xlabels_bottom = False
+#        #        gl.ylabels_right = False
+#        #        gl.xlines = True
+#        #        gl.xformatter = LONGITUDE_FORMATTER
+#        #        gl.yformatter = LATITUDE_FORMATTER
 
-        self.ax1.set_aspect("auto", adjustable="datalim", anchor="C", share=False)
+#        self.ax1.set_aspect("auto", adjustable="datalim", anchor="C", share=False)
 
         self.ax2.set_xlabel(param.attrs["long_name"])
-        self.ax2.set_ylabel("Latitude (deg)")
+#        self.ax2.set_ylabel("Latitude (deg)")
         self.plt2 = self.ax2.scatter(param, lat, c=param, marker="+", cmap=cm)
-        self.ax2.grid(True)
+#        self.ax2.grid(True)
 
         self.plt3 = self.ax3.scatter(lon, param, c=param, marker="+", cmap=cm)
-        self.ax3.grid(True)
+#        self.ax3.grid(True)
         self.ax3.set_ylabel(param.attrs["long_name"])
-        self.ax3.set_xlabel("Longitude (deg)")
+#        self.ax3.set_xlabel("Longitude (deg)")
 
         self.plt4 = self.ax4.scatter(
             np.array(time), param, c=param, marker="+", cmap=cm
         )
-        self.ax4.grid(True)
-        self.ax4.set_xlabel("Time (YYYY-MM)")
+#        self.ax4.grid(True)
+#        self.ax4.set_xlabel("Time (YYYY-MM)")
         self.ax4.set_ylabel(param.attrs["long_name"])
         self.rescale(coord=True)
 
@@ -582,13 +665,26 @@ class Main_Window(wx.Frame):
             self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
             self.scalarmap.set_cmap(cmap=cm)
             self.cbar.set_label(param.attrs["long_name"], rotation=270)
-            self.cbar.draw_all()
+#            self.cbar.draw_all()
         else:
+            from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+            axins = inset_axes(self.ax2,
+                   width="2.5%",  # width = 5% of parent_bbox width
+                   height="100%",  # height : 50%
+                   loc='lower left',
+                   bbox_to_anchor=(1.1, -0.5, 1, 1),
+                   bbox_transform=self.ax2.transAxes,
+                   borderpad=.2,
+                   )
             self.scalarmap = ScalarMappable(cmap=cm)
+#            self.cbar = self.figure.colorbar(
+#                self.scalarmap, ax=[self.ax2, self.ax4], orientation="vertical"
+#            )
             self.cbar = self.figure.colorbar(
-                self.scalarmap, ax=[self.ax2, self.ax4], orientation="vertical"
-            )
-            self.cbar.set_label(param.attrs["long_name"], rotation=270)
+                self.scalarmap, cax=axins)
+            self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
+            self.cbar.set_label(param.attrs["long_name"], rotation=270, labelpad=10, y=0.5)
+                
 
     def create_toolbar(self):
         """
@@ -601,7 +697,7 @@ class Main_Window(wx.Frame):
 
         self.toolbar.AddSeparator()
 
-        self.ListKindData = ["Import data ... ", "GDR Tracks", "AlTiS GDR", "Normpass"]
+        self.ListKindData = ["Import data ... ", "GDR Tracks", "AlTiS GDR"] #, "Normpass"]
         self.comboKindData = wx.ComboBox(
             self.toolbar,
             value=self.ListKindData[0],
@@ -928,9 +1024,9 @@ class Main_Window(wx.Frame):
             Export the configuration file
         """
         altis_mission_cfg = pkg_resources.resource_filename(
-            "altis", "../etc/products_config.yaml"
+            "altis", "../etc/products_config.yml"
         )
-        default_filename = "AlTiS_products_config.yaml"
+        default_filename = "AlTiS_products_config.yml"
         with wx.FileDialog(
             self,
             message="Export AlTiS configuration file",
@@ -1142,19 +1238,41 @@ class Main_Window(wx.Frame):
         
         del cursor_wait
 
+    def get_ax1_xylim(self,):
+        """
+            get xlim and ylim of the plt1 into ax1.
+        """
+        if hasattr(self, "plt1"):
+            x0, x1 = self.ax1.get_xlim()
+            y0, y1 = self.ax1.get_ylim()
+            x0,y0 = self.get_xylim_PlateCarree(x0, y0, self.projection)
+            x1,y1 = self.get_xylim_PlateCarree(x1, y1, self.projection)
+            self.ax1_zoom = {"x": (x0,x1), "y": (y0,y1)}
+            
+        else:
+            self.ax1_zoom = {"x": None, "y": None}
+
+
     def onCoast(self, event):
+        """
+            event to display the coast line
+        """
+        self.update_CoastFeatures()
+        self.canvas.draw()
+    
+    def update_CoastFeatures(self,):
         """
             To display the coast line.
         """
         cursor_wait = wx.BusyCursor()
-        if hasattr(self, "plt1"):
-            self.ax1_zoom = {"x": self.ax1.get_xlim(), "y": self.ax1.get_ylim()}
-            xlim_diff = np.diff(self.ax1.get_xlim())
-            ylim_diff = np.diff(self.ax1.get_ylim())
+        self.get_ax1_xylim()
+        if self.ax1_zoom['x'] is not None:
+            xlim_diff = np.diff(self.ax1_zoom['x'])
+            ylim_diff = np.diff(self.ax1_zoom['y'])
             resol_param = np.sqrt(xlim_diff * xlim_diff + ylim_diff * ylim_diff)
         else:
-            self.ax1_zoom = {"x": None, "y": None}
             resol_param = None
+
 
         if resol_param < 0.5:
             resol = "full"
@@ -1167,31 +1285,34 @@ class Main_Window(wx.Frame):
         else:
             resol = "coarse"
 
-        #        print(resol_param,resol,self.checkCoast.IsChecked())
+        print ('resol_coast',resol)
         if self.checkCoast.IsChecked():
             COAST = GSHHSFeature(scale=resol, levels=[1, 2, 3, 4], edgecolor="red")
             self.coast = self.ax1.add_feature(COAST)
             self.canvas.draw()
         #            print('Done')
         else:
-            self.coast.remove()
-            self.canvas.draw()
+            if hasattr(self,"coast"):
+                self.coast.remove()
 
         del cursor_wait
 
-    def onRiversLakes(self, event):
+    def update_RiversFeatures(self,):
+        """
+            update map plot display of rivers features (hid/show)
+        """
         """
             To display the rivers and lakes shapeline
         """
         cursor_wait = wx.BusyCursor()
-        if hasattr(self, "plt1"):
-            self.ax1_zoom = {"x": self.ax1.get_xlim(), "y": self.ax1.get_ylim()}
-            xlim_diff = np.diff(self.ax1.get_xlim())
-            ylim_diff = np.diff(self.ax1.get_ylim())
+        self.get_ax1_xylim()
+        if self.ax1_zoom['x'] is not None:
+            xlim_diff = np.diff(self.ax1_zoom['x'])
+            ylim_diff = np.diff(self.ax1_zoom['y'])
             resol_param = np.sqrt(xlim_diff * xlim_diff + ylim_diff * ylim_diff)
         else:
-            self.ax1_zoom = {"x": None, "y": None}
             resol_param = None
+            
 
         riverslakes_resol = {"low": "110m", "medium": "50m", "high": "10m"}
 
@@ -1202,7 +1323,7 @@ class Main_Window(wx.Frame):
         else:
             resol = "low"
 
-
+        print ('resol_river',resol)
 #                print(resol_param,resol,self.checkRiversLakes.IsChecked())
         if self.checkRiversLakes.IsChecked():
             RIVERS = NaturalEarthFeature(
@@ -1216,20 +1337,22 @@ class Main_Window(wx.Frame):
             self.canvas.draw()
 #                    print('Done')
         else:
-            self.rivers.remove()
-            self.canvas.draw()
+            if hasattr(self,"rivers"):
+                self.rivers.remove()
 
         del cursor_wait
 
+    def onRiversLakes(self, event):
+        self.update_RiversFeatures()
+        self.canvas.draw()
+        
     def onColorMap(self, event):
         """
             To change the color bar
         """
         cursor_wait = wx.BusyCursor()
-        if hasattr(self, "plt1"):
-            self.ax1_zoom = {"x": self.ax1.get_xlim(), "y": self.ax1.get_ylim()}
-        else:
-            self.ax1_zoom = {"x": None, "y": None}
+        self.get_ax1_xylim()
+
         self.cm = self.comboColorMap.GetValue()
         self.groundmap = self.comboGroundMap.GetValue()
         self.param = self.comboSelParam.GetValue()
@@ -1242,18 +1365,22 @@ class Main_Window(wx.Frame):
         """
             To display the groundMAP
         """
+        if self.internet_connection_check() :
+            self.comboGroundMap.SetSelection(0)
+            return -1
+        
+        print('mk background')
         cursor_wait = wx.BusyCursor()
-        if hasattr(self, "plt1"):
-            self.ax1_zoom = {"x": self.ax1.get_xlim(), "y": self.ax1.get_ylim()}
-        else:
-            self.ax1_zoom = {"x": None, "y": None}
+        
+        self.get_ax1_xylim()
+
         self.cm = self.comboColorMap.GetValue()
         self.groundmap = self.comboGroundMap.GetValue()
         self.param = self.comboSelParam.GetValue()
 
         if self.groundmap == "LandSat":
             altis_cfg = pkg_resources.resource_filename(
-                "altis", "../etc/altis_config.yaml"
+                "altis", "../etc/altis_config.yml"
             )
             with open(altis_cfg) as f:
                 #                try:
@@ -1312,18 +1439,45 @@ class Main_Window(wx.Frame):
 
         del cursor_wait
 
+    def get_xylim_PlateCarree(self,x,y, proj):
+        """
+            return x,y coordinates in lon/lat
+        """
+        if not 'PlateCarree' in ('%s' % getattr(proj,'__class__')):
+            x, y = self.crs_lonlat.transform_point(x, y, proj)
+
+        return x, y
+
+    def internet_connection_check(self,):
+        """
+            Check internet connection availability
+            
+        """
+        if check_internet():
+            print('Internet connection ok.')
+            return False
+        else:
+            message = ("The internet connection is not allowed. Check your network configuration.")
+            
+            with wx.MessageDialog(None, message=message, caption="Info",
+                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_WARNING,)as mssg_dlg:
+
+                if mssg_dlg.ShowModal() == wx.ID_OK:
+                    return True
+        
+
+
     def onSelectData(self, event):
         """
             Graphical data selection
-        """
-        #        print('toolbar status:',self.mpl_toolbar._active)
-        # Switch Off le zoom
-        if self.mpl_toolbar._active == "ZOOM":
+        """        
+#        print("self.mpl_toolbar.mode",self.mpl_toolbar.mode)
+
+        if self.mpl_toolbar.mode == "zoom rect":
             self.mpl_toolbar.ToggleTool(self.mpl_toolbar.wx_ids["Zoom"], False)
             self.mpl_toolbar.zoom()
 
-        # Switch Off le pan
-        if self.mpl_toolbar._active == "PAN":
+        if self.mpl_toolbar.mode == "pan/zoom":
             self.mpl_toolbar.ToggleTool(self.mpl_toolbar.wx_ids["Pan"], False)
             self.mpl_toolbar.pan()
 
@@ -1564,14 +1718,14 @@ class Main_Window(wx.Frame):
 
         self.draw(lon, lat, time, param, mask, self.cm, self.groundmap)
 
-        if (self.data_sel_config["mission"] == self.current_mission) and (
-            self.data_sel_config["track"] == self.current_track
-        ):
+#        if (self.data_sel_config["mission"] == self.current_mission) and (
+#            self.data_sel_config["track"] == self.current_track
+#        ):
 
-            self.ax1.set_xlim(self.ax1_zoom["x"])
-            self.ax1.set_ylim(self.ax1_zoom["y"])
+#            self.ax1.set_xlim(self.ax1_zoom["x"])
+#            self.ax1.set_ylim(self.ax1_zoom["y"])
 
-        self.canvas.draw()
+#        self.canvas.draw()
         self.current_mission = self.data_sel_config["mission"]
         self.current_track = self.data_sel_config["track"]
 
@@ -1587,7 +1741,7 @@ class Main_Window(wx.Frame):
         self.btnExpEnv.Enable()
         self.btnImpEnv.Enable()
         self.btnRescale.Enable()
-        self.btnScanHook.Enable()
+#        self.btnScanHook.Enable()
         del cursor_wait
 
     def onOpen(self, event):
@@ -1780,7 +1934,7 @@ class Main_Window(wx.Frame):
                 self.progress.Destroy()
                 return -1
 
-            #            print('>>>>>:',mission,filename,kml_file)
+            print('>>>>>:',mission,filename,kml_file)
             try:
                 self.tr = GDR_altis(
                     mission,

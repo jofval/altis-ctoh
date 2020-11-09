@@ -106,7 +106,7 @@ def __read_cfg_file__(mission_config_file):
     """
     if mission_config_file is None:
         mission_file_cfg = pkg_resources.resource_filename(
-            "altis", "../etc/products_config.yaml"
+            "altis", "../etc/products_config.yml"
         )
     else:
         if os.path.isfile(mission_config_file):

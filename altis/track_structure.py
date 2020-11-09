@@ -63,9 +63,17 @@ class GDR_altis(object):
         self.lon_hf_name = param_config["param"]["lon_hf"]
         self.lat_hf_name = param_config["param"]["lat_hf"]
 
-        if re.search(filename_pattern, filename) or re.search(
-            filename_tracks_pattern, filename
-        ):
+
+        altisgdr=False
+        with xr.open_dataset(filename) as ds:
+            if hasattr(ds,'processor'):
+                if ds.processor =='altisgdr':
+                    altisgdr=True
+        
+        if altisgdr:
+#        if re.search(filename_pattern, filename) or re.search(
+#            filename_tracks_pattern, filename
+#        ):
             #            match = re.search(filename_pattern, filename)
             self.data_val = xr.open_dataset(filename)
             cycle = self.data_val.cycle
@@ -1019,6 +1027,8 @@ class Track(object):
         dataset_merge.attrs["start_date"] = startdate
         dataset_merge.attrs["end_date"] = enddate
         dataset_merge.attrs["mission"] = self.mission
+        dataset_merge.attrs["processor"] = "altisgdr"
+        
 
         if "global" in self.data_attributs.keys():
             for att in self.data_attributs["global"].keys():

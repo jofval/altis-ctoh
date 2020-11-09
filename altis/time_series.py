@@ -401,7 +401,7 @@ class Time_Series_Panel(wx.Frame):
             np.array(
                 pd.Series(
                     self.common_data.param.coords["date"].where(mask.any(axis=1))
-                ).dt.strftime("%Y-%m-%d")
+                ).dt.strftime("%Y-%m-%d %H:%M:00")
             )[mask_cycle]
         )
 
@@ -457,7 +457,7 @@ class Time_Series_Panel(wx.Frame):
         array.append(np.sum(mask, axis=1).data[mask_cycle])
         array = pd.DataFrame(array).T
         header_csvfile = (
-            ["Cycle number", "Track number", "date (Year-Month-Day)"]
+            ["Cycle number", "Track number", "date (Year-Month-Day hh:mm:ss)"]
             + header_csvfile
             + ["number of sample"]
         )
@@ -575,7 +575,7 @@ class Export_param_sel_Window(wx.Dialog):
         for p in [
             "Cycle number",
             "Track number",
-            "date (Year-Month-Day)",
+            "date (Year-Month-Day hh:mm:ss)",
             "lon",
             "lat",
             "number of sample",
