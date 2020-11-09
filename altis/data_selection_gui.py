@@ -138,7 +138,7 @@ class DatasetSelection(object):
         """
         cursor_wait = wx.BusyCursor()
     
-        path = Path(verts)        
+        path = Path(verts)
 
         #Recupere l'index de la figure courante
         self.axes_idx = self.axes.index(self.current_axes)

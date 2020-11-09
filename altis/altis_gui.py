@@ -75,7 +75,10 @@ from altis.help_html_gui import Help_Window
 
 from altis.time_series import Time_Series_Panel
 from altis.colinear_analysis import ColinAnal_Panel
+
 from altis.patch_code_oswlib_wmts import *
+from altis.patch_code_cartopy_get_image import image_spoof
+from altis.patch_code_mpl_toolbar import *
 
 from altis.para_detection import hough_transform    #, hough_transform_linear
 
@@ -458,66 +461,93 @@ class Main_Window(wx.Frame):
         self.btnMkEnv.Bind(wx.EVT_BUTTON, self.onAppEnv)
         self.btnScanHook.Bind(wx.EVT_BUTTON, self.onScanHook)
 
-    def CanvasPanel(self, panel):
+    def mk_subplot_ax1(self,):
         """
-            Matplotlib canvas initialisation
+            create ax1 subplot
         """
-        self.projection=cimgt.OSM().crs #ccrs.PlateCarree()
-        self.transform =ccrs.PlateCarree()
-        self.crs_lonlat = ccrs.PlateCarree()
-        
-        self.plot_panel = wx.Panel(panel)
-        self.figure = Figure()
         self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
+#        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
         self.ax1.text(-0.05, 0.5, "Latitude (deg)", va='bottom', ha='center',
-        rotation='vertical', rotation_mode='anchor',
-        transform=self.ax1.transAxes)
+                    rotation='vertical', rotation_mode='anchor',
+                    transform=self.ax1.transAxes)
         self.ax1.text(0.5, -0.08, 'Longitude (deg)', va='bottom', ha='center',
-        rotation='horizontal', rotation_mode='anchor',
-        transform=self.ax1.transAxes)
+                    rotation='horizontal', rotation_mode='anchor',
+                    transform=self.ax1.transAxes)
         self.ax1.set_aspect('auto', adjustable='datalim')
-        self.ax1.coastlines()
-        self.ax1.set_extent([-179., 179., -85., 85.], crs=ccrs.PlateCarree())
         self.gl1 = self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True) 
-        
+#        self.grd_map = self.ax1.add_image(self.osm_img, 1)  #, crs=cimgt.OSM().crs)
+#        print('self.grd_map ',self.grd_map)
 
-        # le sharex et sharey ne marche pas avec des projections différentes
-        # il faut faire un systéme share x et y entre les figures avec le zoom et le pan...
+    def mk_subplot_ax2(self,):
+        """
+            create ax2 subplot
+        """
 #        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1, projection=self.projection)
         self.ax2 = self.figure.add_subplot(2, 2, 2, projection=ccrs.PlateCarree())
         self.ax2.text(-0.05, 0.5, "Latitude (deg)", va='bottom', ha='center',
         rotation='vertical', rotation_mode='anchor',
         transform=self.ax2.transAxes)
-        self.ax2.set_extent([-1., 1., -85., 85.], crs=ccrs.PlateCarree())
         self.ax2.set_aspect('auto', adjustable='datalim')
         self.gl2 = self.ax2.gridlines(ccrs.PlateCarree(), draw_labels=True) 
         self.gl2.xlabels_top = False
         self.gl2.ylabels_right = False
-        
 
+    def mk_subplot_ax3(self,):
+        """
+            create ax3 subplot
+        """
 #        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1, projection=self.projection)
         self.ax3 = self.figure.add_subplot(2, 2, 3, projection=ccrs.PlateCarree())
         self.ax3.text(0.5, -0.08, 'Longitude (deg)', va='bottom', ha='center',
         rotation='horizontal', rotation_mode='anchor',
         transform=self.ax3.transAxes)
-        self.ax3.set_extent([-179., 179., -1., 1.], crs=ccrs.PlateCarree())
         self.ax3.set_aspect('auto', adjustable='datalim')
         self.gl3 = self.ax3.gridlines(ccrs.PlateCarree(), draw_labels=True) 
         self.gl3.xlabels_top = False
         self.gl3.ylabels_right = False
 
+    def mk_subplot_ax4(self,):
+        """
+            create ax4 subplot
+        """
         self.ax4 = self.figure.add_subplot(2, 2, 4, sharey=self.ax3)
         self.ax4.set_xlabel("Time (YYYY-MM)")
-        self.ax4.set_ylim([-1,1])
         self.ax4.xaxis_date()
+
+
+    def CanvasPanel(self, panel):
+        """
+            Matplotlib canvas initialisation
+        """
+        import cartopy.feature as cfeature
+        self.projection=cimgt.OSM().crs #ccrs.PlateCarree()
+        self.transform =ccrs.PlateCarree()
+        self.crs_lonlat = ccrs.PlateCarree()
+        
+        self.plot_panel = wx.Panel(panel)
+
+        self.figure = Figure()
+        
+        self.mk_subplot_ax1()
+        self.ax1.set_extent([-179., 179., -85., 85.], crs=ccrs.PlateCarree())
+        self.ax1.add_feature(cfeature.COASTLINE)
+        self.ax1.add_feature(cfeature.LAKES, color="m")
+        self.ax1.add_feature(cfeature.RIVERS, edgecolor="blue")
+
+        # le sharex et sharey ne marche pas avec des projections différentes
+        # il faut faire un systéme share x et y entre les figures avec le zoom et le pan...
+        self.mk_subplot_ax2()
+        self.ax2.set_extent([-1., 1., -85., 85.], crs=ccrs.PlateCarree())
+
+        self.mk_subplot_ax3()
+        self.ax3.set_extent([-179., 179., -1., 1.], crs=ccrs.PlateCarree())
+
+        self.mk_subplot_ax4()
+#        self.ax4.set_ylim([-1,1])
         self.ax4.grid(True)
 
         self.canvas = FigureCanvas(self.plot_panel, -1, self.figure)
-        
-#        plt.ion()        
 
-
-        
         self.list_axes = [self.ax1, self.ax2, self.ax3, self.ax4]
         self.list_axes_coord = [
             ["Lon", "Lat"],
@@ -537,6 +567,17 @@ class Main_Window(wx.Frame):
         self.mouseMoveID = self.figure.canvas.mpl_connect(
             "motion_notify_event", self.onMotion
         )
+
+        self.ax1_extent = []
+        def on_press(evt):
+            state = self.mpl_toolbar.mode
+            if state == '':
+                print("no tool selected")
+            else:
+                self.ax1_extent.append(self.ax1.get_extent(ccrs.PlateCarree()))
+                print(f"{state} selected", self.ax1_extent)
+
+        cid = self.canvas.mpl_connect('button_press_event', on_press)
 
     def onMotion(self, event):
         """
@@ -593,50 +634,85 @@ class Main_Window(wx.Frame):
 
         self.figure.suptitle(main_plot_title, fontsize=16)
 
+        self.ax1.remove()
+        self.ax2.remove()
+        self.ax3.remove()
+        self.ax4.remove()
+
+        self.mk_subplot_ax1()
+        self.mk_subplot_ax2()
+        self.mk_subplot_ax3()
+        self.mk_subplot_ax4()
+        self.list_axes = [self.ax1, self.ax2, self.ax3, self.ax4]
+        
         self.plt1 = self.ax1.scatter(
             lon, lat, c=param, marker="+", cmap=cm, transform=self.transform
         )
-#        self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True)
-
-#        self.ax1.set_aspect("auto", adjustable="datalim", anchor="C", share=False)
 
         self.ax2.set_xlabel(param.attrs["long_name"])
-#        self.ax2.set_ylabel("Latitude (deg)")
         self.plt2 = self.ax2.scatter(param, lat, c=param, marker="+", cmap=cm)
-#        self.ax2.grid(True)
 
         self.plt3 = self.ax3.scatter(lon, param, c=param, marker="+", cmap=cm)
-#        self.ax3.grid(True)
         self.ax3.set_ylabel(param.attrs["long_name"])
-#        self.ax3.set_xlabel("Longitude (deg)")
 
         self.plt4 = self.ax4.scatter(
             np.array(time), param, c=param, marker="+", cmap=cm
         )
-#        self.ax4.grid(True)
-#        self.ax4.set_xlabel("Time (YYYY-MM)")
         self.ax4.set_ylabel(param.attrs["long_name"])
 #        self.rescale(coord=True)
     
-        self.ax1.autoscale()
-        self.ax2.autoscale()
-        self.ax3.autoscale()
-        self.ax4.autoscale()
-#        pdb.set_trace()
+        param_max = float(np.max(param))
+        param_min = float(np.min(param))
+        lon_min = float(np.min(lon))
+        lon_max = float(np.max(lon))
+        lat_min = float(np.min(lat))
+        lat_max = float(np.max(lat))
+
+        print(param_min,param_max,lon_min,lon_max,lat_min,lat_max)
+        self.ax1.set_extent([lon_min,lon_max,lat_min,lat_max],ccrs.PlateCarree())
+        self.ax2.set_extent([param_min,param_max,lat_min,lat_max],ccrs.PlateCarree())
+        self.ax3.set_extent([lon_min,lon_max,param_min,param_max],ccrs.PlateCarree())
+        
+#        import matplotlib.path as mpath
+##        delta_d=0.1
+###        vertices = [[lon_min-delta_d,lat_min-delta_d],[lon_min-delta_d,lat_max+delta_d],[lon_max+delta_d,lat_max+delta_d],[lon_min-delta_d,lat_max+delta_d],[lon_min-delta_d,lat_min-delta_d]]
+#        vertices = [[lon_min,lat_min],[lon_min,lat_max],[lon_max,lat_max],[lon_min,lat_max],[lon_min,lat_min]]
+#        boundary = mpath.Path(vertices)
+#        self.ax1.set_boundary(boundary, transform=ccrs.PlateCarree())
+
+        print('self.ax1.get_extent(ccrs.PlateCarree())',self.ax1.get_extent(ccrs.PlateCarree()))
+        
+
+        self.gl1 = self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True) 
         self.gl2 = self.ax2.gridlines(ccrs.PlateCarree(), draw_labels=True) 
         self.gl3 = self.ax3.gridlines(ccrs.PlateCarree(), draw_labels=True) 
         
         if hasattr(self, "cbar"):
             self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
             self.scalarmap.set_cmap(cmap=cm)
-            self.cbar.set_label(param.attrs["long_name"], rotation=270)
-            self.cbar.draw_all()
+            self.cbar.set_label(param.attrs["long_name"], rotation=270, labelpad=10, y=0.5)
+#            self.cbar.draw_all()
         else:
+            from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+            axins = inset_axes(self.ax2,
+                   width="2.5%",  # width = 5% of parent_bbox width
+                   height="100%",  # height : 50%
+                   loc='lower left',
+                   bbox_to_anchor=(1.1, -0.5, 1, 1),
+                   bbox_transform=self.ax2.transAxes,
+                   borderpad=.2,
+                   )
             self.scalarmap = ScalarMappable(cmap=cm)
+#            self.cbar = self.figure.colorbar(
+#                self.scalarmap, ax=[self.ax2, self.ax4], orientation="vertical"
+#            )
             self.cbar = self.figure.colorbar(
-                self.scalarmap, ax=[self.ax2, self.ax4], orientation="vertical"
-            )
-            self.cbar.set_label(param.attrs["long_name"], rotation=270)
+                self.scalarmap, cax=axins)
+
+            self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
+            self.cbar.set_label(param.attrs["long_name"], rotation=270, labelpad=10, y=0.5)
+
+        self.canvas.draw()
 
     def create_toolbar(self):
         """
@@ -1318,28 +1394,6 @@ class Main_Window(wx.Frame):
         """
         cursor_wait = wx.BusyCursor()
 
-        import io
-        from urllib.request import urlopen, Request
-        from PIL import Image
-
-##################################################################################
-        # Patch to solve the issu of user agent
-        def image_spoof(self, tile): # this function pretends not to be a Python script
-            url = self._image_url(tile) # get the url of the street map API
-            req = Request(url) # start request
-#            req.add_header('User-agent','Anaconda 3') # add user agent to request
-            req.add_header('User-agent','CartoPy/0.18.0') # add user agent to request
-            print('>>>',tile, url)
-            fh = urlopen(req) 
-            print('>ok.')
-            im_data = io.BytesIO(fh.read()) # get image
-            fh.close() # close url
-            img = Image.open(im_data) # open image with PIL
-            img = img.convert(self.desired_tile_form) # set image format
-            return img, self.tileextent(tile), 'lower' # reformat for cartopy
-##################################################################################
-
-
         self.get_ax1_xylim()
 
         self.cm = self.comboColorMap.GetValue()
@@ -1381,20 +1435,19 @@ class Main_Window(wx.Frame):
                 (self.groundmap == "OSM Terrain") ):
             self.update_map_plot(osm_img,osm_img.crs)
 
-#        elif self.groundmap == "OSM Satellite" :
-#            self.update_map_plot(osm_img,osm_img.crs)
-
-#        elif self.groundmap == "OSM Terrain":
-#            self.update_map_plot(osm_img,osm_img.crs)
 
         elif self.groundmap == "Ground Map None":
             if hasattr(self,'grd_map'):
-                self.grd_map.clear()
-                
+                x0, x1, y0, y1 = self.ax1.get_extent(ccrs.PlateCarree())
+                self.ax1.remove()
+                self.mk_subplot_ax1()
+                self.list_axes = [self.ax1, self.ax2, self.ax3, self.ax4]
+                self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
 
         self.update_RiversFeatures()
         self.update_CoastFeatures()
         self.update_plot()
+
         del cursor_wait
 
     def update_map_plot(self,img_fact,new_projection):
@@ -1409,23 +1462,19 @@ class Main_Window(wx.Frame):
         
         print('self.ax1.projection',self.ax1.projection)
         self.projection = new_projection
-        self.ax1.clear()
-#        self.ax1.remove()
-#        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
-#        self.ax1.projection=self.projection
-        print('self.ax1.projection',self.ax1.projection)
+        self.ax1.remove()
+        self.mk_subplot_ax1()
+        self.list_axes = [self.ax1, self.ax2, self.ax3, self.ax4]
         self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
-        self.ax1.set_aspect('auto', adjustable='datalim')
-
-
 
         zoom = max([abs(x0 - x1), abs(y0 - y1)])
         scale = int(np.ceil(-np.sqrt(2)*np.log(np.divide(zoom,350.0))))+2
         scale = (scale<20) and scale or 19 
         print('scale',scale)
         
-        self.grd_map = self.ax1.add_image(img_fact, scale)
+        self.grd_map = self.ax1.add_image(img_fact, scale)  #, crs=cimgt.OSM().crs)
         print ('self.grd_map',self.grd_map)
+        
 
 
 
@@ -1445,16 +1494,18 @@ class Main_Window(wx.Frame):
         """
             Graphical data selection
         """
-        #        print('toolbar status:',self.mpl_toolbar._active)
-        # Switch Off le zoom
-        if self.mpl_toolbar._active == "ZOOM":
-            self.mpl_toolbar.ToggleTool(self.mpl_toolbar.wx_ids["Zoom"], False)
-            self.mpl_toolbar.zoom()
+        
+        if self.mpl_toolbar.mode != '': return
+#        #        print('toolbar status:',self.mpl_toolbar._active)
+#        # Switch Off le zoom
+#        if self.mpl_toolbar._active == "ZOOM":
+#            self.mpl_toolbar.ToggleTool(self.mpl_toolbar.wx_ids["Zoom"], False)
+#            self.mpl_toolbar.zoom()
 
-        # Switch Off le pan
-        if self.mpl_toolbar._active == "PAN":
-            self.mpl_toolbar.ToggleTool(self.mpl_toolbar.wx_ids["Pan"], False)
-            self.mpl_toolbar.pan()
+#        # Switch Off le pan
+#        if self.mpl_toolbar._active == "PAN":
+#            self.mpl_toolbar.ToggleTool(self.mpl_toolbar.wx_ids["Pan"], False)
+#            self.mpl_toolbar.pan()
 
         #        print('onSelectData')
         #        pdb.set_trace()
@@ -1698,12 +1749,12 @@ class Main_Window(wx.Frame):
 #            self.data_sel_config["track"] == self.current_track
 #        ):
 #            
-        self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
+#        self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
 #            self.ax1.set_xlim(self.ax1_zoom["x"])
 #            self.ax1.set_ylim(self.ax1_zoom["y"])
-        self.ax1.set_aspect('auto', adjustable='datalim')
+#        self.ax1.set_aspect('auto', adjustable='datalim')
 
-        self.canvas.draw()
+#        self.canvas.draw()
         self.current_mission = self.data_sel_config["mission"]
         self.current_track = self.data_sel_config["track"]
 
@@ -2028,20 +2079,20 @@ class Main_Window(wx.Frame):
         #            self.rivers.remove()
         #            self.canvas.draw()
 
-        x0 = float(np.min(self.common_data.lon))
-        x1 = float(np.max(self.common_data.lon))
-        y0 = float(np.min(self.common_data.lat))
-        y1 = float(np.max(self.common_data.lat))
+#        x0 = float(np.min(self.common_data.lon))
+#        x1 = float(np.max(self.common_data.lon))
+#        y0 = float(np.min(self.common_data.lat))
+#        y1 = float(np.max(self.common_data.lat))
 
-        print('x0, x1, y0, y1',x0, x1, y0, y1)
-        self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
-        self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True)
-        self.ax2.set_extent([-1, 1, y0, y1], ccrs.PlateCarree())
-        self.ax2.gridlines(ccrs.PlateCarree(), draw_labels=True)
-        self.ax3.set_extent([x0, x1, -1, 1], ccrs.PlateCarree())
-        self.ax3.gridlines(ccrs.PlateCarree(), draw_labels=True)
+#        print('x0, x1, y0, y1',x0, x1, y0, y1)
+#        self.ax1.set_extent([x0, x1, y0, y1], ccrs.PlateCarree())
+##        self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True)
+#        self.ax2.set_extent([-1, 1, y0, y1], ccrs.PlateCarree())
+##        self.ax2.gridlines(ccrs.PlateCarree(), draw_labels=True)
+#        self.ax3.set_extent([x0, x1, -1, 1], ccrs.PlateCarree())
+##        self.ax3.gridlines(ccrs.PlateCarree(), draw_labels=True)
 
-        self.canvas.draw()
+#        self.canvas.draw()
         
         self.initDataSelect(event)
 
