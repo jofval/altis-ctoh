@@ -659,7 +659,6 @@ class Main_Window(wx.Frame):
 #        self.ax4.grid(True)
 #        self.ax4.set_xlabel("Time (YYYY-MM)")
         self.ax4.set_ylabel(param.attrs["long_name"])
-        self.rescale(coord=True)
 
         if hasattr(self, "cbar"):
             self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
@@ -684,7 +683,8 @@ class Main_Window(wx.Frame):
                 self.scalarmap, cax=axins)
             self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
             self.cbar.set_label(param.attrs["long_name"], rotation=270, labelpad=10, y=0.5)
-                
+        self.rescale(coord=True)
+
 
     def create_toolbar(self):
         """
