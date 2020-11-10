@@ -1501,7 +1501,7 @@ class Main_Window(wx.Frame):
             self.figure,
             [self.plt1, self.plt2, self.plt3, self.plt4],
             [self.ax1, self.ax2, self.ax3, self.ax4],
-            self.select_text_info,
+            self.select_text_info, self.selectall_flag,
         )
         self.iconUndo.Enable()
         self.btnRefresh.Enable()
@@ -2051,7 +2051,7 @@ class Main_Window(wx.Frame):
         #            self.canvas.draw()
 
         self.initDataSelect(event)
-
+        self.selectall_flag=True
         self.comboSelParam.Clear()
         for param in self.param_list:
             self.comboSelParam.Append(param)
@@ -2090,6 +2090,7 @@ class Main_Window(wx.Frame):
         cycle_mask = np.tile(cycle_mask, (len(self.norm_index), 1)).T
         self.common_data.CYCLE_SEL = cycle_mask
         self.update_plot()
+        self.selectall_flag=False
 
     def onSelectAll(self, event):
         """
@@ -2099,6 +2100,7 @@ class Main_Window(wx.Frame):
         cycle_mask = np.tile(cycle_mask, (len(self.norm_index), 1)).T
         self.common_data.CYCLE_SEL = cycle_mask
         self.update_plot()
+        self.selectall_flag=True
 
     def onSelectPassCombox(self, event):
         """

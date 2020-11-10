@@ -426,7 +426,7 @@ Saral (srl) :
 # Sentinel-3
 ################################################################################
 #s3lanOT : &s3
-Sentinel-3 A & B (s3a & s3b): &s3
+Sentinel-3 A (s3a): &s3
     filename_normpass_pattern : .*_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
     filename_pattern : _\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_.*T.*_.*_C\d{3}_P\d{3}_L.*_.*_NT_.*\.nc
@@ -518,13 +518,14 @@ Sentinel-3 A & B (s3a & s3b): &s3
 #    dim_lf : time_01
 #    dim_hf : [time_20_ku, time_20_c]
 #    
+
 #################################################################################
-#s3b_lan :
-#    <<: *s3
-#    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
-#    # dimensions parameters
-#    dim_lf : time_01
-#    dim_hf : [time_20_ku, time_20_c]
+Sentinel-3 B (s3b):
+    <<: *s3
+    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+    # dimensions parameters
+    dim_lf : time_01
+    dim_hf : [time_20_ku, time_20_c]
 
 #################################################################################
 #s3b_lan :

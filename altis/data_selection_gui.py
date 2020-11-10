@@ -31,7 +31,7 @@ class DatasetSelection(object):
         Graphical data selection class
     """
 
-    def __init__(self, main_panel, fig, plt_list,axes_list, select_text_info,DEBUG=True):
+    def __init__(self, main_panel, fig, plt_list,axes_list, select_text_info,selectall_flag,DEBUG=False):
         """
             Initialisation
         """
@@ -45,6 +45,7 @@ class DatasetSelection(object):
         [self.plt1,self.plt2,self.plt3,self.plt4] = plt_list
         self.collections = dict()
         self.fc = dict()
+        self.selectall_flag=selectall_flag
         self.debug = DEBUG
         self.select_text_info = select_text_info
 
@@ -66,11 +67,11 @@ class DatasetSelection(object):
         self.input_mask_index = np.where(self.mask_output)
         self.input_mask_index = np.array([self.input_mask_index[0],self.input_mask_index[1]])
         
-#        if self.debug:
-#            print('self.MASTER_mask.shape',self.MASTER_mask.shape)
-#            print('self.input_mask_index.shape',self.input_mask_index.shape)
-#            print('self.mask_xys.shape',self.mask_xys.shape)
-#            print('np.sum(self.xys.mask)',np.sum(self.xys[0].mask))
+        if self.debug:
+            print('self.MASTER_mask.shape',self.MASTER_mask.shape)
+            print('self.input_mask_index.shape',self.input_mask_index.shape)
+            print('self.mask_xys.shape',self.mask_xys.shape)
+            print('np.sum(self.xys.mask)',np.sum(self.xys[0].mask))
 
         def get_axes(event):
             """
@@ -119,7 +120,7 @@ class DatasetSelection(object):
             del cursor_wait
 
         self.cid_axes = self.canvas.mpl_connect('button_press_event', get_axes)
-        self.cid_key = self.canvas.mpl_connect("key_press_event", accept)          
+        self.cid_key = self.canvas.mpl_connect("key_press_event", accept)
         
     def init_selector(self):
         """
@@ -139,59 +140,59 @@ class DatasetSelection(object):
             selection action
         """
         cursor_wait = wx.BusyCursor()
-    
-        path = Path(verts)        
+
+        path = Path(verts)
 
         #Recupere l'index de la figure courante
         self.axes_idx = self.axes.index(self.current_axes)
         if self.debug:
             print('self.axes_idx',self.axes_idx)
         self.axes[self.axes_idx].set_title("Data selection : 'r' key to reverse,\n'Enter' (or 'v') key to validate, 'Escape' key to abort. ",color='r',fontweight='bold')
-        
+
         self.ind = np.nonzero([path.contains_point(xy) for xy in self.xys[self.axes_idx]])[0]
-        
-#        if self.debug:
-#            print('self.xys[self.axes_idx].shape : ',self.xys[self.axes_idx].shape)
-#            print('len(self.ind) : ',len(self.ind), np.max(self.ind), np.min(self.ind))
-        
+
+        if self.debug:
+            print('self.xys[self.axes_idx].shape : ',self.xys[self.axes_idx].shape)
+            print('len(self.ind) : ',len(self.ind), np.max(self.ind), np.min(self.ind))
+
         self.select_flag = "inside"
         self.mask_xys[:] = False
         self.mask_xys[self.ind] = True
-        
+
         self.ind_not_sel=np.where(self.mask_xys == False)[0]
-        
+
         cursor_wait = wx.BusyCursor()
         for ax in range(len(self.axes)):
             self.fc[ax][:, -1] = 0.05
             self.fc[ax][self.ind, -1] = 1
             self.axes[ax].collections[0].set_facecolors(self.fc[ax])
         self.canvas.draw_idle()
-        
+
         self.input_mask_index_sel = self.input_mask_index[:,self.ind]
-        #self.input_mask_index_not_sel = self.input_mask_index[:,self.ind_not_sel]
-        
+        self.input_mask_index_not_sel = self.input_mask_index[:,self.ind_not_sel]
+
         # on récupère le numéro d'index des cycles selectionnés
         self.idx_cy_sel = np.unique(self.input_mask_index_sel[0,:])
 
         # on récupère le numéro d'index des cycles non selectionnés 
         # mais visible dans la fenétre graphique
-        #self.idx_cy_not_sel = np.unique(self.input_mask_index_not_sel[0,:])
+        self.idx_cy_not_sel = np.unique(self.input_mask_index_not_sel[0,:])
 
         # on initilalise à True par défaut le mask_ouput
         self.mask_output[self.input_mask_index[0,:],self.input_mask_index[1,:]] = True
-        
+
+        if (self.selectall_flag):   # & (self.axes_idx != 3):
+            # on initialise à False que les cycles qui n'ont pas été selectionnés
+            self.mask_output [self.idx_cy_not_sel,:] = False
         # on initialise à False que les cycles qui ont été selectionnés
         self.mask_output[self.idx_cy_sel,:] = False
-        # on initialise à False que les cycles qui n'ont pas été selectionnés
-        #self.mask_output [self.idx_cy_not_sel,:] = False
-        
+
         # on met uniquement à True les points à l'intérieure de la selection graphique des cycles selectionnés
         self.mask_output[self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
 
-#        pdb.set_trace()
         del cursor_wait
         self.disconnect()
-                            
+
     def plot_selection(self,alpha):
         """
             inside/outside mask selection managment 
@@ -205,6 +206,9 @@ class DatasetSelection(object):
 #                self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = True 
 #                self.mask_output [self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = False
 
+            if (self.selectall_flag) & (self.axes_idx == 3):
+                # on initialise à False que les cycles qui n'ont pas été selectionnés
+                self.mask_output [self.idx_cy_not_sel,:] = True
             # on initialise à False que les cycles qui ont été selectionnés
             self.mask_output[self.idx_cy_sel,:] = True
             
@@ -223,6 +227,9 @@ class DatasetSelection(object):
 #                self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = False
 #                self.mask_output[self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
 
+            if (self.selectall_flag) & (self.axes_idx == 3):
+                # on initialise à False que les cycles qui n'ont pas été selectionnés
+                self.mask_output [self.idx_cy_not_sel,:] = False
             # on initialise à False que les cycles qui ont été selectionnés
             self.mask_output[self.idx_cy_sel,:] = False
             
