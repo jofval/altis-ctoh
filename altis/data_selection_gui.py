@@ -36,7 +36,7 @@ class DatasetSelection(object):
             Initialisation
         """
         self.main_panel = main_panel
-        self.main_panel.SetCursor(wx.StockCursor(wx.CURSOR_PENCIL))
+        self.main_panel.SetCursor(wx.Cursor(wx.CURSOR_PENCIL))
         self.fig = fig
         self.canvas = fig.canvas
         self.axes = axes_list 
@@ -102,7 +102,8 @@ class DatasetSelection(object):
                 self.progress.Destroy()
                 self.select_text_info.set_text('Press refresh ...')
                 self.canvas.draw_idle()
-                self.main_panel.SetCursor(wx.StockCursor(wx.NullCursor))
+                self.main_panel.SetCursor(wx.Cursor(wx.NullCursor))
+#                self.main_panel.SetCursor(wx.StockCursor(wx.NullCursor))
 #                self.main_panel.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
                                 
             elif event.key == "r":  # revers selection
@@ -114,8 +115,7 @@ class DatasetSelection(object):
                 self.canvas.mpl_disconnect(self.cid_axes)
                 self.canvas.mpl_disconnect(self.cid_key)
                 self.select_text_info.set_text('')
-#                self.main_panel.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
-                self.main_panel.SetCursor(wx.StockCursor(wx.NullCursor))
+                self.main_panel.SetCursor(wx.Cursor(wx.NullCursor))
             del cursor_wait
 
         self.cid_axes = self.canvas.mpl_connect('button_press_event', get_axes)
