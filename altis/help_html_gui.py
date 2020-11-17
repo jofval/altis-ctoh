@@ -58,12 +58,13 @@ class Help_Window(wx.Frame):
         info.SetName("AlTiS\n")
         info.SetVersion("Version " + __version__ + "\n" + __revision__)
         info.SetDescription(description)
-        info.SetCopyright("CeCill FREE SOFTWARE LICENSE, 2019-2020, CTOH\n"
-                          +"  IDDN : ")
+        info.SetCopyright("\n\n\nCeCill FREE SOFTWARE LICENSE, 2019-2020, CTOH\n\n"
+                          +"  IDDN Certification : IDDN.FR.010.0121234.000.R.X.2020.041.30000\n\n\n")
         info.SetWebSite(
             "http://ctoh.legos.obs-mip.fr/applications/land_surfaces/softwares/altis",
             "AlTiS Web Site",
         )
+
         info.SetLicence(licence)
         #            info.AddDeveloper(""" Fabien Blarel, blarel@legos.obs-mip.fr
         #
