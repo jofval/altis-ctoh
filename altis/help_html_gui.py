@@ -33,72 +33,52 @@ from altis._version import __version__, __revision__
 # Help window
 # -------------------------------------------------------------------------------
 class Help_Window(wx.Frame):
-    def __init__(self):
-        super().__init__(None, title="AlTiS : Help!", size=(400, 800))
-        # wx.Frame.__init__(self, parent, wx.ID_ANY, title="AlTiS : Help!", size=(400,400))
-        html_file = pkg_resources.resource_filename("altis", "../etc/HELP.html")
-        with open(html_file, "r") as fh:
-            html_text = fh.read()
-        html = wxHTML(self)
+    def OnAboutBox(self):
+        logo_file = pkg_resources.resource_filename(
+            "altis", "../etc/altis_logo.png"
+        )
+        licence_file = pkg_resources.resource_filename(
+            "altis", "../Licence_CeCILL_V2.1-en.txt"
+        )
 
-        html.SetPage(html_text)
+        with open(licence_file,'r') as fs:
+            text_file=fs.read()
+
+        description = (
+            "AlTiS (Altimetric Time Series) software is a tool to "
+            + "build time series from altimetric GDR (Geographic Data Reccord) data "
+            + "suppled by the French Observation Service CTOH (Centre of Topography "
+            + "of the Oceans and the Hydrosphere)."
+        )
+
+        licence = text_file
+        info = wx.adv.AboutDialogInfo()
+
+        info.SetIcon(wx.Icon(logo_file, wx.BITMAP_TYPE_PNG))
+        info.SetName("AlTiS\n")
+        info.SetVersion("Version " + __version__ + "\n" + __revision__)
+        info.SetDescription(description)
+        info.SetCopyright("CeCill FREE SOFTWARE LICENSE, 2019-2020, CTOH\n"
+                          +"  IDDN : ")
+        info.SetWebSite(
+            "http://ctoh.legos.obs-mip.fr/applications/land_surfaces/softwares/altis",
+            "AlTiS Web Site",
+        )
+        info.SetLicence(licence)
+        #            info.AddDeveloper(""" Fabien Blarel, blarel@legos.obs-mip.fr
+        #
+        #                         with the contributions of:
+        #                          - Denis Blumstien
+        #                          - Frederic Frappart
+        #                          - Fernando Nino
+        #                          -
+        #                          -
+        #                                     """)
+
+        # info.AddDocWriter('CTOH')
+        # info.AddArtist('The CTOH crew')
+        # info.AddTranslator('CTOH')
+
+        wx.adv.AboutBox(info)
 
 
-class wxHTML(wx.html.HtmlWindow):
-    def OnLinkClicked(self, link):
-        print(link.GetHref())
-        if link.GetHref() == "About":
-            logo_file = pkg_resources.resource_filename(
-                "altis", "../etc/altis_logo.png"
-            )
-
-            description = (
-                "AlTiS (Altimetric Time Series) software is a tool to "
-                + "build time series from altimetric GDR (Geographic Data Reccord) data "
-                + "suppled by the French Observation Service CTOH (Centre of Topography "
-                + "of the Oceans and the Hydrosphere)."
-            )
-
-            licence = """All of AlTiS the source code is available under the CeCiLL License. What does it means? You have the freedom to:
-
-                        - use the software for any purpose,
-                        - change the software to suit your needs,
-                        - share the software with your friends and neighbors, and
-                        - share the changes you make.
-
-                    For more detail, you can refer to the CeCiLL License.
-
-                    AlTiS is distributed in the hope that it will be useful,
-                    but WITHOUT ANY WARRANTY; without even the implied warranty of
-                    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."""
-
-            info = wx.adv.AboutDialogInfo()
-
-            info.SetIcon(wx.Icon(logo_file, wx.BITMAP_TYPE_PNG))
-            info.SetName("AlTiS\n")
-            info.SetVersion("Version " + __version__ + "\n" + __revision__)
-            info.SetDescription(description)
-            info.SetCopyright("CeCill FREE SOFTWARE LICENSE - 2019 - CTOH")
-            info.SetWebSite(
-                "http://ctoh.legos.obs-mip.fr/applications/land_surfaces/softwares/maps",
-                "AlTiS Web Site",
-            )
-            info.SetLicence(licence)
-            #            info.AddDeveloper(""" Fabien Blarel, blarel@legos.obs-mip.fr
-            #
-            #                         with the contributions of:
-            #                          - Denis Blumstien
-            #                          - Frederic Frappart
-            #                          - Fernando Nino
-            #                          -
-            #                          -
-            #                                     """)
-
-            # info.AddDocWriter('CTOH')
-            # info.AddArtist('The CTOH crew')
-            # info.AddTranslator('CTOH')
-
-            wx.adv.AboutBox(info)
-
-        elif "http://" in link.GetHref():
-            webbrowser.open(link.GetHref())

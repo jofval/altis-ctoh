@@ -167,7 +167,7 @@ class CtrlWindow(wx.Frame):
         self.toolbar.AddControl(self.comboSelPass, label="Select a pass")
 
         self.toolbar.AddStretchableSpace()
-        self.iconHelp = self.mk_iconbar("Help", wx.ART_HELP, "Help on AlTiS")
+        self.iconHelp = self.mk_iconbar("About AlTiS", wx.ART_HELP, "About AlTiS")
 
         self.toolbar.Realize()
 
@@ -1666,7 +1666,7 @@ class Main_Window(wx.Frame):
             Help Dialog window
         """
         help = Help_Window()
-        help.Show()
+        help.OnAboutBox()
 
     def onSelParam(self, event):
         """
