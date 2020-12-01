@@ -1678,12 +1678,15 @@ class Main_Window(wx.Frame):
         self.common_data.param_name = self.param
         self.common_data.param = self.tr.data_val[self.param]
 
+
         self.common_data.DATA_MASK_PARAM = (
             ~np.isnan(self.common_data.param)
             & ~np.isnan(self.common_data.lon)
             & ~np.isnan(self.common_data.lat)
             & ~np.isnat(self.common_data.time)
         )
+        print('>> DATA_MASK_PARAM.shape',self.common_data.DATA_MASK_PARAM.shape)
+        print('>> DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
 
         mask = (
             self.common_data.CYCLE_SEL
@@ -1781,7 +1784,16 @@ class Main_Window(wx.Frame):
         self.current_track = None
 
         cursor_wait = wx.BusyCursor()
-
+        
+        # If any data file is already open, it has to be closed.
+        if hasattr(self,'tr'):
+            if hasattr(self.tr,'data_val'):
+                if isinstance(self.tr.data_val,dict):
+                    for k in self.tr.data_val.keys():
+                        self.tr.data_val[k].close()
+                else:
+                    self.tr.data_val.close()
+        
         if self.data_sel_config["normpass_flag"]:
             mission = self.data_sel_config["mission"]
             kml_file = self.data_sel_config["kml_file"]
@@ -2081,6 +2093,7 @@ class Main_Window(wx.Frame):
         self.common_data.CYCLE_SEL = self.cycle_mask
         self.common_data.DATA_MASK_SEL = list()
         self.common_data.DATA_MASK_SEL.append(self.cycle_mask)
+        print('DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
 
     def onSelectCycle(self, event):
         """

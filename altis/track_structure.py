@@ -98,7 +98,7 @@ class GDR_altis(object):
 
         #        elif re.search(filename_tracks_pattern, filename) :
         #            match = re.search(filename_tracks_pattern, filename)
-
+            self.data_val.close()
         else:
             raise Exception(
                 "The normpass filename is not conform to the filename "
@@ -151,11 +151,10 @@ class GDR_altis(object):
 
     def save_gdr_data(self, mask, filename):
 
-        #        dataset_merge=xr.merge([self.data_val])
-        self.data_val = self.data_val.where(mask, drop=True)
+        outpout_data = self.data_val.where(mask, drop=True)
 
         param_name = self.time_hf_name  #'time_20hz'
-        data = self.data_val[param_name]
+        data = outpout_data[param_name]
 #        cycle = np.array(data.coords["cycle"])
 #        norm_index = np.array(data.coords["gdr_index"])
 
@@ -176,11 +175,11 @@ class GDR_altis(object):
         #
         #        dataset_merge.attrs['Conventions']='CF-1.6'
         #        dataset_merge.attrs['creation_date'] = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-        self.data_val.attrs["AlTiS_creation_date"] = time.strftime(
+        outpout_data.attrs["AlTiS_creation_date"] = time.strftime(
             "%Y-%m-%d %H:%M:%S %Z"
         )
-        self.data_val.attrs["start_date"] = startdate
-        self.data_val.attrs["end_date"] = enddate
+        outpout_data.attrs["start_date"] = startdate
+        outpout_data.attrs["end_date"] = enddate
         #        self.data_val.attrs[''] =
 
         #        dataset_merge.attrs['title']='Level 3 product : Normalized dataset of radar altimetric parameters for the '+self.mission+' mission.'
@@ -207,7 +206,8 @@ class GDR_altis(object):
 #        track = self.data_val.pass_number
 
         print("AlTiS GDR pass file created :  " + filename)
-        self.data_val.to_netcdf(filename, format="NETCDF4_CLASSIC")
+        outpout_data.to_netcdf(filename, format="NETCDF4_CLASSIC")
+        outpout_data.close()
 
 
 class Normpass(object):
@@ -256,6 +256,7 @@ class Normpass(object):
                 self.data_val.norm_index[mask_kml], drop=True
             )
             self.data_val = data_val
+            self.data_val.close()
         else:
             raise Exception(
                 "The normpass filename is not conform to the filename "
@@ -310,12 +311,11 @@ class Normpass(object):
         )
 
     def save_norm_data(self, mask, filename):
-
-        #        dataset_merge=xr.merge([self.data_val])
-        self.data_val = self.data_val.where(mask, drop=True)
+        
+        data_val = self.data_val.where(mask, drop=True)
 
         param_name = self.time_hf_name  #'time_20hz'
-        data = self.data_val[param_name]
+        data = data_val[param_name]
 #        cycle = np.array(data.coords["cycle"])
 #        norm_index = np.array(data.coords["norm_index"])
         lon = np.array(data.coords["lon"])
@@ -338,19 +338,20 @@ class Normpass(object):
         #
         #        dataset_merge.attrs['Conventions']='CF-1.6'
         #        dataset_merge.attrs['creation_date'] = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-        self.data_val.attrs["AlTiS_creation_date"] = time.strftime(
+        data_val.attrs["AlTiS_creation_date"] = time.strftime(
             "%Y-%m-%d %H:%M:%S %Z"
         )
-        self.data_val.attrs["start_date"] = startdate
-        self.data_val.attrs["end_date"] = enddate
-        self.data_val.attrs["lat_min"] = np.min(lat)
-        self.data_val.attrs["lat_max"] = np.max(lat)
-        self.data_val.attrs["lon_min"] = np.min(lon)
-        self.data_val.attrs["lon_max"] = np.max(lon)
+        data_val.attrs["start_date"] = startdate
+        data_val.attrs["end_date"] = enddate
+        data_val.attrs["lat_min"] = np.min(lat)
+        data_val.attrs["lat_max"] = np.max(lat)
+        data_val.attrs["lon_min"] = np.min(lon)
+        data_val.attrs["lon_max"] = np.max(lon)
         #        self.data_val.attrs[''] =
 
         print("Normpass file created :  " + filename)
-        self.data_val.to_netcdf(filename, format="NETCDF4_CLASSIC")
+        data_val.to_netcdf(filename, format="NETCDF4_CLASSIC")
+        data_val.close()
 
 
 class Track(object):
@@ -980,10 +981,11 @@ class Track(object):
 
     def save_gdr_data(self, mask, filename):
 
-        for param in self.data_val.keys():
-            self.data_val[param] = self.data_val[param].where(mask, drop=True)
+        backup_copy = self.data_val.copy()
+        for param in backup_copy.keys():
+            backup_copy[param] = backup_copy[param].where(mask, drop=True)
 
-        dataset_merge = xr.merge([self.data_val])
+        dataset_merge = xr.merge([backup_copy])
 
         param_name = self.time_hf_name  #'time_20hz'
         data = self.data_val[param_name]
@@ -1042,3 +1044,7 @@ class Track(object):
 
         print("AlTiS GDR pass file created :  " + filename)
         dataset_merge.to_netcdf(filename, format="NETCDF4_CLASSIC")
+        
+        dataset_merge.close()
+        
+        
