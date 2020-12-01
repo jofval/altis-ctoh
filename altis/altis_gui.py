@@ -1885,6 +1885,7 @@ class Main_Window(wx.Frame):
                 Track.TimeAttMissing,
                 Track.ListFileEmpty,
                 Track.SurfaceHeightError,
+                Track.OutOfAreaError,
             ) as e:
                 message = e.message_gui
                 print(">>>>>>>>> ", message)

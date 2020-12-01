@@ -88,14 +88,16 @@ class GDR_altis(object):
             else:
                 mask_kml = np.ones(lon.shape, dtype=np.bool)
 
-            xr_mask_kml = xr.DataArray(mask_kml, dims=["cycle_index", "gdr_index"])
+            if np.any(mask_kml):
+                xr_mask_kml = xr.DataArray(mask_kml, dims=["cycle_index", "gdr_index"])
 
-            for param in list(self.data_val.variables.keys()):
-                if len(self.data_val[param].shape) == 2:
-                    self.data_val[param] = self.data_val[param].where(
-                        xr_mask_kml, drop=True
-                    )
-
+                for param in list(self.data_val.variables.keys()):
+                    if len(self.data_val[param].shape) == 2:
+                        self.data_val[param] = self.data_val[param].where(
+                            xr_mask_kml, drop=True
+                        )
+            else:
+                print("None pass goes through the area defined by the KML polygon.")
         #        elif re.search(filename_tracks_pattern, filename) :
         #            match = re.search(filename_tracks_pattern, filename)
             self.data_val.close()
@@ -379,6 +381,11 @@ class Track(object):
             self.message_gui = message
 
     class SurfaceHeightError(Error):
+        def __init__(self, message):
+            super().__init__(message)
+            self.message_gui = message
+
+    class OutOfAreaError(Error):
         def __init__(self, message):
             super().__init__(message)
             self.message_gui = message
@@ -806,35 +813,40 @@ class Track(object):
                 mask[cy_idx, :] = mask_nan
                 cycle_index.append(cy_idx)
 
-        xr_mask = xr.DataArray(mask, dims=["cycle_index", "gdr_index"])
+        if np.any(mask):
+            xr_mask = xr.DataArray(mask, dims=["cycle_index", "gdr_index"])
 
-        # Création d'un dictionnaire xarray self.data_val contenant les paramétres et
-        # ayant les dimmensions coordonnées définies précédemment.
-        self.data_val = {}
-        for param in param_list:
-            self.data_val[param] = xr.DataArray(
-                data_struct.data[param],
-                coords={
-                    "cycle_index": cycle_index,
-                    "tracks": ("cycle_index", tracks),
-                    "cycle": ("cycle_index", cycle),
-                    "date": ("cycle_index", date),
-                    "gdr_index": np.arange(data_struct.shape[1]),
-                },
-                dims=["cycle_index", "gdr_index"],
-            )
-            if not data_attributs[param]["units"] == "":
-                self.data_val[param].attrs["units"] = data_attributs[param]["units"]
-            self.data_val[param].attrs["standard_name"] = data_attributs[param][
-                "standard_name"
-            ]
-            self.data_val[param].attrs["long_name"] = data_attributs[param]["long_name"]
-            self.data_val[param].attrs["comment"] = data_attributs[param]["comment"]
+            # Création d'un dictionnaire xarray self.data_val contenant les paramétres et
+            # ayant les dimmensions coordonnées définies précédemment.
+            self.data_val = {}
+            for param in param_list:
+                self.data_val[param] = xr.DataArray(
+                    data_struct.data[param],
+                    coords={
+                        "cycle_index": cycle_index,
+                        "tracks": ("cycle_index", tracks),
+                        "cycle": ("cycle_index", cycle),
+                        "date": ("cycle_index", date),
+                        "gdr_index": np.arange(data_struct.shape[1]),
+                    },
+                    dims=["cycle_index", "gdr_index"],
+                )
+                if not data_attributs[param]["units"] == "":
+                    self.data_val[param].attrs["units"] = data_attributs[param]["units"]
+                self.data_val[param].attrs["standard_name"] = data_attributs[param][
+                    "standard_name"
+                ]
+                self.data_val[param].attrs["long_name"] = data_attributs[param]["long_name"]
+                self.data_val[param].attrs["comment"] = data_attributs[param]["comment"]
 
-        for param in param_list:
-            #            print(param,self.data_val[param].shape,xr_mask.shape)
-            #            pdb.set_trace()
-            self.data_val[param] = self.data_val[param].where(xr_mask, drop=True)
+            for param in param_list:
+                #            print(param,self.data_val[param].shape,xr_mask.shape)
+                #            pdb.set_trace()
+                self.data_val[param] = self.data_val[param].where(xr_mask, drop=True)
+        else:
+            message="Out of Aera : None pass goes through the area defined by the KML polygon."
+            print(message)
+            raise self.OutOfAreaError(message)
 
     def __surf_height__(self, surf_type, param_config):
         """
