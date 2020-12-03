@@ -180,7 +180,21 @@ class CtrlWindow(wx.Frame):
         """
             create icon into the toolbar
         """
-        ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (16, 16))
+        if wx.Platform == '__WXGTK__':
+            if art_id == wx.ART_HELP:
+#                gtk_icon_label = "gtk-cdrom"
+                gtk_icon_label = "gtk-info"
+            elif  art_id == wx.ART_QUIT:
+ #               gtk_icon_label = "gtk-cdrom"
+                gtk_icon_label = "gtk-close"
+            else:
+                gtk_icon_label = "gtk-cdrom"
+#                gtk_icon_label = "gtk-indent"
+
+            ico = wx.ArtProvider.GetBitmap(gtk_icon_label, wx.ART_TOOLBAR, (20, 20))
+        else:
+            ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (16, 16))
+
         itemTool = self.toolbar.AddTool(wx.ID_ANY, bt_txt, ico, bt_lg_txt)
         return itemTool
 
@@ -694,7 +708,6 @@ class Main_Window(wx.Frame):
         self.toolbar.SetToolBitmapSize((20, 20))
 
         self.iconQuit = self.mk_iconbar("Quit", wx.ART_QUIT, "Quit AlTiS")
-
         self.toolbar.AddSeparator()
 
         self.ListKindData = ["Import data ... ", "GDR Tracks", "AlTiS GDR"] #, "Normpass"]
@@ -759,7 +772,21 @@ class Main_Window(wx.Frame):
         """
             to make icon in the toolbar
         """
-        ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (20, 20))
+        if wx.Platform == '__WXGTK__':
+            if art_id == wx.ART_HELP:
+#                gtk_icon_label = "gtk-cdrom"
+                gtk_icon_label = "gtk-info"
+            elif  art_id == wx.ART_QUIT:
+ #               gtk_icon_label = "gtk-cdrom"
+                gtk_icon_label = "gtk-close"
+            else:
+                gtk_icon_label = "gtk-cdrom"
+#                gtk_icon_label = "gtk-indent"
+
+            ico = wx.ArtProvider.GetBitmap(gtk_icon_label, wx.ART_TOOLBAR, (20, 20))
+        else:
+            ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (20, 20))
+            
         itemTool = self.toolbar.AddTool(wx.ID_ANY, bt_txt, ico, bt_lg_txt)
         return itemTool
 
