@@ -483,6 +483,9 @@ class Main_Window(wx.Frame):
         """
 #        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
         self.ax1 = self.figure.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
+        self.ax1.set_xlabel('Longitude (deg)')
+        self.ax1.set_ylabel("Latitude (deg)")
+
         self.ax1.text(-0.1, 0.5, "Latitude (deg)", va='bottom', ha='center',
                     rotation='vertical', rotation_mode='anchor',
                     transform=self.ax1.transAxes)
@@ -501,9 +504,11 @@ class Main_Window(wx.Frame):
         """
 #        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1, projection=self.projection)
         self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1) # , projection=ccrs.PlateCarree())
-        self.ax2.text(-0.1, 0.5, "Latitude (deg)", va='bottom', ha='center',
-        rotation='vertical', rotation_mode='anchor',
-        transform=self.ax2.transAxes)
+        self.ax2.set_ylabel("Latitude (deg)")
+
+#        self.ax2.text(-0.1, 0.5, "Latitude (deg)", va='bottom', ha='center',
+#        rotation='vertical', rotation_mode='anchor',
+#        transform=self.ax2.transAxes)
         self.ax2.set_aspect('auto', adjustable='datalim')
         self.ax2.grid(True)
 
@@ -513,9 +518,10 @@ class Main_Window(wx.Frame):
         """
 #        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1, projection=self.projection)
         self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1)    # , projection=ccrs.PlateCarree())
-        self.ax3.text(0.5, -0.1, 'Longitude (deg)', va='bottom', ha='center',
-        rotation='horizontal', rotation_mode='anchor',
-        transform=self.ax3.transAxes)
+        self.ax3.set_xlabel('Longitude (deg)')
+#        self.ax3.text(0.5, -0.1, 'Longitude (deg)', va='bottom', ha='center',
+#        rotation='horizontal', rotation_mode='anchor',
+#        transform=self.ax3.transAxes)
         self.ax3.set_aspect('auto', adjustable='datalim')
         self.ax3.grid(True)
 
