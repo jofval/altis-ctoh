@@ -774,14 +774,11 @@ class Main_Window(wx.Frame):
         """
         if wx.Platform == '__WXGTK__':
             if art_id == wx.ART_HELP:
-#                gtk_icon_label = "gtk-cdrom"
                 gtk_icon_label = "gtk-info"
             elif  art_id == wx.ART_QUIT:
- #               gtk_icon_label = "gtk-cdrom"
                 gtk_icon_label = "gtk-close"
             else:
                 gtk_icon_label = "gtk-cdrom"
-#                gtk_icon_label = "gtk-indent"
 
             ico = wx.ArtProvider.GetBitmap(gtk_icon_label, wx.ART_TOOLBAR, (20, 20))
         else:
@@ -1712,8 +1709,8 @@ class Main_Window(wx.Frame):
             & ~np.isnan(self.common_data.lat)
             & ~np.isnat(self.common_data.time)
         )
-        print('>> DATA_MASK_PARAM.shape',self.common_data.DATA_MASK_PARAM.shape)
-        print('>> DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
+     #   print('>> DATA_MASK_PARAM.shape',self.common_data.DATA_MASK_PARAM.shape)
+      #  print('>> DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
 
         mask = (
             self.common_data.CYCLE_SEL
@@ -1787,7 +1784,7 @@ class Main_Window(wx.Frame):
                 load_data_args.Center()
                 load_data_args.Show()
                 if load_data_args.ShowModal() == wx.ID_OK:
-                    print("ShowModal == wx.ID_OK")
+                 #   print("ShowModal == wx.ID_OK")
                     self.load_data_process(event, load_data_args.data_sel_config)
                 else:
                     print("Cancel")
@@ -1878,7 +1875,7 @@ class Main_Window(wx.Frame):
 
             #            pdb.set_trace()
             self.data_sel_config["track"] = str(self.tr.data_val.pass_number)
-            print("Normpass file has been successfully read.")
+    #        print("Normpass file has been successfully read.")
 
             param_name = self.tr.time_hf_name
             data = self.tr.data_val[param_name]
@@ -1956,7 +1953,7 @@ class Main_Window(wx.Frame):
                         self.progress.Destroy()
                         return -1
 
-            print("GDR files have been successfully read.")
+      #      print("GDR files have been successfully read.")
 
             param_name = self.tr.time_hf_name
             data = self.tr.data_val[param_name]
@@ -1974,7 +1971,7 @@ class Main_Window(wx.Frame):
                 self.progress.Destroy()
                 return -1
 
-            print('>>>>>:',mission,filename,kml_file)
+            #print('>>>>>:',mission,filename,kml_file)
             try:
                 self.tr = GDR_altis(
                     mission,
@@ -1984,7 +1981,7 @@ class Main_Window(wx.Frame):
                 )
             except (GDR_altis.OutOfAreaError) as e:
                 message = e.message_gui
-                print(">>>>>>>>> test", message)
+                print(">>>>>>>>> ", message)
                 with wx.MessageDialog(
                     None,
                     message=message,
@@ -2018,7 +2015,7 @@ class Main_Window(wx.Frame):
                         self.progress.Update(100, "Done.")
                         self.progress.Destroy()
                         return -1
-            print("GDR files have been successfully read.")
+         #   print("GDR files have been successfully read.")
 
             param_name = self.tr.time_hf_name
             data = self.tr.data_val[param_name]
@@ -2116,7 +2113,6 @@ class Main_Window(wx.Frame):
         self.progress.Destroy()
         del cursor_wait
 
-        print('self.data_sel_config',self.data_sel_config)
         if "messagedialog" not in self.data_sel_config.keys():
             self.data_sel_config["messagedialog"] = True
         self.set_env_var()
@@ -2148,7 +2144,7 @@ class Main_Window(wx.Frame):
         self.common_data.CYCLE_SEL = self.cycle_mask
         self.common_data.DATA_MASK_SEL = list()
         self.common_data.DATA_MASK_SEL.append(self.cycle_mask)
-        print('DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
+       # print('DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
 
     def onSelectCycle(self, event):
         """

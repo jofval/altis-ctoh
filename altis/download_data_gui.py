@@ -793,10 +793,10 @@ class Load_data_Window(wx.Dialog):
             Load and display list data file
         """
         if not hasattr(self, "file_struct"):
-            print(
-                "self.text_ctrl_gdr_dir.GetValue()", self.text_ctrl_gdr_dir.GetValue()
-            )
-            print("self.sel_mission.GetValue()", self.sel_mission.GetValue())
+#            print(
+#                "self.text_ctrl_gdr_dir.GetValue()", self.text_ctrl_gdr_dir.GetValue()
+#            )
+            #print("self.sel_mission.GetValue()", self.sel_mission.GetValue())
             self.gdr_dir = self.text_ctrl_gdr_dir.GetValue()
             self.file_struct = __regex_file_parser__(
                 self.sel_mission.GetValue(), self.gdr_dir, None

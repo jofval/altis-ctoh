@@ -106,7 +106,7 @@ class DatasetSelection(object):
                 self.main_panel.SetCursor(wx.Cursor(wx.NullCursor))
 #                self.main_panel.SetCursor(wx.StockCursor(wx.NullCursor))
 #                self.main_panel.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
-                print('> DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
+          #      print('> DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
 
                                 
             elif event.key == "r":  # revers selection

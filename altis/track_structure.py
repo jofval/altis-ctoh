@@ -556,8 +556,9 @@ class Track(object):
 
                 if save_dataset_dlg.ShowModal() == wx.ID_CANCEL:
                     raise self.ParamMissing(message)
-                if save_dataset_dlg.ShowModal() == wx.ID_OK:
-                    return file_list_ok
+
+#                if save_dataset_dlg.ShowModal() == wx.ID_OK:
+#                    return file_list_ok
 
         if len(file_list_ok) == 0:
             raise Exception("None files are conform to the requested parameters")
@@ -808,8 +809,9 @@ class Track(object):
         cycle_index = list()
         mask = np.zeros(data_struct.shape, dtype=np.bool)
         if kml_file is not None:
-
             for cy_idx, cy in enumerate(cycle):
+                update_progress(cy_idx / len(cycle), title="Mask selection processing")
+
                 mask_nan = ~np.isnan(data_struct.data[self.lon_hf_name][cy_idx, :])
                 mask_kml = kml_poly_select(
                     kml_file,
@@ -818,6 +820,7 @@ class Track(object):
                 )
                 mask[cy_idx, :] = mask_nan & mask_kml
                 cycle_index.append(cy_idx)
+            update_progress(1.0, title="Mask selection processing")
         else:
             for cy_idx, cy in enumerate(cycle):
                 mask_nan = ~np.isnan(data_struct.data[self.lon_hf_name][cy_idx, :])
@@ -830,7 +833,9 @@ class Track(object):
             # Création d'un dictionnaire xarray self.data_val contenant les paramétres et
             # ayant les dimmensions coordonnées définies précédemment.
             self.data_val = {}
+            
             for param in param_list:
+
                 self.data_val[param] = xr.DataArray(
                     data_struct.data[param],
                     coords={
