@@ -36,6 +36,16 @@ from altis._version import __version__, __revision__
 
 
 class GDR_altis(object):
+
+    class Error(Exception):
+        pass
+
+
+    class OutOfAreaError(Error):
+        def __init__(self, message):
+            super().__init__(message)
+            self.message_gui = message
+
     def __init__(
         self, mission, filename, mission_config_file=None, kml_file=None,
     ):
@@ -69,24 +79,23 @@ class GDR_altis(object):
             if hasattr(ds,'processor'):
                 if ds.processor =='altisgdr':
                     altisgdr=True
-        
+
         if altisgdr:
-#        if re.search(filename_pattern, filename) or re.search(
-#            filename_tracks_pattern, filename
-#        ):
-            #            match = re.search(filename_pattern, filename)
+
             self.data_val = xr.open_dataset(filename)
             cycle = self.data_val.cycle
             lon = self.data_val[self.lon_hf_name].data
             lat = self.data_val[self.lat_hf_name].data
+
             if kml_file is not None:
                 mask_kml = np.zeros(lon.shape, dtype=np.bool)
-                for cy_idx, cy in cycle:
+                for cy_idx, cy in enumerate(cycle):
                     mask_kml[cy_idx, :] = kml_poly_select(
                         kml_file, lon[cy_idx, :], lat[cy_idx, :]
                     )
             else:
                 mask_kml = np.ones(lon.shape, dtype=np.bool)
+            
 
             if np.any(mask_kml):
                 xr_mask_kml = xr.DataArray(mask_kml, dims=["cycle_index", "gdr_index"])
@@ -97,9 +106,11 @@ class GDR_altis(object):
                             xr_mask_kml, drop=True
                         )
             else:
-                print("None pass goes through the area defined by the KML polygon.")
-        #        elif re.search(filename_tracks_pattern, filename) :
-        #            match = re.search(filename_tracks_pattern, filename)
+                message="Out of Aera : None pass goes through the area defined by the KML polygon."
+                raise self.OutOfAreaError(message)
+
+
+
             self.data_val.close()
         else:
             raise Exception(
@@ -845,7 +856,7 @@ class Track(object):
                 self.data_val[param] = self.data_val[param].where(xr_mask, drop=True)
         else:
             message="Out of Aera : None pass goes through the area defined by the KML polygon."
-            print(message)
+#            print(message)
             raise self.OutOfAreaError(message)
 
     def __surf_height__(self, surf_type, param_config):

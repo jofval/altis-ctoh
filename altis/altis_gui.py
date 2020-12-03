@@ -1955,6 +1955,22 @@ class Main_Window(wx.Frame):
                     mission_config_file=cfgfile_name,
                     kml_file=kml_file,
                 )
+            except (GDR_altis.OutOfAreaError) as e:
+                message = e.message_gui
+                print(">>>>>>>>> test", message)
+                with wx.MessageDialog(
+                    None,
+                    message=message,
+                    caption="Error",
+                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR,
+                ) as save_dataset_dlg:
+
+                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
+                        print("No dataset!")
+                        self.progress.Update(100, "Done.")
+                        self.progress.Destroy()
+                        return -1
+            
             except Exception:
                 message = (
                     "The data file does not suit to the "
