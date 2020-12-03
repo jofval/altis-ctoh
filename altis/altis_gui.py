@@ -2139,7 +2139,7 @@ class Main_Window(wx.Frame):
 #                     ... make sure we won't show it again the next time ...
                         self.data_sel_config["messagedialog"] = False
                         self.set_env_var()
-                    print('check?',mssg_dlg.IsCheckBoxChecked(),self.data_sel_config["messagedialog"])
+#                    print('check?',mssg_dlg.IsCheckBoxChecked(),self.data_sel_config["messagedialog"])
                     return -1
 
     def initDataSelect(self, event):
