@@ -2054,7 +2054,6 @@ class Main_Window(wx.Frame):
                     self.progress.Destroy()
                     return -1
 
-        self.set_env_var()
         self.progress.Update(50, "Data conditionning...")
 
         if hasattr(self, "plt1"):
@@ -2090,15 +2089,27 @@ class Main_Window(wx.Frame):
         self.progress.Destroy()
         del cursor_wait
 
-        message = ("The data loading has been successfully done.\n\n"
-                    +" You have to choose an altimetric parameter in \n\tthe selection menu to display it.")
-        
-        with wx.MessageDialog(None, message=message, caption="Info",
-                style=wx.OK | wx.OK_DEFAULT | wx.ICON_INFORMATION,)as mssg_dlg:
+        print('self.data_sel_config',self.data_sel_config)
+        if "messagedialog" not in self.data_sel_config.keys():
+            self.data_sel_config["messagedialog"] = True
+        self.set_env_var()
 
-            if mssg_dlg.ShowModal() == wx.ID_OK:
-                return -1
-        
+        if self.data_sel_config["messagedialog"]:
+            message = ("The data loading has been successfully done.\n\n"
+                        +" You have to choose an altimetric parameter in \n\tthe selection menu to display it.")
+            
+            with wx.RichMessageDialog(None, message=message, caption="Info",
+                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_INFORMATION,)as mssg_dlg:
+
+                mssg_dlg.ShowCheckBox("Don't show again")
+
+                if mssg_dlg.ShowModal() == wx.ID_OK:
+                    if mssg_dlg.IsCheckBoxChecked():
+#                     ... make sure we won't show it again the next time ...
+                        self.data_sel_config["messagedialog"] = False
+                        self.set_env_var()
+                    print('check?',mssg_dlg.IsCheckBoxChecked(),self.data_sel_config["messagedialog"])
+                    return -1
 
     def initDataSelect(self, event):
         """
@@ -2177,6 +2188,7 @@ class Main_Window(wx.Frame):
             self.data_sel_config["normpass_file"] = ""
             self.data_sel_config["gdr_altis_flag"] = None
             self.data_sel_config["gdr_altis_file"] = ""
+            self.data_sel_config["messagedialog"] = True
             with open(altis_tmp_file, "w") as f:
                 yaml.dump(self.data_sel_config, f, default_flow_style=False)
 
