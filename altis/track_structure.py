@@ -557,8 +557,9 @@ class Track(object):
                 if save_dataset_dlg.ShowModal() == wx.ID_CANCEL:
                     raise self.ParamMissing(message)
 
-#                if save_dataset_dlg.ShowModal() == wx.ID_OK:
-#                    return file_list_ok
+                if save_dataset_dlg.ShowModal() == wx.ID_OK:
+                    save_dataset_dlg.Destroy
+                    return file_list_ok
 
         if len(file_list_ok) == 0:
             raise Exception("None files are conform to the requested parameters")

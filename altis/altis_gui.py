@@ -483,10 +483,10 @@ class Main_Window(wx.Frame):
         """
 #        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
         self.ax1 = self.figure.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
-        self.ax1.text(-0.05, 0.5, "Latitude (deg)", va='bottom', ha='center',
+        self.ax1.text(-0.1, 0.5, "Latitude (deg)", va='bottom', ha='center',
                     rotation='vertical', rotation_mode='anchor',
                     transform=self.ax1.transAxes)
-        self.ax1.text(0.5, -0.08, 'Longitude (deg)', va='bottom', ha='center',
+        self.ax1.text(0.5, -0.1, 'Longitude (deg)', va='bottom', ha='center',
                     rotation='horizontal', rotation_mode='anchor',
                     transform=self.ax1.transAxes)
         #self.ax1.set_aspect('auto', adjustable='datalim')
@@ -501,7 +501,7 @@ class Main_Window(wx.Frame):
         """
 #        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1, projection=self.projection)
         self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1) # , projection=ccrs.PlateCarree())
-        self.ax2.text(-0.05, 0.5, "Latitude (deg)", va='bottom', ha='center',
+        self.ax2.text(-0.1, 0.5, "Latitude (deg)", va='bottom', ha='center',
         rotation='vertical', rotation_mode='anchor',
         transform=self.ax2.transAxes)
         self.ax2.set_aspect('auto', adjustable='datalim')
@@ -513,7 +513,7 @@ class Main_Window(wx.Frame):
         """
 #        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1, projection=self.projection)
         self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1)    # , projection=ccrs.PlateCarree())
-        self.ax3.text(0.5, -0.08, 'Longitude (deg)', va='bottom', ha='center',
+        self.ax3.text(0.5, -0.1, 'Longitude (deg)', va='bottom', ha='center',
         rotation='horizontal', rotation_mode='anchor',
         transform=self.ax3.transAxes)
         self.ax3.set_aspect('auto', adjustable='datalim')
@@ -675,28 +675,30 @@ class Main_Window(wx.Frame):
         self.ax4.set_ylabel(param.attrs["long_name"])
 
         if hasattr(self, "cbar"):
-            self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
-            self.scalarmap.set_cmap(cmap=cm)
-            self.cbar.set_label(param.attrs["long_name"], rotation=270)
-#            self.cbar.draw_all()
-        else:
-            from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-            axins = inset_axes(self.ax2,
-                   width="2.5%",  # width = 5% of parent_bbox width
-                   height="100%",  # height : 50%
-                   loc='lower left',
-                   bbox_to_anchor=(1.1, -0.5, 1, 1),
-                   bbox_transform=self.ax2.transAxes,
-                   borderpad=.2,
-                   )
-            self.scalarmap = ScalarMappable(cmap=cm)
+            self.cbar.remove()
+#            self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
+#            self.scalarmap.set_cmap(cmap=cm)
+#            self.cbar.set_label(param.attrs["long_name"], rotation=270, labelpad=10, y=0.5)
+##            self.cbar.draw_all()
+#        else:
+        from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+        axins = inset_axes(self.ax2,
+               width="2.5%",  # width = 5% of parent_bbox width
+               height="100%",  # height : 50%
+               loc='lower left',
+               bbox_to_anchor=(1.1, -0.5, 1, 1),
+               bbox_transform=self.ax2.transAxes,
+               borderpad=.2,
+               )
+        self.scalarmap = ScalarMappable(cmap=cm)
 #            self.cbar = self.figure.colorbar(
 #                self.scalarmap, ax=[self.ax2, self.ax4], orientation="vertical"
 #            )
-            self.cbar = self.figure.colorbar(
-                self.scalarmap, cax=axins)
-            self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
-            self.cbar.set_label(param.attrs["long_name"], rotation=270, labelpad=10, y=0.5)
+        self.cbar = self.figure.colorbar(
+            self.scalarmap, cax=axins)
+        self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
+        self.cbar.set_label(param.attrs["long_name"], rotation=270, labelpad=10, y=0.5)
+
         self.rescale(coord=True)
 
 
