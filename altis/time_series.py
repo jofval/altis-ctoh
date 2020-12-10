@@ -93,7 +93,19 @@ class Time_Series_Panel(wx.Frame):
 
     def mk_iconbar(self, bt_txt, art_id, bt_lg_txt):
 
-        ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (16, 16))
+        if wx.Platform == '__WXGTK__':
+            if art_id == wx.ART_HELP:
+#                gtk_icon_label = "gtk-cdrom"
+                gtk_icon_label = "gtk-info"
+            elif  art_id == wx.ART_QUIT:
+ #               gtk_icon_label = "gtk-cdrom"
+                gtk_icon_label = "gtk-close"
+            else:
+                gtk_icon_label = "gtk-cdrom"
+#                gtk_icon_label = "gtk-indent"
+            ico = wx.ArtProvider.GetBitmap(gtk_icon_label, wx.ART_TOOLBAR, (16, 16))
+        else:
+            ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (16, 16))
         itemTool = self.toolbar.AddTool(wx.ID_ANY, bt_txt, ico, bt_lg_txt)
         return itemTool
 

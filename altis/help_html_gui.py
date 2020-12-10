@@ -55,7 +55,7 @@ class Help_Window(wx.Frame):
         info = wx.adv.AboutDialogInfo()
 
         info.SetIcon(wx.Icon(logo_file, wx.BITMAP_TYPE_PNG))
-        info.SetName("AlTiS\n")
+        info.SetName("AlTiS")
         info.SetVersion("Version " + __version__ + "\n" + __revision__)
         info.SetDescription(description)
         info.SetCopyright("\n\n\nCeCill FREE SOFTWARE LICENSE, 2019-2020, CTOH\n\n"
