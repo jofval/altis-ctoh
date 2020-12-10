@@ -1533,7 +1533,7 @@ class Main_Window(wx.Frame):
             self.figure,
             [self.plt1, self.plt2, self.plt3, self.plt4],
             [self.ax1, self.ax2, self.ax3, self.ax4],
-            self.select_text_info, self.selectall_flag,
+            self.select_text_info, self.selectall_flag
         )
         self.iconUndo.Enable()
         self.btnRefresh.Enable()

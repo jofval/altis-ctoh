@@ -147,6 +147,7 @@ class DatasetSelection(object):
 
         #Recupere l'index de la figure courante
         self.axes_idx = self.axes.index(self.current_axes)
+        
         if self.debug:
             print('self.axes_idx',self.axes_idx)
         self.axes[self.axes_idx].set_title("Data selection : 'r' key to reverse,\n'Enter' (or 'v') key to validate, 'Escape' key to abort. ",color='r',fontweight='bold')
@@ -208,10 +209,10 @@ class DatasetSelection(object):
 #                self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = True 
 #                self.mask_output [self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = False
 
-            if (self.selectall_flag) & (self.axes_idx == 3):
-                # on initialise à False que les cycles qui n'ont pas été selectionnés
+            if (self.selectall_flag) & (self.axes_idx != 0):
+                # on initialise à True que les cycles qui n'ont pas été selectionnés
                 self.mask_output [self.idx_cy_not_sel,:] = True
-            # on initialise à False que les cycles qui ont été selectionnés
+            # on initialise à True que les cycles qui ont été selectionnés
             self.mask_output[self.idx_cy_sel,:] = True
             
             # on met uniquement à True les points à l'intérieure de la selection graphique des cycles selectionnés
@@ -229,7 +230,7 @@ class DatasetSelection(object):
 #                self.mask_output [self.input_mask_index[0,:],self.input_mask_index[1,:]] = False
 #                self.mask_output[self.input_mask_index_sel[0,:],self.input_mask_index_sel[1,:]] = True
 
-            if (self.selectall_flag) & (self.axes_idx == 3):
+            if (self.selectall_flag) & (self.axes_idx != 0):
                 # on initialise à False que les cycles qui n'ont pas été selectionnés
                 self.mask_output [self.idx_cy_not_sel,:] = False
             # on initialise à False que les cycles qui ont été selectionnés
