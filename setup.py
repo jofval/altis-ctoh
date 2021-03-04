@@ -56,7 +56,7 @@ setup(name=package_name,
       packages=find_namespace_packages('.',exclude=['tests']),
       
       package_data={package_name : ['HELP.txt'],
-                            'etc' : ['*.yml','*.png','*.html'],
+                            'etc' : ['*.yml','*.png','*.html','*.txt'],
                             },
       include_package_data=False,
       zip_safe=False,
