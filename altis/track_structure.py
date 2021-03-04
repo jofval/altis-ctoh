@@ -23,6 +23,9 @@ import pandas as pd
 import pkg_resources
 #from shutil import copyfile
 
+from altis_utils.ellipsoid_tools import (
+        ellipsoid_convert)
+
 from altis_utils.tools import (
     __config_load__,
     update_progress,
@@ -501,6 +504,14 @@ class Track(object):
             self.tracks,
         )
 
+        # correction d'éllipsoide si différente de WGS84
+        if param_config["ellipsoid"] == "WGS84":
+            print("Reference ellipsoid is ok :"+ param_config["ellipsoid"])
+        else:
+            print("Reference ellipsoid is not WGS84 :"+ param_config["ellipsoid"])
+            print("The coordinates (lon/lat) and the altitude of the satellite are converted to the reference ellipsoid WGS84.")
+            self.__ellipsoid_corr__(param_config)
+
         # Calcul des hauteurs altimétrique pour les différents retrackers
         try:
             self.__surf_height__(surf_type, param_config)
@@ -831,7 +842,7 @@ class Track(object):
         if np.any(mask):
             xr_mask = xr.DataArray(mask, dims=["cycle_index", "gdr_index"])
 
-            # Création d'un dictionnaire xarray self.data_val contenant les paramétres et
+            # Création d'un dictionnaire xarray self.data_val contenant les paramètres et
             # ayant les dimmensions coordonnées définies précédemment.
             self.data_val = {}
             
@@ -864,6 +875,25 @@ class Track(object):
             message="Out of Aera : None pass goes through the area defined by the KML polygon."
 #            print(message)
             raise self.OutOfAreaError(message)
+
+
+    def __ellipsoid_corr__(self, param_config):
+        """
+        concersion d'ellipsoide.
+        """
+        shape_array = self.data_val[param_config["param"]["lon_hf"]].data.shape
+        lon = self.data_val[param_config["param"]["lon_hf"]].data.reshape(-1)
+        lat = self.data_val[param_config["param"]["lat_hf"]].data.reshape(-1)
+        h = self.data_val[param_config["param"]["alt_hf"]].data.reshape(-1)
+
+        [lon, lat, h] = ellipsoid_convert (lon,lat,h,param_config["ellipsoid"],"WGS84")
+        
+        self.data_val[param_config["param"]["lon_hf"]].data = lon.reshape(shape_array)
+        self.data_val[param_config["param"]["lat_hf"]].data = lat.reshape(shape_array)
+        self.data_val[param_config["param"]["alt_hf"]].data = h.reshape(shape_array)
+        
+
+
 
     def __surf_height__(self, surf_type, param_config):
         """

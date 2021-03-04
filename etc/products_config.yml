@@ -29,7 +29,9 @@ Jason-1 :
 #        - c
     
     freq : 20.0
-    
+
+    ellipsoid : TPX
+
     param :
         # Coordinates
         time_lf : time
@@ -110,6 +112,7 @@ Jason-2 :
     #---------------------------------------------------------------------------
     freq : 20.0
     
+    ellipsoid : TPX
     #---------------------------------------------------------------------------
     # The parameters readed in the Normpass, GRD track or AlTiS GDR files.
     # There are two kinds of parameters : Imperative ones and Optional ones. 
@@ -185,6 +188,7 @@ Jason-3 :
     
     freq : 20.0
     
+    ellipsoid : TPX
     param :
         # Coordinates
         time_lf : time
@@ -249,6 +253,7 @@ envisat_v21 :
     
     freq : 18.0
     
+    ellipsoid : WGS84
     param :
         # Coordinates
         time_lf : time
@@ -310,6 +315,7 @@ ers2_ctoh :
     
     freq : 20.0
     
+    ellipsoid : WGS84
     param :
     
         # Coordinates
@@ -377,6 +383,7 @@ Saral :
     
     freq : 40.0
     
+    ellipsoid : WGS84
     param :
         # Coordinates
         time_lf : time
@@ -451,6 +458,7 @@ Sentinel-3A: &s3
     dim_lf : time_01
     dim_hf : [time_20_ku, time_20_c]
     
+    ellipsoid : WGS84
     param :
         # Coordinates
         time_lf : time_01
@@ -558,6 +566,7 @@ c2SesaB :
     
     freq : 20.0
     
+    ellipsoid : WGS84
     param :
         # Coordinates
         time_lf : time_1hz
@@ -617,6 +626,7 @@ c2SesaC :
     
     freq : 20.0
     
+    ellipsoid : WGS84
     param :
         # Coordinates
         time_lf : time_1hz
