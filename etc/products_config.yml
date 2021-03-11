@@ -184,7 +184,7 @@ Jason-3 :
 
     band : 
         - ku
-#        - c
+        - c
     
     freq : 20.0
     
@@ -208,7 +208,12 @@ Jason-3 :
         mle3_range_ku : range_20hz_ku_mle3
         # Range (Oean retracker)
         ocean_range_ku : range_20hz_ku
-        
+        # Range (Ice-1 (OCOG) retracker)
+        ice1_range_c : ice_range_20hz_c
+        # Range (Oean retracker)
+        ocean_range_c : range_20hz_c
+ 
+
         # Range Corrections
         model_wet_tropo_corr : model_wet_tropo_corr
         model_dry_tropo_corr : model_dry_tropo_corr
@@ -383,7 +388,7 @@ Saral :
     
     freq : 40.0
     
-    ellipsoid : WGS84
+    ellipsoid : TPX
     param :
         # Coordinates
         time_lf : time
@@ -450,7 +455,7 @@ Sentinel-3A: &s3
 
     band : 
         - ku
-#        - c
+        - c
     
     freq : 20.0
    
@@ -471,6 +476,7 @@ Sentinel-3A: &s3
         
         # Altitude
         alt_hf : alt_20_ku
+        alt_hf_c : alt_20_c
         
         # Range (Ice-1 plrm (OCOG) retracker)
         ice1_range_ku : range_ocog_20_ku
@@ -484,7 +490,16 @@ Sentinel-3A: &s3
         ocean-sar_range_ku : range_ocean_20_ku
         # Range (SeaIce retracker)
         seaice_range_ku : range_sea_ice_20_ku
-        
+
+        # Range (Ice-1 plrm (OCOG) retracker)
+        ice1_range_c : range_ocog_20_c
+        # Range (Ice-2 SAR (OCOG) retracker)
+        ice2-sar_range_c : range_ice_20_c
+        # Range (Ocean SAR retracker)
+        ocean-sar_range_c : range_ocean_20_c
+
+       
+
         # Range Corrections
         model_wet_tropo_corr : mod_wet_tropo_cor_meas_altitude_01
         model_dry_tropo_corr : mod_dry_tropo_cor_meas_altitude_01

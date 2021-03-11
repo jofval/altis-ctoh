@@ -881,16 +881,28 @@ class Track(object):
         """
         concersion d'ellipsoide.
         """
+
+
         shape_array = self.data_val[param_config["param"]["lon_hf"]].data.shape
+        
+        # correction ellipsoide pour le geoid 
         lon = self.data_val[param_config["param"]["lon_hf"]].data.reshape(-1)
         lat = self.data_val[param_config["param"]["lat_hf"]].data.reshape(-1)
-        h = self.data_val[param_config["param"]["alt_hf"]].data.reshape(-1)
-
-        [lon, lat, h] = ellipsoid_convert (lon,lat,h,param_config["ellipsoid"],"WGS84")
+        geoid = self.data_val[param_config["param"]["geoid"]].data.reshape(-1)
+        [lon, lat, geoid] = ellipsoid_convert (lon,lat,geoid,param_config["ellipsoid"],"WGS84")
+ 
+        # correction ellipsoide pour alt_sat
+        lon = self.data_val[param_config["param"]["lon_hf"]].data.reshape(-1)
+        lat = self.data_val[param_config["param"]["lat_hf"]].data.reshape(-1)
+        alt_sat = self.data_val[param_config["param"]["alt_hf"]].data.reshape(-1)
+        [lon, lat, alt_sat] = ellipsoid_convert (lon,lat,alt_sat,param_config["ellipsoid"],"WGS84")
         
+        lon = np.where(lon>180.0, lon-180.0,lon)
+
         self.data_val[param_config["param"]["lon_hf"]].data = lon.reshape(shape_array)
         self.data_val[param_config["param"]["lat_hf"]].data = lat.reshape(shape_array)
-        self.data_val[param_config["param"]["alt_hf"]].data = h.reshape(shape_array)
+        self.data_val[param_config["param"]["geoid"]].data = geoid.reshape(shape_array)
+        self.data_val[param_config["param"]["alt_hf"]].data = alt_sat.reshape(shape_array)
         
 
 
@@ -905,6 +917,10 @@ class Track(object):
 
             for band in param_config["band"]:
                 for retracker in param_config["retracker"]:
+                    
+                    if not (retracker + "_range_" + band in param_config["param"].keys()):
+                        continue
+
                     param_name = retracker + "_" + band + "_" + "SurfHeight_alti"
                     # initialisation du nouveau paramétre dans la structure xarray
                     self.data_val[param_name] = (
@@ -916,33 +932,66 @@ class Track(object):
                         .coords["cycle_index"]
                         .data
                     )
-                    for cy_idx, cy in enumerate(cycles):
-                        update_progress(
-                            cy_idx / len(self.cycle),
-                            title=surf_type + " | Surface height : " + param_name,
-                        )
-                        self.data_val[param_name][cy_idx, :] = (
-                            self.data_val[param_config["param"]["alt_hf"]][cy_idx, :]
-                            - self.data_val[
-                                param_config["param"][retracker + "_range_" + band]
-                            ][cy_idx, :]
-                            - self.data_val[
-                                param_config["param"]["model_wet_tropo_corr"]
-                            ][cy_idx, :]
-                            - self.data_val[
-                                param_config["param"]["model_dry_tropo_corr"]
-                            ][cy_idx, :]
-                            - self.data_val[param_config["param"]["solid_earth_tide"]][
-                                cy_idx, :
-                            ]
-                            - self.data_val[param_config["param"]["geoid"]][cy_idx, :]
-                            - self.data_val[
-                                param_config["param"]["iono_corr_gim_" + band]
-                            ][cy_idx, :]
-                            - self.data_val[param_config["param"]["pole_tide"]][
-                                cy_idx, :
-                            ]
-                        )
+
+                    if (band == "ku") or (band == "ka"):
+                        for cy_idx, cy in enumerate(cycles):
+                            update_progress(
+                                cy_idx / len(self.cycle),
+                                title=surf_type + " | Surface height : " + param_name,
+                            )
+                            self.data_val[param_name][cy_idx, :] = (
+                                self.data_val[param_config["param"]["alt_hf"]][cy_idx, :]
+                                - self.data_val[
+                                    param_config["param"][retracker + "_range_" + band]
+                                ][cy_idx, :]
+                                - self.data_val[
+                                    param_config["param"]["model_wet_tropo_corr"]
+                                ][cy_idx, :]
+                                - self.data_val[
+                                    param_config["param"]["model_dry_tropo_corr"]
+                                ][cy_idx, :]
+                                - self.data_val[param_config["param"]["solid_earth_tide"]][
+                                    cy_idx, :
+                                ]
+                                - self.data_val[param_config["param"]["geoid"]][cy_idx, :]
+                                - self.data_val[
+                                    param_config["param"]["iono_corr_gim_" + band]
+                                ][cy_idx, :]
+                                - self.data_val[param_config["param"]["pole_tide"]][
+                                    cy_idx, :
+                                ]
+                            )
+                    elif (band == "c"):
+                        for cy_idx, cy in enumerate(cycles):
+                            update_progress(
+                                cy_idx / len(self.cycle),
+                                title=surf_type + " | Surface height : " + param_name,
+                            )
+                            if "alt_hf_"+ band in param_config["param"].keys():
+                                alt_sat_label = "alt_hf_"+ band
+                            else:
+                                alt_sat_label = "alt_hf"
+
+                            self.data_val[param_name][cy_idx, :] = (
+                                self.data_val[param_config["param"][alt_sat_label]][cy_idx, :]
+                                - self.data_val[
+                                    param_config["param"][retracker + "_range_" + band]
+                                ][cy_idx, :]
+                                - self.data_val[
+                                    param_config["param"]["model_wet_tropo_corr"]
+                                ][cy_idx, :]
+                                - self.data_val[
+                                    param_config["param"]["model_dry_tropo_corr"]
+                                ][cy_idx, :]
+                                - self.data_val[param_config["param"]["solid_earth_tide"]][
+                                    cy_idx, :
+                                ]
+                                - self.data_val[param_config["param"]["geoid"]][cy_idx, :]
+                                - self.data_val[param_config["param"]["pole_tide"]][
+                                    cy_idx, :
+                                ]
+                            )
+ 
 
                     update_progress(
                         1.0, title=surf_type + " | Surface height : " + param_name
@@ -957,25 +1006,49 @@ class Track(object):
                         + retracker
                         + " retracking)"
                     )
-                    self.data_val[param_name].attrs["comment"] = (
-                        "Altimetric Surfurce Height = "
-                        + param_config["param"]["alt_hf"]
-                        + " - "
-                        + param_config["param"][retracker + "_range_" + band]
-                        + " - "
-                        + param_config["param"]["model_wet_tropo_corr"]
-                        + " - "
-                        + param_config["param"]["model_dry_tropo_corr"]
-                        + " - "
-                        + param_config["param"]["solid_earth_tide"]
-                        + " - "
-                        + param_config["param"]["geoid"]
-                        + " - "
-                        + param_config["param"]["iono_corr_gim_" + band]
-                        + " - "
-                        + param_config["param"]["pole_tide"]
-                    )
-        #            except KeyError as k:
+                    if (band == "ku") or (band == "ka"):
+                        self.data_val[param_name].attrs["comment"] = (
+                            "Altimetric Surfurce Height = "
+                            + param_config["param"]["alt_hf"]
+                            + " - "
+                            + param_config["param"][retracker + "_range_" + band]
+                            + " - "
+                            + param_config["param"]["model_wet_tropo_corr"]
+                            + " - "
+                            + param_config["param"]["model_dry_tropo_corr"]
+                            + " - "
+                            + param_config["param"]["solid_earth_tide"]
+                            + " - "
+                            + param_config["param"]["geoid"]
+                            + " - "
+                            + param_config["param"]["iono_corr_gim_" + band]
+                            + " - "
+                            + param_config["param"]["pole_tide"]
+                        )
+                    elif (band == "c"):
+                        if "alt_hf_"+ band in param_config["param"].keys():
+                            alt_sat_label = "alt_hf_"+ band
+                        else:
+                            alt_sat_label = "alt_hf"
+
+                        self.data_val[param_name].attrs["comment"] = (
+                            "Altimetric Surfurce Height = "
+                            + param_config["param"][alt_sat_label]
+                            + " - "
+                            + param_config["param"][retracker + "_range_" + band]
+                            + " - "
+                            + param_config["param"]["model_wet_tropo_corr"]
+                            + " - "
+                            + param_config["param"]["model_dry_tropo_corr"]
+                            + " - "
+                            + param_config["param"]["solid_earth_tide"]
+                            + " - "
+                            + param_config["param"]["geoid"]
+                            + " - "
+                            + param_config["param"]["pole_tide"]
+                        )
+ 
+            #            except KeyError as k:
         #                message= (('They is KeyError issue : \n '+
         #                           '\t- %s\n\n'+
         #                           'In order to compute the "%s" '+
