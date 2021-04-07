@@ -1551,10 +1551,10 @@ class Main_Window(wx.Frame):
                 & self.common_data.DATA_MASK_PARAM
             )
 
-            if np.min(self.tracks[mask.any(axis=1)]) == np.max(
-                self.tracks[mask.any(axis=1)]
+            if np.min(self.tracks[mask.any(axis=1).data]) == np.max(
+                self.tracks[mask.any(axis=1).data]
             ):
-                self.tr.track_value = np.min(self.tracks[mask.any(axis=1)])
+                self.tr.track_value = np.min(self.tracks[mask.any(axis=1).data])
             else:
                 self.tr.track_value = "Tracks"
 
