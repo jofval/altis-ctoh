@@ -55,7 +55,7 @@ setup(name=package_name,
       license = 'CeCiLL-2.1',
       packages=find_namespace_packages('.',exclude=['tests']),
       
-      package_data={package_name : ['HELP.txt'],
+      package_data={package_name : [],
                             'etc' : ['*.yml','*.png','*.html','*.txt'],
                             },
       include_package_data=False,
