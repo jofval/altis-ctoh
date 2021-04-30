@@ -73,7 +73,9 @@ from altis.help_html_gui import Help_Window
 
 from altis.time_series import Time_Series_Panel
 from altis.colinear_analysis import ColinAnal_Panel
-from altis.patch_code_oswlib_wmts import *
+
+#from altis.patch_code_oswlib_wmts import *
+
 from altis.connection_check import check_internet
 
 from altis.para_detection import hough_transform    #, hough_transform_linear

@@ -15,6 +15,7 @@ import warnings
 import re
 #import sys
 #import glob
+import pathlib
 import time
 import numpy as np
 import xarray as xr
@@ -222,7 +223,9 @@ class GDR_altis(object):
 #        track = self.data_val.pass_number
 
         print("AlTiS GDR pass file created :  " + filename)
-        outpout_data.to_netcdf(filename, format="NETCDF4_CLASSIC")
+        
+#        outpout_data.to_netcdf(filename, format="NETCDF4_CLASSIC")
+        outpout_data.to_netcdf(pathlib.PurePath(filename))
         outpout_data.close()
 
 
@@ -366,7 +369,8 @@ class Normpass(object):
         #        self.data_val.attrs[''] =
 
         print("Normpass file created :  " + filename)
-        data_val.to_netcdf(filename, format="NETCDF4_CLASSIC")
+#        data_val.to_netcdf(filename, format="NETCDF4_CLASSIC")
+        data_val.to_netcdf(pathlib.PurePath(filename))
         data_val.close()
 
 
@@ -1175,7 +1179,8 @@ class Track(object):
         #            track = 'Tracks'
 
         print("AlTiS GDR pass file created :  " + filename)
-        dataset_merge.to_netcdf(filename, format="NETCDF4_CLASSIC")
+#        dataset_merge.to_netcdf(filename, format="NETCDF4_CLASSIC")
+        dataset_merge.to_netcdf(pathlib.PurePath(filename))
         
         dataset_merge.close()
         
