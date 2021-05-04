@@ -2214,7 +2214,7 @@ class Main_Window(wx.Frame):
             self.data_sel_config["track"] = None
             self.data_sel_config["list_track"] = []
             self.data_sel_config["mission"] = ""
-            self.data_sel_config["surf_type"] = ""
+            self.data_sel_config["surf_type"] = None
             self.data_sel_config["kml_file"] = None
             self.data_sel_config["normpass_flag"] = None
             self.data_sel_config["gdr_flag"] = None

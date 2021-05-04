@@ -13,7 +13,7 @@ import wx
 import os
 import warnings
 import re
-#import sys
+import sys
 #import glob
 import pathlib
 import time
@@ -35,6 +35,8 @@ from altis_utils.tools import (
     kml_poly_select,
     FileNotFoundError,
 )
+
+from altis.to_netcdf import to_netcdf
 
 from altis._version import __version__, __revision__
 
@@ -168,10 +170,10 @@ class GDR_altis(object):
 
     def save_gdr_data(self, mask, filename):
 
-        outpout_data = self.data_val.where(mask, drop=True)
+        output_data = self.data_val.where(mask, drop=True)
 
         param_name = self.time_hf_name  #'time_20hz'
-        data = outpout_data[param_name]
+        data = output_data[param_name]
 #        cycle = np.array(data.coords["cycle"])
 #        norm_index = np.array(data.coords["gdr_index"])
 
@@ -192,11 +194,11 @@ class GDR_altis(object):
         #
         #        dataset_merge.attrs['Conventions']='CF-1.6'
         #        dataset_merge.attrs['creation_date'] = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-        outpout_data.attrs["AlTiS_creation_date"] = time.strftime(
+        output_data.attrs["AlTiS_creation_date"] = time.strftime(
             "%Y-%m-%d %H:%M:%S %Z"
         )
-        outpout_data.attrs["start_date"] = startdate
-        outpout_data.attrs["end_date"] = enddate
+        output_data.attrs["start_date"] = startdate
+        output_data.attrs["end_date"] = enddate
         #        self.data_val.attrs[''] =
 
         #        dataset_merge.attrs['title']='Level 3 product : Normalized dataset of radar altimetric parameters for the '+self.mission+' mission.'
@@ -223,10 +225,17 @@ class GDR_altis(object):
 #        track = self.data_val.pass_number
 
         print("AlTiS GDR pass file created :  " + filename)
-        
-#        outpout_data.to_netcdf(filename, format="NETCDF4_CLASSIC")
-        outpout_data.to_netcdf(pathlib.PurePath(filename))
-        outpout_data.close()
+        to_netcdf(pathlib.PurePath(filename), output_data) 
+
+        #if sys.platform.startswith('linux'):
+        #    output_data.to_netcdf(filename)
+        #elif sys.platform.startswith('win'):
+        #    output_data.to_netcdf(pathlib.PurePath(filename), format="NETCDF3_64BIT", engine="scipy")
+            
+#        output_data.to_netcdf(filename)
+#        output_data.to_netcdf(filename, format="NETCDF4_CLASSIC")
+#        output_data.to_netcdf(pathlib.PurePath(filename), format="NETCDF3_64BIT", engine="scipy")
+        output_data.close()
 
 
 class Normpass(object):
@@ -369,8 +378,16 @@ class Normpass(object):
         #        self.data_val.attrs[''] =
 
         print("Normpass file created :  " + filename)
+        to_netcdf(pathlib.PurePath(filename), data_val) 
+
+#        if sys.platform.startswith('linux'):
+#            data_val.to_netcdf(filename)
+#        elif sys.platform.startswith('win'):
+#            data_val.to_netcdf(pathlib.PurePath(filename), format="NETCDF3_64BIT", engine="scipy")
+
+#        data_val.to_netcdf(filename)
 #        data_val.to_netcdf(filename, format="NETCDF4_CLASSIC")
-        data_val.to_netcdf(pathlib.PurePath(filename))
+#        data_val.to_netcdf(pathlib.PurePath(filename), format="NETCDF3_64BIT", engine="scipy")
         data_val.close()
 
 
@@ -1179,8 +1196,14 @@ class Track(object):
         #            track = 'Tracks'
 
         print("AlTiS GDR pass file created :  " + filename)
-#        dataset_merge.to_netcdf(filename, format="NETCDF4_CLASSIC")
-        dataset_merge.to_netcdf(pathlib.PurePath(filename))
+        to_netcdf(pathlib.PurePath(filename), dataset_merge)
+        
+#        if sys.platform.startswith('linux'):
+#            dataset_merge.to_netcdf(filename)
+#        elif sys.platform.startswith('win'):
+#            dataset_merge.to_netcdf(pathlib.PurePath(filename), format="NETCDF3_64BIT", engine="scipy")
+
+    #        dataset_merge.to_netcdf(filename, format="NETCDF4_CLASSIC")
         
         dataset_merge.close()
         
