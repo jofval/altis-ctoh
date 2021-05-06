@@ -13,11 +13,10 @@
 # Jason-1
 ################################################################################
 Jason-1 :
-    filename_pattern : 2P.*P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    filename_pattern : .*P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
 
     retracker :
         - ice1
-        - mle3
         - ocean
 
     band : 
@@ -43,8 +42,6 @@ Jason-1 :
         
         # Range (Ice-1 (OCOG) retracker)
         ice1_range_ku : ice_range_20hz_ku
-        # Range (MLE-3 retracker)
-        mle3_range_ku : range_20hz_ku_mle3
         # Range (Oean retracker)
         ocean_range_ku : range_20hz_ku
         
@@ -56,7 +53,7 @@ Jason-1 :
         pole_tide : pole_tide
 
         # Geoid correction (for RiversLakes, GreatLakes Surface Type)
-        geoid : geoid_egm08
+        geoid : geoid
 
         # Backscatter
         ice1_sig0_ku : ice_sig0_20hz_ku
@@ -78,7 +75,7 @@ Jason-2 :
     # Filename regular expression (DO NOT TOUCH!)
     #---------------------------------------------------------------------------
     # GDR file patern
-    filename_pattern : 2P.*P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    filename_pattern : .*P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
 
     #---------------------------------------------------------------------------
     # Retracker to compute surface height
@@ -160,7 +157,7 @@ Jason-2 :
 ################################################################################
 Jason-3 :
 
-    filename_pattern : 2P.*P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    filename_pattern : .*P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
 
     retracker :
         - ice1
@@ -225,7 +222,7 @@ Jason-3 :
 # envisat.v21
 ################################################################################
 envisat_v21 :
-    filename_pattern : _(?p<cycle>\d{3})_(?P<track>\d{4})_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1\.nc 
+    filename_pattern : _(?P<cycle>\d{3})_(?P<track>\d{4})_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1\.nc 
 
     retracker :
         - ice1
