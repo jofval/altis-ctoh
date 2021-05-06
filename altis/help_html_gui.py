@@ -24,6 +24,8 @@ import pkg_resources
 #import pdb
 #import tempfile
 import webbrowser
+import datetime
+
 
 #from altis_utils.tools import __config_load__, update_progress, __regex_file_parser__
 from altis._version import __version__, __revision__
@@ -58,7 +60,9 @@ class Help_Window(wx.Frame):
         info.SetName("AlTiS")
         info.SetVersion("Version " + __version__ + "\n" + __revision__)
         info.SetDescription(description)
-        info.SetCopyright("\n\n\nCeCill FREE SOFTWARE LICENSE, 2019-2020, CTOH\n\n"
+        current_date = datetime.date.today()
+        year = current_date.year
+        info.SetCopyright("\n\n\nCeCill FREE SOFTWARE LICENSE, 2019-"+str(year)+", CTOH\n\n"
                           +"  IDDN Certification : IDDN.FR.010.0121234.000.R.X.2020.041.30000\n\n\n")
         info.SetWebSite(
             "http://ctoh.legos.obs-mip.fr/applications/land_surfaces/softwares/altis",
