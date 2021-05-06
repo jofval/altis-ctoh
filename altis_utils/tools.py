@@ -138,9 +138,7 @@ def __config_load__(mission, mission_config_file):
 
 def __regex_file_parser__(mission, directory, mission_config_file):
     config_mission = __config_load__(mission, mission_config_file)
-    filename_pattern = config_mission["filename_pattern"]
-    track_pattern = config_mission["track_pattern"]
-    cycle_pattern = config_mission["cycle_pattern"]
+    filename_pattern = re.compile(r'{}'.format(config_mission["filename_pattern"]))
 
     file_list = glob.glob(os.path.join(directory, "*.nc"))
     file_list.sort()
@@ -151,17 +149,13 @@ def __regex_file_parser__(mission, directory, mission_config_file):
     file_list_bad_regex = []
     file_list_ok_regex = []
     for idx, filename in enumerate(file_list):
-        match = re.search(filename_pattern, filename)
-        if match:
-            match = re.search(track_pattern, filename)
-            track.extend([int(match.group(2))])
-            match = re.search(cycle_pattern, filename)
-            cycle.extend([int(match.group(2))])
-            file_list_ok_regex.extend([filename])
-        else:
-            #            track.extend([None])
-            #            cycle.extend([None])
+        match = filename_pattern.match( filename)
+        if match is None:
             file_list_bad_regex.extend([filename])
+        else:
+            track.append(int(match.group("track")))
+            cycle.append(int(match.group("cycle")))
+            file_list_ok_regex.extend([filename])
 
     #    if track.count(None) > 0:
     if len(file_list_bad_regex) == len(file_list):

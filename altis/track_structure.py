@@ -71,8 +71,7 @@ class GDR_altis(object):
                 raise Exception("Mission configuration file not found.")
 
         param_config = __config_load__(mission, mission_config_file)
-        filename_pattern = param_config["filename_normpass_pattern"]
-        filename_tracks_pattern = param_config["filename_tracks_pattern"]
+
         self.norm_index_hf_name = param_config["param"]["norm_index_hf"]
         self.time_hf_name = param_config["param"]["time_hf"]
         self.time_lf_name = param_config["param"]["time_lf"]
@@ -635,12 +634,14 @@ class Track(object):
                 print(message)
                 raise self.TimeAttMissing(message)
             date = dataset[self.time_hf_name].data[~mask][0]
+
             time_hf = np.array(
                 dataset[self.time_hf_name].data.flatten(), dtype=np.dtype("float64")
             )
             time_lf = np.array(
                 dataset[self.time_lf_name].data.flatten(), dtype=np.dtype("float64")
             )
+
             for param in param_list:
                 if len(dataset[param].dims) == 2:
                     data_disk[param] = dataset[param].data.flatten()
@@ -717,6 +718,7 @@ class Track(object):
                 date_return,
                 track_return,
             ) = self.__read_param_file__(data_directory, filename, [self.time_hf_name])
+
             data_disk[cy_idx] = data_disk_return
             along_track_size_index.extend([len(data_disk[cy_idx][self.time_hf_name])])
             cycle.extend([cycle_return])
