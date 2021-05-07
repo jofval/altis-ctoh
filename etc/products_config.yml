@@ -166,7 +166,7 @@ Jason-3 :
 
     band : 
         - ku
-        - c
+#        - c
     
     freq : 20.0
     
@@ -191,9 +191,9 @@ Jason-3 :
         # Range (Oean retracker)
         ocean_range_ku : range_20hz_ku
         # Range (Ice-1 (OCOG) retracker)
-        ice1_range_c : ice_range_20hz_c
+#        ice1_range_c : ice_range_20hz_c
         # Range (Oean retracker)
-        ocean_range_c : range_20hz_c
+#        ocean_range_c : range_20hz_c
  
 
         # Range Corrections
@@ -204,7 +204,7 @@ Jason-3 :
         pole_tide : pole_tide
 
         # Geoid correction (for RiversLakes, GreatLakes Surface Type)
-        geoid : geoid_egm08
+        geoid : geoid_eigen6c4d # geoid_egm08
 
         # Backscatter
         ice1_sig0_ku : ice_sig0_20hz_ku
