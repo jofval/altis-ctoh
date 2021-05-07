@@ -58,7 +58,8 @@ def ecef2lla(ellipse_type, x, y, z):
     xh = p / (np.cos(xlat)) - N
 
     xlon = xlon * 180.0 / np.pi
-    xlon = np.where(xlon < 0.0, xlon + 360.0, xlon)
+    # pas utile Altis a besoin d'un -180.0 < lon < 180. cartopy
+#    xlon = np.where(xlon < 0.0, xlon + 360.0, xlon)
     xlat = xlat * 180 / np.pi
 
     return xlon, xlat, xh

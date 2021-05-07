@@ -1411,7 +1411,7 @@ class Main_Window(wx.Frame):
         self.cm = self.comboColorMap.GetValue()
         self.groundmap = self.comboGroundMap.GetValue()
         self.param = self.comboSelParam.GetValue()
-
+        
         if self.groundmap == "LandSat":
             altis_cfg = pkg_resources.resource_filename(
                 "altis", "../etc/altis_config.yml"
