@@ -388,6 +388,7 @@ class Time_Series_Panel(wx.Frame):
             return
 
         mask_cycle = np.any(mask, axis=1).data
+        
 
         array = list()
         header_csvfile = list()
@@ -510,7 +511,7 @@ class Time_Series_Panel(wx.Frame):
             # save the current contents in the file
             pathname = fileDialog.GetPath()
             try:
-                array.to_csv(pathname, header=header_csvfile)
+                array.to_csv(pathname, header=header_csvfile, na_rep='NaN')
             except IOError:
                 wx.LogError("Cannot save current data in file '%s'." % pathname)
 

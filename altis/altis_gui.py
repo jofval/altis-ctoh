@@ -551,7 +551,7 @@ class Main_Window(wx.Frame):
         self.mk_subplot_ax1()
         self.ax1.set_extent([-179., 179., -85., 85.], crs=ccrs.PlateCarree())
         self.ax1.add_feature(cfeature.COASTLINE)
-        self.ax1.add_feature(cfeature.LAKES, color="m")
+        self.ax1.add_feature(cfeature.LAKES, color="m", zorder=0,alpha=0.5)
         self.ax1.add_feature(cfeature.RIVERS, edgecolor="blue")
         self.ax1.autoscale()
         
