@@ -607,11 +607,12 @@ class Track(object):
     def __read_param_file__(self, data_directory, filename, param_list):
         data_disk = dict()
         with xr.open_dataset(os.path.join(data_directory, filename)) as dataset:
-            if hasattr(dataset, "sub_cycle_number"):
-                cycle = int(dataset.sub_cycle_number)
-            else:
-                cycle = dataset.cycle_number
-            track = dataset.pass_number
+            cycle = dataset.cycle_number
+
+            if hasattr(dataset, "pass_number"):
+                track_num = dataset.pass_number
+            elif hasattr(dataset, "track_number"):
+                track_num = dataset.track_number
             try:
                 mask = np.isnat(dataset[self.time_hf_name].data)
             except ValueError:
@@ -627,17 +628,19 @@ class Track(object):
                 ) % (
                     self.time_hf_name,
                     dataset.mission_name,
-                    str(dataset.pass_number),
+                    str(track_num),
                     str(dataset.cycle_number),
                     filename,
                 )
                 print(message)
                 raise self.TimeAttMissing(message)
             date = dataset[self.time_hf_name].data[~mask][0]
-
+            
             time_hf = np.array(
                 dataset[self.time_hf_name].data.flatten(), dtype=np.dtype("float64")
+            
             )
+            
             time_lf = np.array(
                 dataset[self.time_lf_name].data.flatten(), dtype=np.dtype("float64")
             )
@@ -662,7 +665,7 @@ class Track(object):
                             ) % (
                                 param,
                                 dataset.mission_name,
-                                str(dataset.pass_number),
+                                str(track_num),
                                 str(dataset.cycle_number),
                                 filename,
                             )
@@ -671,7 +674,7 @@ class Track(object):
                     else:
                         data_disk[param] = dataset[param].data
 
-        return data_disk, cycle, date, track
+        return data_disk, cycle, date, track_num
 
     def __data_sort_index__(self, data_struct, norm_index_ref):
         mask = data_struct > -2147483648
@@ -785,7 +788,13 @@ class Track(object):
 
         dataset = xr.open_dataset(os.path.join(data_directory, file_list[0]))
         data_attributs["global"] = {}
-        data_attributs["global"]["pass_number"] = dataset.attrs["pass_number"]
+
+        if hasattr(dataset, "pass_number"):                                                                         
+            track_num = dataset.pass_number                                                                         
+        elif hasattr(dataset, "track_number"):                                                                      
+            track_num = dataset.track_number                                                                        
+
+        data_attributs["global"]["pass_number"] = track_num
         for param in struct_dtype.names:
             data_attributs[param] = {}
             if "units" in dataset[param].attrs:

@@ -594,116 +594,141 @@ Sentinel-3B:
 #################################################################################
 ## Cryosat2 ESA Version C GOP product (OCEAN)
 #################################################################################
-#cryossat2-gop :
-#    filename_pattern : .*_\d{3}_\d{3}_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d\.nc
+cryosat2-gop :
+    filename_pattern : .*_GOP_\d{3}_(?P<track>\d{5})_C(?P<cycle>\d{3})_\d.nc
+    
+    #AlTiS_CS_LTA__GOP_001_00290_C001_1.nc
 
-#    retracker :
-#        - trkr_1
-#        - trkr_2
-#        - trkr_3
+    retracker :
+        - ice1
+        - ice1-plrm
+        - ocean
+        - ocean-plrm
 
-#    band : 
-#        - ku
+    band : 
+        - ku
 ##        - c
-#    
-#    freq : 20.0
-#    
-#    ellipsoid : WGS84
-#    param :
-#        # Coordinates
-#        time_lf : time_1hz
-#        time_hf : time_20hz
-#        lon_hf : lon_20hz
-#        lat_hf : lat_20hz
+    
+    freq : 20.0
 
-#        # Index of normalized pass
-#        norm_index_hf : None
-#        
-#        # Altitude
-#        alt_hf : alt_cog_ref_ellip
-#        
-#        # Surface Height 
-#        surf_height_trkr_1_20hz : surf_height_trkr_1_20hz
-#        surf_height_trkr_2_20hz : surf_height_trkr_2_20hz
-#        surf_height_trkr_3_20hz : surf_height_trkr_3_20hz
-#        
-#        # Range Corrections
-#        model_wet_tropo_corr : wet_tropo_corr
-#        model_dry_tropo_corr : dry_tropo_corr
-##        iono_corr_gim_ku : ion_gim
-#        solid_earth_tide : sol_earth_tide
-#        pole_tide : geocen_pol_tide
+    # dimensions parameters
+    dim_lf : time_01
+    dim_hf : [time_20_ku,time_20_plrm_ku]
+   
+    ellipsoid : WGS84
+    param :
+        # Coordinates
+        time_lf : time_01
+        time_hf : time_20_ku
+        lon_lf : lon_01
+        lat_lf : lat_01
+        lon_hf : lon_20_ku
+        lat_hf : lat_20_ku
 
-#        # Flags (indicates if the correction has been applied in height computation)
-#        flag_wet_tropo : corr_wet_tropo
-#        flag_dry_tropo : corr_dry_tropo
-##        flag_ion_corr : corr_ion_corr
-#        flag_sol_earth_tide : corr_sol_earth_tide
-#        flag_geocen_pol_tide : corr_geocen_pol_tide
+        # Index of normalized pass
+        norm_index_hf : None
+        
+        # Altitude
+        alt_hf : alt_20_ku
 
-#        geoid : geoid_eigen6c4d
-#        sig_0_trkr_1_20hz : sig_0_trkr_1_20hz
-#        sig_0_trkr_2_20hz : sig_0_trkr_2_20hz
-#        sig_0_trkr_3_20hz : sig_0_trkr_3_20hz
-#        peakiness_20hz : peakiness_20hz
+        # Range (Ice-1 (OCOG) retracker)                                                                           
+        ice1_range_ku : range_ocog_20_ku                                                                                
+        # Range (Ice-1 plrm (OCOG) retracker)                                                                           
+        ice1-plrm_range_ku : range_ocog_20_plrm_ku                                                                                
+        # Range (Ocean retracker)                                                                                   
+        ocean_range_ku : range_ocean_20_ku                                                                          
+        # Range (Ocean plrm retracker)                                                                                   
+        ocean-plrm_range_ku : range_ocean_20_plrm_ku                                                                          
+        
+        # Range Corrections
+        model_wet_tropo_corr : mod_wet_tropo_cor_01
+        model_dry_tropo_corr : mod_dry_tropo_cor_01
+        iono_corr_gim_ku : iono_cor_gim_01
+        solid_earth_tide : solid_earth_tide_01
+        pole_tide : pole_tide_01
+
+        # Flags (indicates if the correction has been applied in height computation)
+        #        flag_wet_tropo : corr_wet_tropo
+        #flag_dry_tropo : corr_dry_tropo
+        #flag_ion_corr : corr_ion_corr
+        #flag_sol_earth_tide : corr_sol_earth_tide
+        #flag_geocen_pol_tide : corr_geocen_pol_tide
+
+        geoid : geoid_01
+        sig0_ocean_20hz_ku : sig0_ocean_20_ku
+        sig0_ocean-plrm_20hz_ku : sig0_ocean_20_plrm_ku
+        sig0_ice1_20hz_ku : sig0_ocog_20_ku
+        sig0_ice1-plrm_20hz_ku : sig0_ocog_20_plrm_ku
+        peakiness_20hz_ku : peakiness_20_ku
+        peakiness-plrm_20hz_ku : peakiness_20_plrm_ku
 
 #################################################################################
-## Cryosat2 ESA Version C
+## Cryosat2 ESA Version D ICE product (LAND)
 #################################################################################
-#c2SesaC :
-#    filename_normpass_pattern : .*_c2SesaC_\d{4}_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
-#    filename_tracks_pattern : .*_c2SesaC_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
-#    filename_pattern : .*_\d{3}_\d{3}_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d\.nc
-#    track_pattern : (_)(\d{3})(_)(\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d)(_)
-#    cycle_pattern : (_)(\d{3})(_)(\d{3})(_)
-#    
-#    retracker :
-#        - trkr_1
-#        - trkr_2
-#        - trkr_3
+cryosat2-ice :
+    filename_pattern : .*_GDR_(?P<cycle>\d{3})_(?P<track>\d{5})_[A-Z]\d{3}_\d.nc
+    
+    retracker :
+        - tracker-1
+        - tracker-2
+        - tracker-3
 
-#    band : 
-#        - ku
+    band : 
+        - ku
 ##        - c
-#    
-#    freq : 20.0
-#    
-#    ellipsoid : WGS84
-#    param :
-#        # Coordinates
-#        time_lf : time_1hz
-#        time_hf : time_20hz
-#        lon_hf : lon_20hz
-#        lat_hf : lat_20hz
+    
+    freq : 20.0
 
-#        # Index of normalized pass
-#        norm_index_hf : None
-#        
-#        # Altitude
-#        alt_hf : alt_cog_ref_ellip
-#        
-#        # Surface Height 
-#        surf_height_trkr_1_20hz : surf_height_trkr_1_20hz
-#        surf_height_trkr_2_20hz : surf_height_trkr_2_20hz
-#        surf_height_trkr_3_20hz : surf_height_trkr_3_20hz
-#        
-#        # Range Corrections
-#        model_wet_tropo_corr : wet_tropo_corr
-#        model_dry_tropo_corr : dry_tropo_corr
-##        iono_corr_gim_ku : ion_gim
-#        solid_earth_tide : sol_earth_tide
-#        pole_tide : geocen_pol_tide
+    # dimensions parameters
+    dim_lf : time_cor_01
+    dim_hf : time_20_ku
 
-#        # Flags (indicates if the correction has been applied in height computation)
-#        flag_wet_tropo : corr_wet_tropo
-#        flag_dry_tropo : corr_dry_tropo
-##        flag_ion_corr : corr_ion_corr
-#        flag_sol_earth_tide : corr_sol_earth_tide
-#        flag_geocen_pol_tide : corr_geocen_pol_tide
+    ellipsoid : WGS84
+    param :
+        # Coordinates
+        time_lf : time_cor_01
+        time_hf : time_20_ku
+        lon_lf : lon_01
+        lat_lf : lat_01
+        lon_hf : lon_poca_20_ku
+        lat_hf : lat_poca_20_ku
 
-#        geoid : geoid_eigen6c4d
-#        sig_0_trkr_1_20hz : sig_0_trkr_1_20hz
-#        sig_0_trkr_2_20hz : sig_0_trkr_2_20hz
-#        sig_0_trkr_3_20hz : sig_0_trkr_3_20hz
-#        peakiness_20hz : peakiness_20hz
+        # Index of normalized pass
+        norm_index_hf : None
+        
+        # Altitude
+        alt_hf : alt_01
+
+        # Range (tracker-1)                                                                           
+        tracker-1_range_ku : range_1_20_ku                                                                                
+        # Range (tracker-2)                                                                           
+        tracker-2_range_ku : range_2_20_ku                                                                                
+        # Range (tracker-3)                                                                           
+        tracker-3_range_ku : range_3_20_ku                                                                                
+        
+        # Range Corrections
+        model_wet_tropo_corr : mod_wet_tropo_cor_01
+        model_dry_tropo_corr : mod_dry_tropo_cor_01
+        iono_corr_gim_ku : iono_cor_gim_01
+        solid_earth_tide : solid_earth_tide_01
+        pole_tide : pole_tide_01
+        geoid : geoid_01
+
+        # Flags (indicates if the correction has been applied in height computation)
+        #        flag_wet_tropo : corr_wet_tropo
+        #flag_dry_tropo : corr_dry_tropo
+        #flag_ion_corr : corr_ion_corr
+        #flag_sol_earth_tide : corr_sol_earth_tide
+        #flag_geocen_pol_tide : corr_geocen_pol_tide
+
+        sig0_1_20hz_ku : sig0_1_20_ku
+        sig0_2_20hz_ku : sig0_2_20_ku
+        sig0_3_20hz_ku : sig0_3_20_ku
+        peakiness_20hz_ku : peakiness_20_ku
+
+        height_1_20_ku : height_1_20_ku
+        height_2_20_ku : height_2_20_ku
+        height_3_20_ku : height_3_20_ku
+
+
 
