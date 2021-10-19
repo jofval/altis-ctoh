@@ -5,8 +5,6 @@
 #   the setup.py build target does *NOT* update the _wf.so extension.
 #   to do so, use the develop target (that it is why it appears first).
 
-hgroot:=$(shell hg root)
-
 develop: 
 	pip install -e ./ --user
 
