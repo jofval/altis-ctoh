@@ -12,4 +12,4 @@ AlTiS software is developed for:
 
 
 Reference:
-- Frédéric Frappart, Fabien Blarel, Fabrice Papa, Catherine Prigent, Eric Mougin, Philippe Paillou, Frédéric Baup, Pierre Zeiger, Edward Salameh, José Darrozes, Luc Bourrel, Frédérique Rémy, Backscattering signatures at Ka, Ku, C and S bands from low resolution radar altimetry over land, Advances in Space Research, Volume 68, Issue 2, 2021, Pages 989-1012, ISSN 0273-1177, https://doi.org/10.1016/j.asr.2020.06.043
+- Frappart, Frédéric, Fabien Blarel, Ibrahim Fayad, Muriel Bergé-Nguyen, Jean-François Crétaux, Song Shu, Joël Schregenberger, and Nicolas Baghdadi. 2021. "Evaluation of the Performances of Radar and Lidar Altimetry Missions for Water Level Retrievals in Mountainous Environment: The Case of the Swiss Lakes" Remote Sensing 13, no. 11: 2196. https://doi.org/10.3390/rs13112196 
