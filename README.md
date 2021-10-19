@@ -3,7 +3,7 @@
 
 AlTiS is software developed by [CTOH](http://ctoh.legos.obs-mip.fr/) as part of its activities as a National Observation Service. Altis is free software and it is released as open source under the [CeCill License](LICENSE), and is available for download free of charge. Altis is working under python3 environment ([Anaconda distribution](https://www.anaconda.com)) and tested for GNU/Linux, Windows 10 (and soon for Mac OS X).
  
-The AlTiS 1.4 (2020/11) has now identifier IDDN.FR.010.0121234.000.R.X.2020.041.30000  IDDN Certification
+The AlTiS 1.4 (2020/11) has now identifier [IDDN.FR.010.0121234.000.R.X.2020.041.30000](https://www.iddn.org/cgi-iddn/certificat.cgi?IDDN.FR.010.0121234.000.R.X.2020.041.30000) IDDN Certification
  
 
 AlTiS software is developed for:
