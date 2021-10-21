@@ -12,6 +12,8 @@
 3. Open archive : altis-main.zip
     - Extract the AlTiS archive.
 
+
+
 4. Create AlTiS python environment
     - Start anaconda-navigator
     - Go to "environments" section
@@ -21,9 +23,13 @@
         - For Win64 OS : `conda env create ctoh_legos/altis_win`
         - For Linux OS : `conda env create ctoh_legos/altis_linux`
 
+
+
 5. Activate the Altis environment
     - Click the new environment "altis" to activate it. It is called
     altis_win or altis_linux as function of previous point 4-.
+
+
 
 6. Install cartopy features
     - Under anaconda-navigator section "environments"
@@ -38,6 +44,8 @@
         * Rivers and Lakes features
             `python feature_download.py physical`
 
+
+
 7. Install AlTiS
     - Under anaconda-navigator section "environments"
     - Select "altis" environment to activate it
@@ -47,17 +55,21 @@
     - Type this command line:
         `python setup.py install`
 
+
+
 AlTiS is installed.
 
-To start Altis any directory on your pc:
-Open terminal (or select Anaconda Powershell Prompt under Window OS Menu)
-Activate AlTiS python environment.
- - As function of your OS, type this command line:
-    For Win64 OS > `conda activate altis_win`
-    For Linux OS > `conda activate altis_linux`
+## Start Altis
 
-Start AlTiS
-    > altis_gui
+    Open terminal (or select Anaconda Powershell Prompt under Window OS Menu)
+    Activate AlTiS python environment.
+        - As function of your OS, type this command line:
+            For Win64 OS > `conda activate altis_win`
+            For Linux OS > `conda activate altis_linux`
+
+    Start AlTiS
+        > `altis_gui`
+
 
 
 
