@@ -12,7 +12,7 @@ The AlTiS 1.4 (2020/11) has now identifier [IDDN.FR.010.0121234.000.R.X.2020.041
 
 
 # Install
-The installation instruction are available [here](INSTALL.md)
+The installation instruction is available [here](INSTALL.md)
 
 
 # Reference:
