@@ -1,1 +1,0 @@
-etc/Licence_CeCILL_V2.1-en.txt
