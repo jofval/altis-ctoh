@@ -31,7 +31,7 @@ The products are available for the altimetry missions below :
 |SARAL | 1 - 35 | 2013/03/14 to 2016/07/04 |	GDR t |
 | Jason-1 |	1 - 259 | 2002/01/15 to 2009/01/26 |	GDR E |
 | Jason-2 |	0 - 303 | 2008/07/04 to 2016/10/02 |	GDR D |
-| Jason-3 |	0 - 170 | 2016/02/12 to 10/09/2019 | GDR D |
+| Jason-3 |	0 - 170 | 2016/02/12 to 2019/09/29 | GDR D |
 | Sentinel-3A | 5 -  | 2016/06/15 to present | LAND IPF-06.10, IPF-06.14 |
 | Sentinel-3B |	20 - | 2018/08/15 to present | LAND IPF-06.10, IPF-06.14 |
                      
