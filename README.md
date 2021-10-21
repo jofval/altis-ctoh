@@ -11,5 +11,9 @@ The AlTiS 1.4 (2020/11) has now identifier [IDDN.FR.010.0121234.000.R.X.2020.041
  - Training : Education tools to manipulate radar altimetry data and evaluate their potential to monitor water bodies.
 
 
-### Reference:
+# Install
+The installation instruction are available [here](INSTALL.md)
+
+
+# Reference:
 - Frappart, Frédéric, Fabien Blarel, Ibrahim Fayad, Muriel Bergé-Nguyen, Jean-François Crétaux, Song Shu, Joël Schregenberger, and Nicolas Baghdadi. 2021. "Evaluation of the Performances of Radar and Lidar Altimetry Missions for Water Level Retrievals in Mountainous Environment: The Case of the Swiss Lakes" Remote Sensing 13, no. 11: 2196. https://doi.org/10.3390/rs13112196 
