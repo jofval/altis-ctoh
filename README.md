@@ -11,9 +11,32 @@ The AlTiS 1.4 (2020/11) has now identifier [IDDN.FR.010.0121234.000.R.X.2020.041
  - Training : Education tools to manipulate radar altimetry data and evaluate their potential to monitor water bodies.
 
 
-# Install
+## Install
 The installation instruction is available [here](INSTALL.md)
 
+## Data request
+AlTiS accepts [CTOH](http://ctoh.legos.obs-mip.fr/) altimetry products (Level 2 GDR supplied by the CTOH). CTOH GDR data are specifically conditioned for optimized the data size by making a geographical selection and includes the right altimetry parameters for hydrological studies. 
 
-# Reference:
+### Altimetric data request
+- For the altimetry data access, just fill the [request form](http://ctoh.legos.obs-mip.fr/applications/land_surfaces/altimatric_data/altis/altis).
+
+The products are available for the altimetry missions below :
+
+                     
+| Mission |	Cycles |          Dates           | Version / Product reference |
+| ------- |	------ | ------------------------ | --------------------------- |
+| ERS-2   |	1 - 89 | 1995/05/17 to 2003/11/24 |	CTOH product                |
+| ENVISAT |	6 - 94 | 2002/05/14 to 2010/10/21 |	Reprocessing v2.1 |
+| ENVISAT |	6 - 94 | 2002/05/14 to 2010/10/21 |	Reprocessing ESA v3.0 |
+|SARAL | 1 - 35 | 2013/03/14 to 2016/07/04 |	GDR t |
+| Jason-1 |	1 - 259 | 2002/01/15 to 2009/01/26 |	GDR E |
+| Jason-2 |	0 - 303 | 2008/07/04 to 2016/10/02 |	GDR D |
+| Jason-3 |	0 - 170 | 2016/02/12 to 10/09/2019 | GDR D |
+| Sentinel-3A | 5 -  | 2016/06/15 to present | LAND IPF-06.10, IPF-06.14 |
+| Sentinel-3B |	20 - | 2018/08/15 to present | LAND IPF-06.10, IPF-06.14 |
+                     
+The products are updated for ongoing altimetry missions.
+
+
+## Reference:
 - Frappart, Frédéric, Fabien Blarel, Ibrahim Fayad, Muriel Bergé-Nguyen, Jean-François Crétaux, Song Shu, Joël Schregenberger, and Nicolas Baghdadi. 2021. "Evaluation of the Performances of Radar and Lidar Altimetry Missions for Water Level Retrievals in Mountainous Environment: The Case of the Swiss Lakes" Remote Sensing 13, no. 11: 2196. https://doi.org/10.3390/rs13112196 
