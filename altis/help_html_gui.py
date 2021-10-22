@@ -39,8 +39,11 @@ class Help_Window(wx.Frame):
         logo_file = pkg_resources.resource_filename(
             "altis", "../etc/altis_logo.png"
         )
+#        licence_file = pkg_resources.resource_filename(
+#            "altis", "../etc/Licence_CeCILL_V2.1-en.txt"
+#        )
         licence_file = pkg_resources.resource_filename(
-            "altis", "../etc/Licence_CeCILL_V2.1-en.txt"
+            "altis", "LICENSE"
         )
 
         with open(licence_file,'r') as fs:

@@ -150,7 +150,7 @@ class DatasetSelection(object):
         
         if self.debug:
             print('self.axes_idx',self.axes_idx)
-        self.axes[self.axes_idx].set_title("Data selection : 'r' key to reverse,\n'Enter' (or 'v') key to validate, 'Escape' key to abort. ",color='r',fontweight='bold')
+        self.axes[self.axes_idx].set_title("Data selection : 'r' key to reverse,\n'Enter' (or 'v') key to validate, 'Escape' key to abort. ",zorder=50,color='r',fontweight='bold', transform=self.axes[self.axes_idx].transAxes)
 
         self.ind = np.nonzero([path.contains_point(xy) for xy in self.xys[self.axes_idx]])[0]
 

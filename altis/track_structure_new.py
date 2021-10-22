@@ -8,21 +8,18 @@
 # CeCILL Licence 2019 CTOH-LEGOS.
 # ----------------------------------------------------------------------
 import wx
-#import pdb
-#import argparse
 import os
 import warnings
 import re
 import sys
-#import glob
 import pathlib
 import time
 import numpy as np
 import xarray as xr
 import pandas as pd
+import netCDF4 as nc
 
 import pkg_resources
-#from shutil import copyfile
 
 from altis_utils.ellipsoid_tools import (
         ellipsoid_convert)
@@ -30,8 +27,6 @@ from altis_utils.ellipsoid_tools import (
 from altis_utils.tools import (
     __config_load__,
     update_progress,
-#    __regex_file_parser__,
-#    fatal_error,
     kml_poly_select,
     FileNotFoundError,
 )
@@ -114,8 +109,6 @@ class GDR_altis(object):
                 message="Out of Aera : None pass goes through the area defined by the KML polygon."
                 raise self.OutOfAreaError(message)
 
-
-
             self.data_val.close()
         else:
             raise Exception(
@@ -173,8 +166,6 @@ class GDR_altis(object):
 
         param_name = self.time_hf_name  #'time_20hz'
         data = output_data[param_name]
-#        cycle = np.array(data.coords["cycle"])
-#        norm_index = np.array(data.coords["gdr_index"])
 
         dataset_date = np.array(data.coords["date"], dtype=np.datetime64)
         date = [
@@ -187,207 +178,17 @@ class GDR_altis(object):
         ]
 
         startdate = date[0]
-#        startcycle = "{:03d}".format(cycle[0])
         enddate = date[-1]
-#        endcycle = "{:03d}".format(cycle[-1])
-        #
-        #        dataset_merge.attrs['Conventions']='CF-1.6'
-        #        dataset_merge.attrs['creation_date'] = time.strftime("%Y-%m-%d %H:%M:%S %Z")
         output_data.attrs["AlTiS_creation_date"] = time.strftime(
             "%Y-%m-%d %H:%M:%S %Z"
         )
         output_data.attrs["start_date"] = startdate
         output_data.attrs["end_date"] = enddate
-        #        self.data_val.attrs[''] =
-
-        #        dataset_merge.attrs['title']='Level 3 product : Normalized dataset of radar altimetric parameters for the '+self.mission+' mission.'
-        #        dataset_merge.attrs['institutions'] = "CTOH, LEGOS (UMR5566), Universite de Toulouse, CNES, CNRS, IRD, UPS, Toulouse, France"
-        #        dataset_merge.attrs['contact'] = "ctoh_products@legos.obs-mip.fr"
-        #        dataset_merge.attrs['processing_facility'] = "CTOH, LEGOS (UMR5566)"
-        #        dataset_merge.attrs['source'] = 'Altimetric data (GDR) from CTOH data base'
-        #        dataset_merge.attrs['doi'] = "10.6096/CTOH_NORM_PASS_2019_01"
-        #        dataset_merge.attrs['Doc_ref'] = "BLAREL, Fabien, FRAPPART, Frédéric, LEGRÉSY, Benoît, et al. Altimetry backscattering signatures at Ku and S bands over land and ice sheets. In : Remote Sensing for Agriculture, Ecosystems, and Hydrology XVII. International Society for Optics and Photonics, 2015."
-        #        dataset_merge.attrs['processor_version'] = 'Version : '+__version__+' Revision : '+__revision__  #??? | Data generation date : ???"
-        #        dataset_merge.attrs['hgid'] = __revision__
-        #        dataset_merge.attrs['start_date'] = startdate
-        #        dataset_merge.attrs['end_date'] = enddate
-        #        dataset_merge.attrs['lat_min'] = np.min(lat)
-        #        dataset_merge.attrs['lat_max'] = np.max(lat)
-        #        dataset_merge.attrs['lon_min'] = np.min(lon)
-        #        dataset_merge.attrs['lon_max'] = np.max(lon)
-
-        #        if 'global' in self.data_attributs.keys():
-        #            for att in self.data_attributs['global'].keys():
-        #                dataset_merge.attrs[att] = self.data_attributs['global'][att]
-
-        #        track=int(self.data_attributs['global']['pass_number'])
-#        track = self.data_val.pass_number
 
         print("AlTiS GDR pass file created :  " + filename)
         to_netcdf(pathlib.PurePath(filename), output_data) 
 
-        #if sys.platform.startswith('linux'):
-        #    output_data.to_netcdf(filename)
-        #elif sys.platform.startswith('win'):
-        #    output_data.to_netcdf(pathlib.PurePath(filename), format="NETCDF3_64BIT", engine="scipy")
-            
-#        output_data.to_netcdf(filename)
-#        output_data.to_netcdf(filename, format="NETCDF4_CLASSIC")
-#        output_data.to_netcdf(pathlib.PurePath(filename), format="NETCDF3_64BIT", engine="scipy")
         output_data.close()
-
-
-class Normpass(object):
-    def __init__(
-        self, mission, filename, mission_config_file=None, kml_file=None,
-    ):
-        """
-            Chargement de la trace normalisée.
-        """
-        self.mission = mission
-
-        if mission_config_file is None:
-            mission_file_cfg = pkg_resources.resource_filename(
-                "altis", "../etc/products_config.yaml"
-            )
-        else:
-            if os.path.isfile(mission_config_file):
-                mission_file_cfg = mission_config_file
-            else:
-                raise Exception("Mission configuration file not found.")
-
-        param_config = __config_load__(mission, mission_config_file)
-        filename_pattern = param_config["filename_normpass_pattern"]
-        self.norm_index_hf_name = param_config["param"]["norm_index_hf"]
-        self.time_hf_name = param_config["param"]["time_hf"]
-        self.time_lf_name = param_config["param"]["time_lf"]
-        self.lon_hf_name = param_config["param"]["lon_hf"]
-        self.lat_hf_name = param_config["param"]["lat_hf"]
-
-        if not os.path.isfile(filename):
-            message = ("File not found !\n\n- %s") % (filename)
-            print(message)
-            raise FileNotFoundError(message)
-
-        match = re.search(filename_pattern, filename)
-        if match:
-            self.data_val = xr.open_dataset(filename)
-            self.data_val.pass_number
-            lon_mean = self.data_val.lon.data
-            lat_mean = self.data_val.lat.data
-            if kml_file is not None:
-                mask_kml = kml_poly_select(kml_file, lon_mean, lat_mean)
-            else:
-                mask_kml = np.ones(lon_mean.shape, dtype=np.bool)
-            data_val = self.data_val.where(
-                self.data_val.norm_index[mask_kml], drop=True
-            )
-            self.data_val = data_val
-            self.data_val.close()
-        else:
-            raise Exception(
-                "The normpass filename is not conform to the filename "
-                + "pattern of "
-                + mission
-                + " mission."
-            )
-
-    def mk_filename_norm_data(self, mask):
-
-        param_name = self.time_hf_name  #'time_20hz'
-        data = self.data_val[param_name].where(mask, drop=True)
-        cycle = np.array(data.coords["cycle"])
-#        norm_index = np.array(data.coords["norm_index"])
-#        lon = np.array(data.coords["lon"])
-#        lat = np.array(data.coords["lat"])
-
-        dataset_date = np.array(data.coords["date"], dtype=np.datetime64)
-        date = [
-            "{:04d}{:02d}{:02d}".format(y, m, d)
-            for y, m, d in zip(
-                pd.DatetimeIndex(dataset_date).year,
-                pd.DatetimeIndex(dataset_date).month,
-                pd.DatetimeIndex(dataset_date).day,
-            )
-        ]
-
-        startdate = date[0]
-        startcycle = "{:03d}".format(cycle[0])
-        enddate = date[-1]
-        endcycle = "{:03d}".format(cycle[-1])
-
-        if isinstance(self.track_value, str):
-            track = self.track_value
-        else:
-            track = "{:04d}".format(self.track_value.min())
-
-        return (
-            "AlTiS_normpass_"
-            + self.mission
-            + "_"
-            + track
-            + "_"
-            + startdate
-            + "_"
-            + startcycle
-            + "_"
-            + enddate
-            + "_"
-            + endcycle
-            + ".nc"
-        )
-
-    def save_norm_data(self, mask, filename):
-        
-        data_val = self.data_val.where(mask, drop=True)
-
-        param_name = self.time_hf_name  #'time_20hz'
-        data = data_val[param_name]
-#        cycle = np.array(data.coords["cycle"])
-#        norm_index = np.array(data.coords["norm_index"])
-        lon = np.array(data.coords["lon"])
-        lat = np.array(data.coords["lat"])
-
-        dataset_date = np.array(data.coords["date"], dtype=np.datetime64)
-        date = [
-            "{:04d}{:02d}{:02d}".format(y, m, d)
-            for y, m, d in zip(
-                pd.DatetimeIndex(dataset_date).year,
-                pd.DatetimeIndex(dataset_date).month,
-                pd.DatetimeIndex(dataset_date).day,
-            )
-        ]
-
-        startdate = date[0]
-#        startcycle = "{:03d}".format(cycle[0])
-        enddate = date[-1]
-#        endcycle = "{:03d}".format(cycle[-1])
-        #
-        #        dataset_merge.attrs['Conventions']='CF-1.6'
-        #        dataset_merge.attrs['creation_date'] = time.strftime("%Y-%m-%d %H:%M:%S %Z")
-        data_val.attrs["AlTiS_creation_date"] = time.strftime(
-            "%Y-%m-%d %H:%M:%S %Z"
-        )
-        data_val.attrs["start_date"] = startdate
-        data_val.attrs["end_date"] = enddate
-        data_val.attrs["lat_min"] = np.min(lat)
-        data_val.attrs["lat_max"] = np.max(lat)
-        data_val.attrs["lon_min"] = np.min(lon)
-        data_val.attrs["lon_max"] = np.max(lon)
-        #        self.data_val.attrs[''] =
-
-        print("Normpass file created :  " + filename)
-        to_netcdf(pathlib.PurePath(filename), data_val) 
-
-#        if sys.platform.startswith('linux'):
-#            data_val.to_netcdf(filename)
-#        elif sys.platform.startswith('win'):
-#            data_val.to_netcdf(pathlib.PurePath(filename), format="NETCDF3_64BIT", engine="scipy")
-
-#        data_val.to_netcdf(filename)
-#        data_val.to_netcdf(filename, format="NETCDF4_CLASSIC")
-#        data_val.to_netcdf(pathlib.PurePath(filename), format="NETCDF3_64BIT", engine="scipy")
-        data_val.close()
 
 
 class Track(object):
@@ -484,6 +285,7 @@ class Track(object):
         # rejeté. Revoie une nouvelle liste de fichier conforme pour le tratement.
         file_list = self.__check_file__(data_directory, file_list, param_list)
 
+
         if len(file_list) == 0:
             mission_file_cfg = pkg_resources.resource_filename(
                 "altis", "../etc/products_config.yaml"
@@ -500,6 +302,8 @@ class Track(object):
 
         # Calcul de la structure de données.
         norm_index_ref = self.__mk_norm_index_struct__(data_directory, file_list)
+
+        import pdb; pdb.set_trace()
 
         # Lecture des fichiers trace et création de la structure.
         (
@@ -547,7 +351,7 @@ class Track(object):
             update_progress(idx / len(file_list), title="File checking")
 
             try:
-                with xr.open_dataset(os.path.join(data_directory, filename)) as dataset:
+                with nc.Dataset(os.path.join(data_directory, filename)) as dataset:
 
                     pm = self.__check_param_list_exist__(dataset, param_list)
                     if len(pm) > 0:
@@ -567,7 +371,7 @@ class Track(object):
                 raise self.TimeAttMissing(message)
 
         update_progress(1.0, title="File checking")
-
+        
         if len(param_missing.keys()) > 0:
             message = (
                 "Parameters missing in some files. \n\n"
@@ -597,16 +401,56 @@ class Track(object):
 
         return file_list_ok
 
+
+    def __iter_group__(self,dataset):
+        """
+        Group iterator :It returns the group name found.
+            Two levels only of groups structure
+        """
+        for grp in dataset.groups.keys():
+            yield '/'+grp
+            for subgrp in dataset[grp].groups.keys():
+                yield '/'+grp+'/'+subgrp
+
+
+    def __get_param__(self, dataset):
+        """
+            Return a list of full name parameters including group if exists.
+        """
+        if len(dataset.groups.keys()) == 0:
+            return dataset.variables.keys()
+        else:
+            grp_param = list()
+            for grp in self.__iter_group__(dataset):
+                for param in dataset[grp].variables.keys():
+                    grp_param.append(grp+'/'+param)
+            return grp_param
+
+    def __get_dim_param__(self,dataset,param):
+        """
+            returm the full path name dimension of param
+        """
+        if len(dataset.groups.keys()) == 0:
+            return dataset[param].dimensions[0]
+        else:
+            dim = dataset[param].dimensions[0]
+            grp_path = param
+            while (grp_path != ''):
+                grp_path = '/'.join(grp_path.split('/')[:-1])
+                if dim in dataset[grp_path].dimensions.keys():
+                    return grp_path+'/'+dim
+
     def __check_param_list_exist__(self, dataset, param_list):
         param_missing = list()
         for param in param_list:
-            if param not in dataset.keys():
+            file_param = self.__get_param__(dataset)
+            if param not in file_param:
                 param_missing.append(param)
         return param_missing
 
     def __read_param_file__(self, data_directory, filename, param_list):
         data_disk = dict()
-        with xr.open_dataset(os.path.join(data_directory, filename)) as dataset:
+        with nc.Dataset(os.path.join(data_directory, filename)) as dataset:
             cycle = dataset.cycle_number
 
             if hasattr(dataset, "pass_number"):
@@ -614,7 +458,7 @@ class Track(object):
             elif hasattr(dataset, "track_number"):
                 track_num = dataset.track_number
             try:
-                mask = np.isnat(dataset[self.time_hf_name].data)
+                mask = np.isnan(dataset[self.time_hf_name][:].data)
             except ValueError:
                 message = (
                     "[Error] Time values not conform to CF-1.6 convention.\n"
@@ -634,25 +478,23 @@ class Track(object):
                 )
                 print(message)
                 raise self.TimeAttMissing(message)
-            date = dataset[self.time_hf_name].data[~mask][0]
+            date = nc.num2date(dataset['/data_20/time'][:].data,
+                            dataset['/data_20/time'].units,
+                            calendar=dataset['/data_20/time'].calendar).astype('datetime64[ns]')[~mask][0]
             
-            time_hf = np.array(
-                dataset[self.time_hf_name].data.flatten(), dtype=np.dtype("float64")
+            time_hf = dataset[self.time_hf_name][:].data.flatten()
             
-            )
-            
-            time_lf = np.array(
-                dataset[self.time_lf_name].data.flatten(), dtype=np.dtype("float64")
-            )
+            time_lf = dataset[self.time_lf_name][:].data.flatten()
 
             for param in param_list:
-                if len(dataset[param].dims) == 2:
-                    data_disk[param] = dataset[param].data.flatten()
-                elif len(dataset[param].dims) == 1:
-                    if (dataset[param].dims[0] == self.dim_lf) | (self.dim_lf is None):
+                if dataset[param].ndim == 2:
+                    data_disk[param] = dataset[param][:].data.flatten()
+                elif dataset[param].ndim == 1:
+                    dim_param = self.__get_dim_param__(dataset,param)
+                    if (dim_param == self.dim_lf) | (self.dim_lf is None):
                         try:
                             data_disk[param] = np.interp(
-                                time_hf, time_lf, dataset[param].data
+                                time_hf, time_lf, dataset[param][:].data
                             )
                         except ValueError:
                             message = (
@@ -672,38 +514,10 @@ class Track(object):
                             print(message)
                             raise self.InterpolationError(message)
                     else:
-                        data_disk[param] = dataset[param].data
+                        data_disk[param] = dataset[param][:].data
 
         return data_disk, cycle, date, track_num
 
-    def __data_sort_index__(self, data_struct, norm_index_ref):
-        mask = data_struct > -2147483648
-#        abs_idx = np.where(mask == True)[0]
-
-        match_idx = np.searchsorted(data_struct[mask], norm_index_ref)
-
-        mask_idx = match_idx < data_struct[mask].size
-        idx = match_idx[mask_idx]
-
-        data_struct[: data_struct[mask][idx].size] = data_struct[mask][idx]
-        mask_fill = ~(data_struct == norm_index_ref)
-
-        return mask, idx, mask_fill
-
-    def __sort_norm_index__(self, data_struct, norm_index_ref, cycle):
-        mask = dict()
-        idx = dict()
-        mask_fill = dict()
-        for cy_idx in range(len(cycle)):
-            update_progress(cy_idx / len(cycle), title="Index sorting")
-
-            mask[cy_idx], idx[cy_idx], mask_fill[cy_idx] = self.__data_sort_index__(
-                data_struct[cy_idx], norm_index_ref
-            )
-
-        update_progress(1.0, title="Index sorting")
-
-        return mask, idx, mask_fill
 
     def __mk_norm_index_struct__(self, data_directory, file_list):
         data_disk = dict()
@@ -1079,15 +893,6 @@ class Track(object):
                             + " - "
                             + param_config["param"]["pole_tide"]
                         )
- 
-            #            except KeyError as k:
-        #                message= (('They is KeyError issue : \n '+
-        #                           '\t- %s\n\n'+
-        #                           'In order to compute the "%s" '+
-        #                           'surface height the key parametre '+
-        #                           '%s is needed. Check your configuration file!'  )%(str(k),surf_type,str(k),))
-        #                print('test : ',message)
-        #                raise self.SurfaceHeightError(message)
 
         elif surf_type == "None":
             pass
@@ -1099,9 +904,6 @@ class Track(object):
         param_name = self.time_hf_name  #'time_20hz'
         data = self.data_val[param_name].where(mask, drop=True)
         cycle = np.array(data.coords["cycle"])
-        #norm_index = np.array(data.coords["gdr_index"])
-        #        lon = np.array(data.coords['lon'])
-        #        lat = np.array(data.coords['lat'])
 
         dataset_date = np.array(data.coords["date"], dtype=np.datetime64)
         date = [
@@ -1118,10 +920,6 @@ class Track(object):
         enddate = date[-1]
         endcycle = "{:03d}".format(cycle[-1])
 
-        #        if min(self.tracks) == max(self.tracks):
-        #            track = '{:04d}'.format(min(self.tracks))
-        #        else:
-        #            track = 'Tracks'
         if isinstance(self.track_value, str):
             track = self.track_value
         else:
@@ -1153,10 +951,6 @@ class Track(object):
 
         param_name = self.time_hf_name  #'time_20hz'
         data = self.data_val[param_name]
-#        cycle = np.array(data.coords["cycle"])
-#        norm_index = np.array(data.coords["gdr_index"])
-        #        lon = np.array(data.coords['lon'])
-        #        lat = np.array(data.coords['lat'])
 
         dataset_date = np.array(data.coords["date"], dtype=np.datetime64)
         date = [
@@ -1169,9 +963,7 @@ class Track(object):
         ]
 
         startdate = date[0]
-#        startcycle = "{:03d}".format(cycle[0])
         enddate = date[-1]
-#        endcycle = "{:03d}".format(cycle[-1])
 
         dataset_merge.attrs["Conventions"] = "CF-1.6"
         dataset_merge.attrs["creation_date"] = time.strftime("%Y-%m-%d %H:%M:%S %Z")
@@ -1204,17 +996,10 @@ class Track(object):
             dataset_merge.attrs["pass_number"] = min(self.tracks)
         else:
             dataset_merge.attrs["pass_number"] = -1
-        #            track = 'Tracks'
 
         print("AlTiS GDR pass file created :  " + filename)
         to_netcdf(pathlib.PurePath(filename), dataset_merge)
         
-#        if sys.platform.startswith('linux'):
-#            dataset_merge.to_netcdf(filename)
-#        elif sys.platform.startswith('win'):
-#            dataset_merge.to_netcdf(pathlib.PurePath(filename), format="NETCDF3_64BIT", engine="scipy")
-
-    #        dataset_merge.to_netcdf(filename, format="NETCDF4_CLASSIC")
         
         dataset_merge.close()
         

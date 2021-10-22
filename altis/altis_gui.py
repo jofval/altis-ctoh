@@ -58,7 +58,7 @@ from cartopy.io.img_tiles import StamenTerrain
 # import cartopy.io.img_tiles as cimgt
 
 
-from altis.track_structure import Track, Normpass, GDR_altis
+from altis.track_structure_new import Track, GDR_altis
 from altis.data_selection_gui import DatasetSelection
 
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx as NavigationToolbar
@@ -496,7 +496,7 @@ class Main_Window(wx.Frame):
                     transform=self.ax1.transAxes)
         #self.ax1.set_aspect('auto', adjustable='datalim')
         self.ax1.set_aspect("auto", adjustable="datalim", anchor="C", share=False)
-        self.gl1 = self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True) 
+        self.gl1 = self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True) #,auto_update=True,) 
 #        self.grd_map = self.ax1.add_image(self.osm_img, 1)  #, crs=cimgt.OSM().crs)
 #        print('self.grd_map ',self.grd_map)
 
@@ -1527,7 +1527,7 @@ class Main_Window(wx.Frame):
             color="r",
             fontweight="bold",
             fontsize=15,
-            transform=self.ax1.transAxes,
+            transform=self.ax1.transAxes, zorder = 0,
         )
         self.canvas.draw()
         selection = DatasetSelection(
@@ -1905,63 +1905,63 @@ class Main_Window(wx.Frame):
                 self.progress.Destroy()
                 return -1
 
-            try:
-                self.tr = Track(
-                    mission,
-                    surf_type,
-                    data_dir,
-                    file_list,
-                    mission_config_file=cfgfile_name,
-                    kml_file=kml_file,
-                )
-            except (
-                Track.InterpolationError,
-                Track.TimeAttMissing,
-                Track.ListFileEmpty,
-                Track.SurfaceHeightError,
-                Track.OutOfAreaError,
-            ) as e:
-                message = e.message_gui
-                print(">>>>>>>>> ", message)
-                with wx.MessageDialog(
-                    None,
-                    message=message,
-                    caption="Error",
-                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR,
-                ) as save_dataset_dlg:
+#            try:
+            self.tr = Track(
+                mission,
+                surf_type,
+                data_dir,
+                file_list,
+                mission_config_file=cfgfile_name,
+                kml_file=kml_file,
+            )
+#            except (
+#                Track.InterpolationError,
+#                Track.TimeAttMissing,
+#                Track.ListFileEmpty,
+#                Track.SurfaceHeightError,
+#                Track.OutOfAreaError,
+#            ) as e:
+#                message = e.message_gui
+#                print(">>>>>>>>> ", message)
+#                with wx.MessageDialog(
+#                    None,
+#                    message=message,
+#                    caption="Error",
+#                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR,
+#                ) as save_dataset_dlg:
 
-                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
-                        print("No dataset!")
-                        self.progress.Update(100, "Done.")
-                        self.progress.Destroy()
-                        return -1
-            except (Track.ParamMissing) as e:
-                message = e.message_gui
-                print(">>>>>>>>> ", message)
-                print("Data loading is aborted. No dataset!")
-                self.progress.Update(100, "Done.")
-                self.progress.Destroy()
-                return -1
-            except Exception:
-                tbe = sys.exc_info()
-                print("Exception in Track class: type %s value %s " % (tbe[0], tbe[1]))
-                message = (
-                    "An error has occured during the data loading : \n"
-                    + " - Check the mission name suitability with the dataset file.\n"
-                    + " - Check the consol for Warning messages."
-                )
-                with wx.MessageDialog(
-                    None,
-                    message=message,
-                    caption="Warning",
-                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR,
-                ) as save_dataset_dlg:
+#                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
+#                        print("No dataset!")
+#                        self.progress.Update(100, "Done.")
+#                        self.progress.Destroy()
+#                        return -1
+#            except (Track.ParamMissing) as e:
+#                message = e.message_gui
+#                print(">>>>>>>>> ", message)
+#                print("Data loading is aborted. No dataset!")
+#                self.progress.Update(100, "Done.")
+#                self.progress.Destroy()
+#                return -1
+#            except Exception:
+#                tbe = sys.exc_info()
+#                print("Exception in Track class: type %s value %s " % (tbe[0], tbe[1]))
+#                message = (
+#                    "An error has occured during the data loading : \n"
+#                    + " - Check the mission name suitability with the dataset file.\n"
+#                    + " - Check the consol for Warning messages."
+#                )
+#                with wx.MessageDialog(
+#                    None,
+#                    message=message,
+#                    caption="Warning",
+#                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR,
+#                ) as save_dataset_dlg:
 
-                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
-                        print("No dataset!")
-                        self.progress.Update(100, "Done.")
-                        self.progress.Destroy()
-                        return -1
+#                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
+#                        print("No dataset!")
+#                        self.progress.Update(100, "Done.")
+#                        self.progress.Destroy()
+#                        return -1
 
       #      print("GDR files have been successfully read.")
 
