@@ -16,23 +16,12 @@ import wx.adv
 import yaml
 import os
 
-# import sys
-# import matplotlib
 import numpy as np
-#import pandas as pd
-#import glob
-#import xarray as xr
 import pkg_resources
-#import re
-#import pdb
-#import tempfile
 
 from altis_utils.tools import (
     __read_cfg_file__,
-#    __config_load__,
-#    update_progress,
     __regex_file_parser__,
-    FileNotFoundError,
 )
 
 
@@ -155,11 +144,34 @@ class Load_data_Window(wx.Dialog):
         line = wx.StaticLine(scroll_panel)
         sizer.Add(line, pos=(1, 0), span=(1, 11), flag=wx.EXPAND | wx.BOTTOM, border=10)
         # Mission
-        label_mission = wx.StaticText(scroll_panel, label="Mission")
-        sizer.Add(label_mission, pos=(2, 0), flag=wx.LEFT, border=10)
+#        label_mission = wx.StaticText(scroll_panel, label="Mission")
+#        sizer.Add(label_mission, pos=(2, 0), flag=wx.LEFT, border=10)
 
-        self.sel_mission = self.mission_sel_field(scroll_panel)
-        sizer.Add(self.sel_mission, pos=(2, 1), span=(1, 5), flag=wx.LEFT | wx.EXPAND)
+#        self.sel_mission = self.mission_sel_field(scroll_panel)
+#        sizer.Add(self.sel_mission, pos=(2, 1), span=(1, 5), flag=wx.LEFT | wx.EXPAND)
+
+
+
+        label_gdr = wx.StaticText(scroll_panel, label="AlTiS GDR file")
+        sizer.Add(label_gdr, pos=(2, 0), flag=wx.LEFT | wx.TOP, border=10)
+
+        self.text_ctrl_gdr_altis_files = wx.TextCtrl(scroll_panel)
+        sizer.Add(
+            self.text_ctrl_gdr_altis_files,
+            pos=(2, 1),
+            span=(1, 9),
+            flag=wx.TOP | wx.EXPAND,
+            border=10,
+        )
+
+        self.gdr_altis_filename = self.data_sel_config["gdr_altis_file"]  # None
+        if self.gdr_altis_filename is not None:
+            self.text_ctrl_gdr_altis_files.SetValue(self.gdr_altis_filename)
+
+        self.btn_normpass_file = wx.Button(scroll_panel, label="Browse...")
+        sizer.Add(
+            self.btn_normpass_file, pos=(2, 10), flag=wx.TOP | wx.RIGHT, border=10
+        )
 
         self.chkbox_kml = wx.CheckBox(scroll_panel, label="KML file")
         sizer.Add(self.chkbox_kml, pos=(3, 0), flag=wx.LEFT | wx.TOP, border=10)
@@ -182,36 +194,15 @@ class Load_data_Window(wx.Dialog):
         sizer.Add(self.btn_kml_file, pos=(3, 10), flag=wx.TOP | wx.RIGHT, border=10)
         self.btn_kml_file.Disable()
 
-        # NORMPASS files
-        label_gdr = wx.StaticText(scroll_panel, label="AlTiS GDR file")
-        sizer.Add(label_gdr, pos=(4, 0), flag=wx.LEFT | wx.TOP, border=10)
-
-        self.text_ctrl_gdr_altis_files = wx.TextCtrl(scroll_panel)
-        sizer.Add(
-            self.text_ctrl_gdr_altis_files,
-            pos=(4, 1),
-            span=(1, 9),
-            flag=wx.TOP | wx.EXPAND,
-            border=10,
-        )
-
-        self.gdr_altis_filename = self.data_sel_config["gdr_altis_file"]  # None
-        if self.gdr_altis_filename is not None:
-            self.text_ctrl_gdr_altis_files.SetValue(self.gdr_altis_filename)
-
-        self.btn_normpass_file = wx.Button(scroll_panel, label="Browse...")
-        sizer.Add(
-            self.btn_normpass_file, pos=(4, 10), flag=wx.TOP | wx.RIGHT, border=10
-        )
 
         # -------------------------------------------------------------------------------
         self.chkbox_cfgfile = wx.CheckBox(scroll_panel, label="Config file")
-        sizer.Add(self.chkbox_cfgfile, pos=(5, 0), flag=wx.LEFT | wx.TOP, border=10)
+        sizer.Add(self.chkbox_cfgfile, pos=(4, 0), flag=wx.LEFT | wx.TOP, border=10)
 
         self.text_ctrl_cfgfile = wx.TextCtrl(scroll_panel)
         sizer.Add(
             self.text_ctrl_cfgfile,
-            pos=(5, 1),
+            pos=(4, 1),
             span=(1, 9),
             flag=wx.TOP | wx.EXPAND,
             border=10,
@@ -223,7 +214,7 @@ class Load_data_Window(wx.Dialog):
         self.text_ctrl_cfgfile.Disable()
 
         self.btn_cfgfile = wx.Button(scroll_panel, label="Browse...")
-        sizer.Add(self.btn_cfgfile, pos=(5, 10), flag=wx.TOP | wx.RIGHT, border=10)
+        sizer.Add(self.btn_cfgfile, pos=(4, 10), flag=wx.TOP | wx.RIGHT, border=10)
         self.btn_cfgfile.Disable()
         # -------------------------------------------------------------------------------
         #
@@ -861,7 +852,7 @@ class Load_data_Window(wx.Dialog):
             ] = (
                 self.text_ctrl_gdr_altis_files.GetValue()
             )  # self.gdr_altis_filename # wx.TextCtrl.GetValue(self.text_ctrl_nc_files)
-            self.data_sel_config["mission"] = self.sel_mission.GetValue()
+            #self.data_sel_config["mission"] = self.sel_mission.GetValue()
             if self.chkbox_kml.GetValue():
                 self.data_sel_config[
                     "kml_file"

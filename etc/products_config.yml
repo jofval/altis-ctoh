@@ -204,7 +204,7 @@ Jason-3 :
         pole_tide : pole_tide
 
         # Geoid correction (for RiversLakes, GreatLakes Surface Type)
-        geoid : geoid_eigen6c4d # geoid_egm08
+        geoid : geoid_eigen6c4d # cd ..geoid_egm08
 
         # Backscatter
         ice1_sig0_ku : ice_sig0_20hz_ku

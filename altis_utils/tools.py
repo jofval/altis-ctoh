@@ -21,15 +21,6 @@ from shapely.geometry import shape, Point, Polygon
 import xarray as xr
 
 
-class Error(Exception):
-    pass
-
-
-class FileNotFoundError(Error):
-    def __init__(self, message):
-        super().__init__(message)
-        self.message_gui = message
-
 
 # --------------------------------------------------------------------------
 # Compute the median absolute deviation of the data along the given axis.
@@ -197,3 +188,15 @@ def __regex_file_parser__(mission, directory, mission_config_file):
         file_struct["cycle"] = cycle
         file_struct["filename"] = file_list
         return file_struct
+        
+        
+        
+def __grp_format__(name):
+    """
+        formate le nom de la variable si nom est complosé avec groupe
+    """
+    if '/' in name:
+        return '_'.join(name.split('/')[1:])
+    else:
+        return name
+

@@ -74,13 +74,9 @@ from altis.help_html_gui import Help_Window
 from altis.time_series import Time_Series_Panel
 from altis.colinear_analysis import ColinAnal_Panel
 
-#from altis.patch_code_oswlib_wmts import *
-
 from altis.connection_check import check_internet
 
 from altis.para_detection import hough_transform    #, hough_transform_linear
-
-from altis_utils.tools import FileNotFoundError
 
 from altis._version import __version__  #, __revision__
 
@@ -1905,63 +1901,63 @@ class Main_Window(wx.Frame):
                 self.progress.Destroy()
                 return -1
 
-#            try:
-            self.tr = Track(
-                mission,
-                surf_type,
-                data_dir,
-                file_list,
-                mission_config_file=cfgfile_name,
-                kml_file=kml_file,
-            )
-#            except (
-#                Track.InterpolationError,
-#                Track.TimeAttMissing,
-#                Track.ListFileEmpty,
-#                Track.SurfaceHeightError,
-#                Track.OutOfAreaError,
-#            ) as e:
-#                message = e.message_gui
-#                print(">>>>>>>>> ", message)
-#                with wx.MessageDialog(
-#                    None,
-#                    message=message,
-#                    caption="Error",
-#                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR,
-#                ) as save_dataset_dlg:
+            try:
+                self.tr = Track(
+                    mission,
+                    surf_type,
+                    data_dir,
+                    file_list,
+                    mission_config_file=cfgfile_name,
+                    kml_file=kml_file,
+                )
+            except (
+                Track.InterpolationError,
+                Track.TimeAttMissing,
+                Track.ListFileEmpty,
+                Track.SurfaceHeightError,
+                Track.OutOfAreaError,
+            ) as e:
+                message = e.message_gui
+                print(">>>>>>>>> ", message)
+                with wx.MessageDialog(
+                    None,
+                    message=message,
+                    caption="Error",
+                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR,
+                ) as save_dataset_dlg:
 
-#                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
-#                        print("No dataset!")
-#                        self.progress.Update(100, "Done.")
-#                        self.progress.Destroy()
-#                        return -1
-#            except (Track.ParamMissing) as e:
-#                message = e.message_gui
-#                print(">>>>>>>>> ", message)
-#                print("Data loading is aborted. No dataset!")
-#                self.progress.Update(100, "Done.")
-#                self.progress.Destroy()
-#                return -1
-#            except Exception:
-#                tbe = sys.exc_info()
-#                print("Exception in Track class: type %s value %s " % (tbe[0], tbe[1]))
-#                message = (
-#                    "An error has occured during the data loading : \n"
-#                    + " - Check the mission name suitability with the dataset file.\n"
-#                    + " - Check the consol for Warning messages."
-#                )
-#                with wx.MessageDialog(
-#                    None,
-#                    message=message,
-#                    caption="Warning",
-#                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR,
-#                ) as save_dataset_dlg:
+                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
+                        print("No dataset has been downloaded!")
+                        self.progress.Update(100, "Done.")
+                        self.progress.Destroy()
+                        return -1
+            except (Track.ParamMissing) as e:
+                message = e.message_gui
+                print(">>>>>>>>> ", message)
+                print("Data loading is aborted. No dataset!")
+                self.progress.Update(100, "Done.")
+                self.progress.Destroy()
+                return -1
+            except Exception:
+                tbe = sys.exc_info()
+                print("Exception in Track class: type %s value %s " % (tbe[0], tbe[1]))
+                message = (
+                    "An error has occured during the data loading : \n"
+                    + " - Check the mission name suitability with the dataset file.\n"
+                    + " - Check the consol for Warning messages."
+                )
+                with wx.MessageDialog(
+                    None,
+                    message=message,
+                    caption="Warning",
+                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR,
+                ) as save_dataset_dlg:
 
-#                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
-#                        print("No dataset!")
-#                        self.progress.Update(100, "Done.")
-#                        self.progress.Destroy()
-#                        return -1
+                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
+                        print("No dataset!")
+                        self.progress.Update(100, "Done.")
+                        self.progress.Destroy()
+                        return -1
 
       #      print("GDR files have been successfully read.")
 
@@ -1983,13 +1979,13 @@ class Main_Window(wx.Frame):
 
             #print('>>>>>:',mission,filename,kml_file)
             try:
-                self.tr = GDR_altis(
-                    mission,
+                self.tr = GDR_altis(self.data_sel_config,
                     filename,
                     mission_config_file=cfgfile_name,
                     kml_file=kml_file,
                 )
-            except (GDR_altis.OutOfAreaError) as e:
+            except (GDR_altis.OutOfAreaError,
+                        GDR_altis.NotAltisGDRFileError) as e:
                 message = e.message_gui
                 print(">>>>>>>>> ", message)
                 with wx.MessageDialog(

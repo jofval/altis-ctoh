@@ -28,7 +28,7 @@ from altis_utils.tools import (
     __config_load__,
     update_progress,
     kml_poly_select,
-    FileNotFoundError,
+    __grp_format__,
 )
 
 from altis.to_netcdf import to_netcdf
@@ -47,14 +47,25 @@ class GDR_altis(object):
             super().__init__(message)
             self.message_gui = message
 
+    class NotAltisGDRFileError(Error):
+        def __init__(self, message):
+            super().__init__(message)
+            self.message_gui = message
+    
+    
+    
     def __init__(
-        self, mission, filename, mission_config_file=None, kml_file=None,
+        self, data_sel_config, filename, mission_config_file=None, kml_file=None,
     ):
         """
             Chargement de la structure GDR créer par Altis.
         """
-        self.mission = mission
-
+#        self.mission = mission
+        
+        self.data_sel_config = data_sel_config
+        
+        
+        
         if mission_config_file is None:
             mission_file_cfg = pkg_resources.resource_filename(
                 "altis", "../etc/products_config.yaml"
@@ -65,28 +76,34 @@ class GDR_altis(object):
             else:
                 raise Exception("Mission configuration file not found.")
 
-        param_config = __config_load__(mission, mission_config_file)
-
-        self.norm_index_hf_name = param_config["param"]["norm_index_hf"]
-        self.time_hf_name = param_config["param"]["time_hf"]
-        self.time_lf_name = param_config["param"]["time_lf"]
-        self.lon_hf_name = param_config["param"]["lon_hf"]
-        self.lat_hf_name = param_config["param"]["lat_hf"]
-
-
         altisgdr=False
         with xr.open_dataset(filename) as ds:
             if hasattr(ds,'processor'):
                 if ds.processor =='altisgdr':
                     altisgdr=True
+                    if hasattr(ds,'mission'):
+                        mission = ds.mission
+                        self.data_sel_config["mission"] = mission
 
         if altisgdr:
+
+            param_config = __config_load__(mission, mission_config_file)
+
+            self.norm_index_hf_name = __grp_format__(param_config["param"]["norm_index_hf"])
+            self.time_hf_name = __grp_format__(param_config["param"]["time_hf"])
+            self.time_lf_name = __grp_format__(param_config["param"]["time_lf"])
+            self.lon_hf_name = __grp_format__(param_config["param"]["lon_hf"])
+            self.lat_hf_name = __grp_format__(param_config["param"]["lat_hf"])
+
+
 
             self.data_val = xr.open_dataset(filename)
             cycle = self.data_val.cycle
             lon = self.data_val[self.lon_hf_name].data
             lat = self.data_val[self.lat_hf_name].data
+            
 
+            
             if kml_file is not None:
                 mask_kml = np.zeros(lon.shape, dtype=np.bool)
                 for cy_idx, cy in enumerate(cycle):
@@ -111,15 +128,12 @@ class GDR_altis(object):
 
             self.data_val.close()
         else:
-            raise Exception(
-                "The normpass filename is not conform to the filename "
-                + "pattern of "
-                + mission
-                + " mission."
-            )
+            message = "This filename is not an AlTiS GDR filename "
+            print (message)
+            raise self.NotAltisGDRFileError(message)
 
     def mk_filename_gdr_data(self, mask):
-        param_name = self.time_hf_name  #'time_20hz'
+        param_name = self.time_hf_name
         data = self.data_val[param_name].where(mask, drop=True)
         cycle = np.array(data.coords["cycle"])
 #        norm_index = np.array(data.coords["gdr_index"])
@@ -275,7 +289,7 @@ class Track(object):
         param_list = [
             param_config["param"][param] for param in param_config["param"].keys()
         ]
-        if "None" in param_list:
+        while ("None" in param_list):
             param_list.remove("None")
         idx = param_list.index(self.time_lf_name)
         param_list.pop(idx)
@@ -303,8 +317,7 @@ class Track(object):
         # Calcul de la structure de données.
         norm_index_ref = self.__mk_norm_index_struct__(data_directory, file_list)
 
-        import pdb; pdb.set_trace()
-
+        print('list_param',param_list)
         # Lecture des fichiers trace et création de la structure.
         (
             data_struct,
@@ -314,6 +327,7 @@ class Track(object):
             self.date,
             self.tracks,
         ) = self.__read_file__(data_directory, file_list, param_list, norm_index_ref)
+
 
         # Création d'un dictionnaire xarray self.data_val contenant les paramétres et
         # ayant les dimmensions coordonnées définies précédemment.
@@ -328,21 +342,28 @@ class Track(object):
             self.tracks,
         )
 
+#        import pdb; pdb.set_trace()
+
+
         # correction d'éllipsoide si différente de WGS84
         if param_config["ellipsoid"] == "WGS84":
             print("Reference ellipsoid is ok :"+ param_config["ellipsoid"])
         else:
             print("Reference ellipsoid is not WGS84 :"+ param_config["ellipsoid"])
-            print("The coordinates (lon/lat) and the altitude of the satellite are converted to the reference ellipsoid WGS84.")
-            self.__ellipsoid_corr__(param_config)
+            if param_config["param"]["geoid"] != "None" :
+                print("The coordinates (lon/lat) and the altitude of the satellite are converted to the reference ellipsoid WGS84.")
+                self.__ellipsoid_corr__(param_config)
+            else:
+                print("Warning : The geoid parameter is missing in the pruduct configuration file (products_config.yml).")
+                print("Warning : The coordinates (lon/lat) and the altitude of the satellite COULD NOT BE CONVERTED to the reference ellipsoid WGS84.")
 
         # Calcul des hauteurs altimétrique pour les différents retrackers
-        try:
-            self.__surf_height__(surf_type, param_config)
-        except self.SurfaceHeightError as e:
-            message = e.message_gui
-            print(message)
-            raise self.SurfaceHeightError(message)
+        
+        self.__check_surf_height_param__(surf_type, param_config)
+
+        self.__surf_height__(surf_type, param_config)
+
+
 
     def __check_file__(self, data_directory, file_list, param_list):
         param_missing = dict()
@@ -458,7 +479,14 @@ class Track(object):
             elif hasattr(dataset, "track_number"):
                 track_num = dataset.track_number
             try:
-                mask = np.isnan(dataset[self.time_hf_name][:].data)
+#                mask = np.isnan(dataset[self.time_hf_name][:].data)
+                len_mask = len(dataset[self.time_hf_name][:].mask.flatten())
+                len_data = len(dataset[self.time_hf_name][:].data.flatten())
+                if len_data != len_mask:
+                    mask = np.array([False]*len_data, dtype=np.dtype('bool'))
+                else:
+                    mask = dataset[self.time_hf_name][:].mask.flatten()
+
             except ValueError:
                 message = (
                     "[Error] Time values not conform to CF-1.6 convention.\n"
@@ -478,15 +506,25 @@ class Track(object):
                 )
                 print(message)
                 raise self.TimeAttMissing(message)
-            date = nc.num2date(dataset['/data_20/time'][:].data,
-                            dataset['/data_20/time'].units,
-                            calendar=dataset['/data_20/time'].calendar).astype('datetime64[ns]')[~mask][0]
-            
+
             time_hf = dataset[self.time_hf_name][:].data.flatten()
-            
             time_lf = dataset[self.time_lf_name][:].data.flatten()
 
+            # Track date
+            date_sample = time_hf.astype('datetime64[ns]')
+            idx = np.where(mask)
+            date_sample[idx] = np.datetime64('nat')
+            idx = np.where(~mask)
+            date_sample[idx] = nc.num2date(time_hf[idx],
+                            dataset[self.time_hf_name].units,
+                            calendar=dataset[self.time_hf_name].calendar).astype('datetime64[ns]')
+            date = date_sample[~mask][0]
+
             for param in param_list:
+                # Special treatment for time parameter
+                if self.time_hf_name == param:
+                    data_disk[param] = date_sample
+                    continue
                 if dataset[param].ndim == 2:
                     data_disk[param] = dataset[param][:].data.flatten()
                 elif dataset[param].ndim == 1:
@@ -559,10 +597,14 @@ class Track(object):
         """
         # Création d'une structure de type
         #        with xr.open_dataset(os.path.join(data_directory,file_list[0]),decode_times=False) as dataset:
-        with xr.open_dataset(os.path.join(data_directory, file_list[0])) as dataset:
+        with nc.Dataset(os.path.join(data_directory, file_list[0])) as dataset:
             dtype_list = []
             for param in param_list:
-                dtype_list.extend([(param, dataset.variables[param].dtype)])
+                if self.time_hf_name == param:
+                    dtype_list.extend([(param, np.dtype('datetime64[ns]'))])
+                else:
+                    dtype_list.extend([(param, np.dtype('float64'))])
+#                    dtype_list.extend([(param, dataset[param].dtype)])
             struct_dtype = np.dtype(dtype_list)
 
         # création data_struct tableau xarray dans lequel seront chargé les données.
@@ -597,10 +639,9 @@ class Track(object):
 
             cy_idx = cy_idx + 1
 
-        dataset.close()
         update_progress(1.0, title="Track files loading")
 
-        dataset = xr.open_dataset(os.path.join(data_directory, file_list[0]))
+        dataset = nc.Dataset(os.path.join(data_directory, file_list[0]))
         data_attributs["global"] = {}
 
         if hasattr(dataset, "pass_number"):
@@ -611,28 +652,31 @@ class Track(object):
         data_attributs["global"]["pass_number"] = track_num
         for param in struct_dtype.names:
             data_attributs[param] = {}
-            if "units" in dataset[param].attrs:
-                data_attributs[param]["units"] = dataset[param].attrs["units"]
+
+            if "units" in dataset[param].ncattrs():
+                data_attributs[param]["units"] = dataset[param].getncattr("units")
             else:
                 data_attributs[param]["units"] = ""
 
-            if "standard_name" in dataset[param].attrs:
-                data_attributs[param]["standard_name"] = dataset[param].attrs[
+            if "standard_name" in dataset[param].ncattrs():
+                data_attributs[param]["standard_name"] = dataset[param].getncattr(
                     "standard_name"
-                ]
+                )
             else:
                 data_attributs[param]["standard_name"] = ""
 
-            if "long_name" in dataset[param].attrs:
-                data_attributs[param]["long_name"] = dataset[param].attrs["long_name"]
+            if "long_name" in dataset[param].ncattrs():
+                data_attributs[param]["long_name"] = dataset[param].getncattr("long_name")
             else:
                 data_attributs[param]["long_name"] = ""
 
-            if "comment" in dataset[param].attrs:
-                data_attributs[param]["comment"] = dataset[param].attrs["comment"]
+            if "comment" in dataset[param].ncattrs():
+                data_attributs[param]["comment"] = dataset[param].getncattr("comment")
             else:
                 data_attributs[param]["comment"] = ""
-
+                
+        dataset.close()
+        
         return data_struct, data_attributs, struct_dtype, cycle, date, tracks
 
     def __mk_data_struct__(
@@ -752,15 +796,44 @@ class Track(object):
         
 
 
+    def __check_surf_height_param__(self, surf_type, param_config):
+        """
+            Vérifie la disponibilité des paramètres altimétriques dans le fichier de config
+        """
+
+
+        if surf_type == "RiversLakes":
+            params = ["model_wet_tropo_corr","model_dry_tropo_corr","solid_earth_tide","geoid","pole_tide","alt_hf"]
+            for p in params:
+                if param_config["param"][p] == 'None':
+                    message = (f"For dowload the dataset, you have selected a \"Surface Type\" as {surf_type}.\n\n"+
+                                f"But it appears that the \"{p}\" parameter is not defined in the configuration file of produts (products_config.yml).\n\n"
+                                +f"To fix this issue, just update this configuration file or do not select any Surface Type (as None) ")
+                    print(message)
+                    raise self.SurfaceHeightError(message)
+                
+
+                    
+            for band in param_config["band"]:
+                for retracker in param_config["retracker"]:
+                    p=retracker + "_range_" + band
+                    if param_config["param"][p] == "None":
+                        message = (f"For dowload the dataset, you have selected a \"Surface Type\" as {surf_type}.\n\n"+
+                                f"But it appears that the \"{p}\" parameter is not defined in the configuration file of produts (products_config.yml).\n\n"
+                                +f"To fix this issue, just update this configuration file or do not select any Surface Type (as None) ")
+
+                        print(message)
+                        raise self.SurfaceHeightError(message)
+
 
     def __surf_height__(self, surf_type, param_config):
         """
             Calcul des hauteurs altimétrique pour les différents retrackers
         """
 
-        if surf_type == "RiversLakes":
-            #            try:
 
+
+        if surf_type == "RiversLakes":
             for band in param_config["band"]:
                 for retracker in param_config["retracker"]:
                     
