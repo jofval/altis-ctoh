@@ -58,7 +58,7 @@ from cartopy.io.img_tiles import StamenTerrain
 # import cartopy.io.img_tiles as cimgt
 
 
-from altis.track_structure_new import Track, GDR_altis
+from altis.track_structure import Track, GDR_altis
 from altis.data_selection_gui import DatasetSelection
 
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx as NavigationToolbar

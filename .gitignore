@@ -3,7 +3,7 @@ syntax:glob
 build/*
 *.egg-info/*
 *.eggs/*
-*version*
+*_version*
 .hgignore
 examples/*
 dist/*

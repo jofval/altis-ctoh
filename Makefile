@@ -18,6 +18,7 @@ uninstall:
 
 clean:
 	\rm -rf build _*.so
+	\rm -rf dist _*.so
 	find . -name __pycache__ | xargs \rm -rf
 	find . -name *.pyc | xargs \rm -f
 	find . -name *.so | xargs \rm -f
@@ -25,6 +26,7 @@ clean:
 
 clean_all:
 	\rm -rf build _*.so
+	\rm -rf dist _*.so
 	find . -name *.egg-info | xargs \rm -rf
 	find . -name *.eggs | xargs \rm -rf
 	find . -name __pycache__ | xargs \rm -rf
