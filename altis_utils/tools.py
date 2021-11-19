@@ -16,8 +16,8 @@ import yaml
 import numpy as np
 import pkg_resources
 import logging, sys
-import geopandas as gpd
 from shapely.geometry import shape, Point, Polygon
+import fiona
 import xarray as xr
 
 
@@ -37,17 +37,58 @@ def med_abs_dev(vec, dim_label, scale=1.4826):
     return scale * med_abs_diff
 
 
-def kml_poly_select(kml_file, lon_mean, lat_mean):
+def kml_poly_select(filename, lon_mean, lat_mean):
     """
        Selection des données contenues à l'intérieur du polygone défini dans le fichier kml
     """
+    fiona.supported_drivers['KML']='rw'
+    poly_obj_file = fiona.open(filename,'r',driver='KML')
 
-    gpd.io.file.fiona.drvsupport.supported_drivers["KML"] = "rw"
-    polys = gpd.read_file(kml_file, driver="KML")
-    poly = polys.loc[polys["Name"] == polys["Name"][0]]
+    obj_dim = len(poly_obj_file)
+    if obj_dim == 0:
+        print("[KML/ShapeFile] Polynom Object file not valid! Is empty.")
+        exit(-1)
+    if obj_dim > 1:
+        print(f"[KML/ShapeFile] Polynom Object file contains several "+
+                f"Object Items : {obj_dim} found.")
+    
+    polygon = None
+    for poly_str in poly_obj_file:
+        if "geometry" not in poly_str.keys():
+            print("[KML/ShapeFile] Polygon structure id"+poly_str['id']+" not correct : "
+                    "\"geometry\" field is missing!")
+            continue
+        if "Polygon" != poly_str["geometry"]["type"]:
+            print("[KML/ShapeFile] Polygon structure id"+poly_str['id']+" not correct : "
+                    "\"geometry type\" field value is not \"Polygon\"."
+                    "Value found : "+poly_str["geometry"]["type"])
+            continue
+        if "coordinates" not in poly_str["geometry"].keys():
+            print("[KML/ShapeFile] Polygon structure id"+poly_str['id']+" not correct : "
+                    "\"coordinate\" field is missing.")
+            continue
+        polys = poly_str["geometry"]["coordinates"]
+        if len(polys) == 0:
+            print("[KML/ShapeFile] Polygon structure id"+poly_str['id']+" not correct : "
+                    "\"coordinate\" field is empty.")
+            continue
+
+        if polygon is None:
+            polygon = Polygon(polys[0])
+        else:
+            polygon.union(Polygon(polys[0]))
+
+        for poly in polys[1:]:
+            polygon.union(Polygon(poly))
+    
+    poly_obj_file.close()
+
+    if polygon is None:
+        print("[KML/ShapeFile] Polygon is empty : None is returned")
+
 
     mask = [
-        Point(lon, lat).within(poly.loc[0, "geometry"])
+        Point(lon, lat).within(polygon)
         for lon, lat in zip(lon_mean, lat_mean)
     ]
 
