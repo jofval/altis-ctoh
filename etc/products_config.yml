@@ -294,7 +294,7 @@ Jason-3_GDR-F:
 # envisat.v21
 ################################################################################
 envisat_v21 :
-    filename_pattern : _(?P<cycle>\d{3})_(?P<track>\d{4})_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1\.nc 
+    filename_pattern : .*_(?P<cycle>\d{3})_(?P<track>\d{4})_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1\.nc 
 
     retracker :
         - ice1
