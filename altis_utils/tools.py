@@ -167,6 +167,14 @@ def __config_load__(mission, mission_config_file):
     else:
         raise Exception(mission, " mission is not already configurated.")
 
+class Error(Exception):
+        pass
+
+
+class FilenameNotConformError(Error):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message_gui = message
 
 def __regex_file_parser__(mission, directory, mission_config_file):
     config_mission = __config_load__(mission, mission_config_file)
@@ -192,14 +200,13 @@ def __regex_file_parser__(mission, directory, mission_config_file):
     #    if track.count(None) > 0:
     if len(file_list_bad_regex) == len(file_list):
         message = (
-            "The filenames are not conform to the filename "
-            + "pattern of "
-            + mission
-            + " mission. None file "
-            "could not be load."
+            "The GDR files are not for "+mission+" product. "
+            +"It seems to be files of another product. Check "
+            +"the chosen mission is conformed to the selected files."
+            +" Files can't be load."
         )
-        print(message)
-        raise FileNotFoundError(message)
+        print("altis_utils.tools.FilenameNotConformError : ",message)
+        raise FilenameNotConformError(message)
     #        else:
     #            raise Exception('Some filenames are not conform to the filename '\
     #                            +'pattern of '+mission+' mission and could not '\

@@ -7,12 +7,93 @@
 # Created by Fabien Blarel on 2019-04-19. 
 # ----------------------------------------------------------------------
 
+################################################################################
+# Topex GDR-D
+################################################################################
+Topex_CASH :
+    #---------------------------------------------------------------------------
+    # Filename regular expression (DO NOT TOUCH!)
+    #---------------------------------------------------------------------------
+    # GDR file patern 
+
+    filename_pattern : .*tpx_cash_(?P<cycle>\d{3})_(?P<track>\d{4})_\d{4}[01]\d[0-3]\d.nc
+
+    #---------------------------------------------------------------------------
+    # Retracker to compute surface height
+    #---------------------------------------------------------------------------
+    retracker :
+        - ice1
+        - ice2
+        - seaice
+        - ocean
+
+    #---------------------------------------------------------------------------
+    # Band to compute surface height
+    #---------------------------------------------------------------------------
+    band : 
+        - ku
+#        - c
+    
+    #---------------------------------------------------------------------------
+    # A long track sampling frequency
+    #---------------------------------------------------------------------------
+    freq : 10.0
+    
+    ellipsoid : TPX
+    #---------------------------------------------------------------------------
+    # The parameters readed in the Normpass, GRD track or AlTiS GDR files.
+    # There are two kinds of parameters : Imperative ones and Optional ones. 
+    #---------------------------------------------------------------------------
+    param :
+        #---------------------------------------------------------------------------
+        # Imperative required parameters
+        #   They are needed for compute the surface height over different surfaces 
+        #   types (RiversLales, GreatsLakes, Ocean,)
+        #---------------------------------------------------------------------------
+        # Coordinates
+        time_lf : time
+        time_hf : time_10hz
+        lon_hf : lon_10hz    
+        lat_hf : lat_10hz
+        
+        # Index of normalized pass
+        norm_index_hf : None    #norm_index_20hz
+        
+        # Altitude
+        alt_hf : alt_10hz
+        
+        # Range (Ice-1 (OCOG) retracker) (needed for RiversLakes Surface height)
+        ice1_range_ku : range_10hz_ice1
+        # Range (Ice-2 retracker)
+        ice2_range_ku : range_10hz_ice2
+        # Range (SeaIce retracker)
+        seaice_range_ku : range_10hz_seaice
+        # Range l(Oean retracker) (needed for RiversLakes Surface height)
+        ocean_range_ku : range_10hz_ku
+        
+        # Range Corrections needed for RiversLakes Surface height
+        model_wet_tropo_corr : model_wet_tropo_corr
+        model_dry_tropo_corr : model_dry_tropo_corr
+        iono_corr_gim_ku : iono_corr_gim_ku
+        solid_earth_tide : solid_earth_tide
+        pole_tide : pole_tide
+
+        # Geoid correction (for RiversLakes, GreatLakes Surface Type)
+        geoid : geoid_egm08
+
+        #---------------------------------------------------------------------------
+        # Optional parameters.
+        #---------------------------------------------------------------------------
+        # Backscatter 
+        ice1_sig0_ku : sig0_10hz_ice1
+        ice2_sig0_ku : sig0_10hz_ice2
+        seaice_sig0_ku : sig0_10hz_seaice
 
 
 ################################################################################
-# Jason-1
+# Jason-1 GDR-E
 ################################################################################
-Jason-1 :
+Jason-1_GDR-E :
     filename_pattern : .*P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
 
     retracker :
@@ -68,14 +149,15 @@ Jason-1 :
         
 
 ################################################################################
-# Jason-2
+# Jason-2 GDR-D
 ################################################################################
-Jason-2 :
+Jason-2_GDR-D :
     #---------------------------------------------------------------------------
     # Filename regular expression (DO NOT TOUCH!)
     #---------------------------------------------------------------------------
-    # GDR file patern
-    filename_pattern : .*P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    # GDR file patern 
+
+    filename_pattern : .*JA2_GPS_2PdP(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
 
     #---------------------------------------------------------------------------
     # Retracker to compute surface height
@@ -152,70 +234,6 @@ Jason-2 :
         238_brightness_temp : tb_238
         340_brightness_temp : tb_340
         
-################################################################################
-# Jason-3
-################################################################################
-Jason-3 :
-
-    filename_pattern : .*P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
-
-    retracker :
-        - ice1
-        - mle3
-        - ocean
-
-    band : 
-        - ku
-#        - c
-    
-    freq : 20.0
-    
-    ellipsoid : TPX
-    param :
-        # Coordinates
-        time_lf : time
-        time_hf : time_20hz
-        lon_hf : lon_20hz    
-        lat_hf : lat_20hz
-        
-        # Index of normalized pass
-        norm_index_hf : None    # norm_index_20hz
-        
-        # Altitude
-        alt_hf : alt_20hz
-        
-        # Range (Ice-1 (OCOG) retracker)
-        ice1_range_ku : ice_range_20hz_ku
-        # Range (MLE-3 retracker)
-        mle3_range_ku : range_20hz_ku_mle3
-        # Range (Oean retracker)
-        ocean_range_ku : range_20hz_ku
-        # Range (Ice-1 (OCOG) retracker)
-#        ice1_range_c : ice_range_20hz_c
-        # Range (Oean retracker)
-#        ocean_range_c : range_20hz_c
- 
-
-        # Range Corrections
-        model_wet_tropo_corr : model_wet_tropo_corr
-        model_dry_tropo_corr : model_dry_tropo_corr
-        iono_corr_gim_ku : iono_corr_gim_ku
-        solid_earth_tide : solid_earth_tide
-        pole_tide : pole_tide
-
-        # Geoid correction (for RiversLakes, GreatLakes Surface Type)
-        geoid : geoid_eigen6c4d # cd ..geoid_egm08
-
-        # Backscatter
-        ice1_sig0_ku : ice_sig0_20hz_ku
-        ice1_sig0_c : ice_sig0_20hz_c
-        ice1_peakiness_ku : peakiness_20hz_ku
-        ice1_peakiness_c : peakiness_20hz_c
-
-        # Brightness temperature
-        187_brightness_temp : tb_187    
-        238_brightness_temp : tb_238
-        340_brightness_temp : tb_340
         
 ################################################################################
 # Jason-3 GDR-F
@@ -288,13 +306,13 @@ Jason-3_GDR-F:
         187_brightness_temp : /data_01/rad_tmb_187    
         238_brightness_temp : /data_01/rad_tmb_238
         340_brightness_temp : /data_01/rad_tmb_340
-        
+
         
 ################################################################################
 # envisat.v21
 ################################################################################
 envisat_v21 :
-    filename_pattern : .*_(?P<cycle>\d{3})_(?P<track>\d{4})_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1\.nc 
+    filename_pattern : .*_(?P<cycle>\d{3})_(?P<track>\d{4})_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1.nc 
 
     retracker :
         - ice1
@@ -435,7 +453,7 @@ envisat_v30 :
 # ers2 CTOH
 ################################################################################
 ers2_ctoh :
-    filename_pattern : .*P(?P<track>\d{3})_(?P<cycle>\d{4})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    filename_pattern : .*P(?P<cycle>\d{3})_(?P<track>\d{4})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
 
     retracker :
         - ice1
@@ -494,10 +512,11 @@ ers2_ctoh :
         
         
 ################################################################################
-# saral
+# saral GDR-F
 ################################################################################
-Saral :
-    filename_pattern : .*2PTP(?P<cycle>\d{3})_(?P<track>\d{4})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d.CNES\.nc
+Saral_GDR-F:
+    
+    filename_pattern : .*2PfP(?P<cycle>\d{3})_(?P<track>\d{4})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d.CNES\.nc
     
     retracker :
         - ice1
@@ -541,9 +560,9 @@ Saral :
         pole_tide : pole_tide
 
         # Geoid correction (for RiversLakes, GreatLakes Surface Type)
-        geoid : geoid_egm08
+        geoid : geoid   #_egm08
         # 2d Geoid correction (not applied to the surface height compute)
-        geoid_2d_sol : geoid_eigen6c4d
+#        geoid_2d_sol : geoid_eigen6c4d
 
         # Backscatter
         ice1_sig0_ka : ice1_sig0_40hz
@@ -560,7 +579,7 @@ Saral :
 # Sentinel-3
 ################################################################################
 #s3lanOT : &s3
-Sentinel-3A: &s3
+Sentinel-3A&B_land: 
 
     filename_pattern : .*_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_.*T.*_.*_C(?P<cycle>\d{3})_P(?P<track>\d{3})_L.*_.*_NT_.*\.nc
     
@@ -653,12 +672,12 @@ Sentinel-3A: &s3
         instr_op_mode : instr_op_mode_20_ku
 
 #################################################################################
-Sentinel-3B:
-    <<: *s3
-    filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
-    # dimensions parameters
-    dim_lf : time_01
-    dim_hf : [time_20_ku, time_20_c]
+# Sentinel-3B:
+#     <<: *s3
+#     filename_tracks_pattern : .*_Tracks_\d{4}[01]\d[0-3]\d_\d{3}_\d{4}[01]\d[0-3]\d_\d{3}.nc
+#     # dimensions parameters
+#     dim_lf : time_01
+#     dim_hf : [time_20_ku, time_20_c]
 
 
 
@@ -804,3 +823,133 @@ cryosat2-ice :
 
 
 
+################################################################################
+# Sentinel-6 GDR-F LRM
+################################################################################
+Sentinel-6_LRM:
+
+    filename_pattern : .*_S6A_P4_2__LR_STD__(NT|ST)_(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d\_F\d{2}.nc
+
+    retracker :
+        - ice1
+        - mle3
+        - ocean
+        #- adaptive
+
+    band : 
+        - ku
+#        - c
+    
+    freq : 20.0
+
+    # dimensions parameters
+    dim_lf : /data_01/time
+    dim_hf : /data_20/ku/time
+    
+    ellipsoid : WGS84
+    param :
+        # Coordinates
+        time_lf : /data_01/time_tai
+        time_hf : /data_20/ku/time_tai
+        lon_hf : /data_20/ku/longitude
+        lat_hf : /data_20/ku/latitude
+        
+        # Index of normalized pass
+        norm_index_hf : None    # norm_index_20hz
+        
+        # Altitude
+        alt_hf : /data_20/ku/altitude
+        
+        # Range (Ice-1 (OCOG) retracker)
+        ice1_range_ku : /data_20/ku/range_ocog
+        # Range (MLE-3 retracker)
+        mle3_range_ku : /data_20/ku/range_ocean_mle3
+        # Range (Oean retracker)
+        ocean_range_ku : /data_20/ku/range_ocean
+        # Range (Ice-1 (OCOG) retracker)
+#        ice1_range_c : /data_20/c/range_ocog
+        # Range (Oean retracker)
+#        ocean_range_c : /data_20/c/range_ocean
+ 
+
+        # Range Corrections
+        model_wet_tropo_corr : /data_20/ku/model_wet_tropo_cor_measurement_altitude
+        model_dry_tropo_corr : /data_20/ku/model_dry_tropo_cor_measurement_altitude
+        iono_corr_gim_ku : /data_01/ku/iono_cor_gim
+        solid_earth_tide : /data_01/solid_earth_tide
+        pole_tide : /data_01/pole_tide
+
+        # Geoid correction (for RiversLakes, GreatLakes Surface Type)
+        geoid : /data_20/ku/geoid 
+
+        # Backscatter
+        ice1_sig0_ku : /data_20/ku/sig0_ocog
+        ice1_sig0_c : /data_20/c/sig0_ocog
+        ice1_peakiness_ku : /data_20/ku/peakiness
+
+
+        # Brightness temperature
+        187_brightness_temp : /data_01/rad_tb_187    
+        238_brightness_temp : /data_01/rad_tb_238
+        340_brightness_temp : /data_01/rad_tb_340
+
+
+################################################################################
+# Sentinel-6 GDR-F SAR
+################################################################################
+Sentinel-6_SAR:
+
+    filename_pattern : .*_S6A_P4_2__HR_STD__(NT|ST)_(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d\_F\d{2}.nc
+
+    retracker :
+        - ice1
+        - ocean
+
+    band : 
+        - ku
+#        - c
+    
+    freq : 20.0
+
+    # dimensions parameters
+    dim_lf : /data_01/time
+    dim_hf : /data_20/ku/time
+    
+    ellipsoid : WGS84
+    param :
+        # Coordinates
+        time_lf : /data_01/time_tai
+        time_hf : /data_20/ku/time_tai
+        lon_hf : /data_20/ku/longitude
+        lat_hf : /data_20/ku/latitude
+        
+        # Index of normalized pass
+        norm_index_hf : None    # norm_index_20hz
+        
+        # Altitude
+        alt_hf : /data_20/ku/altitude
+        
+        # Range (Ice-1 (OCOG) retracker)
+        ice1_range_ku : /data_20/ku/range_ocog
+        # Range (Oean retracker)
+        ocean_range_ku : /data_20/ku/range_ocean
+
+        # Range Corrections
+        model_wet_tropo_corr : /data_20/ku/model_wet_tropo_cor_measurement_altitude
+        model_dry_tropo_corr : /data_20/ku/model_dry_tropo_cor_measurement_altitude
+        iono_corr_gim_ku : /data_01/ku/iono_cor_gim
+        solid_earth_tide : /data_01/solid_earth_tide
+        pole_tide : /data_01/pole_tide
+
+        # Geoid correction (for RiversLakes, GreatLakes Surface Type)
+        geoid : /data_20/ku/geoid 
+
+        # Backscatter
+        ice1_sig0_ku : /data_20/ku/sig0_ocog
+        ice1_peakiness_ku : /data_20/ku/peakiness
+
+
+        # Brightness temperature
+        187_brightness_temp : /data_01/rad_tb_187    
+        238_brightness_temp : /data_01/rad_tb_238
+        340_brightness_temp : /data_01/rad_tb_340

@@ -471,7 +471,13 @@ class Track(object):
     def __read_param_file__(self, data_directory, filename, param_list):
         data_disk = dict()
         with nc.Dataset(os.path.join(data_directory, filename)) as dataset:
-            cycle = dataset.cycle_number
+            
+            #import pdb; pdb.set_trace();
+
+            if hasattr(dataset, "cycle_number"):
+                cycle = dataset.cycle_number
+            elif hasattr(dataset, "cycle"):
+                cycle = dataset.cycle
 
             if hasattr(dataset, "pass_number"):
                 track_num = dataset.pass_number
@@ -514,9 +520,16 @@ class Track(object):
             idx = np.where(mask)
             date_sample[idx] = np.datetime64('nat')
             idx = np.where(~mask)
+
+            if hasattr(dataset[self.time_hf_name],"calendar"):
+                calendar=dataset[self.time_hf_name].calendar
+            else:
+                calendar="standard"
+
+
             date_sample[idx] = nc.num2date(time_hf[idx],
                             dataset[self.time_hf_name].units,
-                            calendar=dataset[self.time_hf_name].calendar).astype('datetime64[ns]')
+                            calendar=calendar).astype('datetime64[ns]')
             date = date_sample[~mask][0]
 
             for param in param_list:
@@ -566,13 +579,14 @@ class Track(object):
         # Création d'une structure de type
         for filename in file_list:
             update_progress(cy_idx / len(file_list), title="Structure building")
+            print(data_directory, filename, [self.time_hf_name])
             (
                 data_disk_return,
                 cycle_return,
                 date_return,
                 track_return,
             ) = self.__read_param_file__(data_directory, filename, [self.time_hf_name])
-
+            
             data_disk[cy_idx] = data_disk_return
             along_track_size_index.extend([len(data_disk[cy_idx][self.time_hf_name])])
             cycle.extend([cycle_return])

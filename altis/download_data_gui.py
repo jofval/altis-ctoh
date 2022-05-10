@@ -22,6 +22,7 @@ import pkg_resources
 from altis_utils.tools import (
     __read_cfg_file__,
     __regex_file_parser__,
+    FilenameNotConformError,
 )
 
 
@@ -758,9 +759,9 @@ class Load_data_Window(wx.Dialog):
                 self.file_struct = __regex_file_parser__(
                     self.sel_mission.GetValue(), self.gdr_dir, None
                 )
-            except FileNotFoundError as e:
+            except FilenameNotConformError as e:
                 message = e.message_gui
-                print(">>>>>>>>> ", message)
+                #print(">>>>>>>>> ", message)
                 with wx.MessageDialog(
                     None,
                     message=message,
