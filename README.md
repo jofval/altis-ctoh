@@ -35,7 +35,7 @@ The products are available for the altimetry missions below :
 | Sentinel-3A | s3a_a_lan_%_sgdr | 5 -  | 2016/06/15 to now | LAND IPF-06.10, IPF-06.14 |
 | Sentinel-3B | s3b_b_lan_%_sgdr |	20 - | 2018/08/15 to now | LAND IPF-06.10, IPF-06.14 |
 | Sentinel-6A LRM | s6a_a_lrm_%_gdr | 19 -  | 2021/05/21 to now | Baseline F04 |
-| Sentinel-6A SAR |	s6a_sar_%_gdr | 36 - | 2021/05/21 to now | Baseline F04 |                     
+| Sentinel-6A SAR |	s6a_a_sar_%_gdr | 36 - | 2021/05/21 to now | Baseline F04 |                     
 The products are updated for ongoing altimetry missions.
 
 
