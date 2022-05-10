@@ -28,7 +28,6 @@ The products are available for the altimetry missions below :
 | ERS-2   | ers2_a_ctoh_v0100_gdr |	1 - 89 | 1995/05/17 to 2003/11/24 |	CTOH product                |
 | ENVISAT | env_a_ctoh_v0210_gdr |	6 - 94 | 2002/05/14 to 2010/10/21 |	Reprocessing v2.1 (deprecated)|
 | ENVISAT | env_a_esa_v0300_sgdr |	6 - 94 | 2002/05/14 to 2010/10/21 |	Reprocessing ESA v3.0 |
-|SARAL | srl_a_cnes_f_sgdr | 1 - 35 | 2013/03/14 to 2016/07/04 |	GDR-F |
 | Jason-1 | ja1_a_cnes_e_gdr |	1 - 259 | 2002/01/15 to 2009/01/26 |	GDR-E |
 | Jason-2 | ja2_a_cnes_d_sgdr |	0 - 303 | 2008/07/04 to 2016/10/02 |	GDR-D |
 | Jason-3 |	ja3_a_cnes_f_sgdr | 0 - | 2016/02/12 to now | GDR-F |
@@ -36,6 +35,9 @@ The products are available for the altimetry missions below :
 | Sentinel-3B | s3b_b_lan_%_sgdr |	20 - | 2018/08/15 to now | LAND IPF-06.10, IPF-06.14 |
 | Sentinel-6A LRM | s6a_a_lrm_%_gdr | 19 -  | 2021/05/21 to now | Baseline F04 |
 | Sentinel-6A SAR |	s6a_a_sar_%_gdr | 36 - | 2021/05/21 to now | Baseline F04 |                     
+| SARAL | srl_a_cnes_f_sgdr | 1 - 35 | 2013/03/14 to 2016/07/04 |	GDR-F |
+| Topex | tpx_a_cash_d_gdr | 10 - 359 | 1992/12/21 to 2002/06/22 |	CASH product (available soon) |
+
 The products are updated for ongoing altimetry missions.
 
 
