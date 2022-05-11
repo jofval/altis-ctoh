@@ -5,7 +5,7 @@ Altimetric Times Series Software
 
 # Installation
 
-For first installation of AlTiS software, you have to follow these instructions.
+For first AlTiS software installation, you have to follow these instructions.
 
 1. Install Anaconda python and follow instructions :
     https://www.anaconda.com/distribution
