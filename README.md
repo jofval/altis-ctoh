@@ -41,6 +41,8 @@ The products are available for the altimetry missions below :
 | Sentinel-6A SAR |	s6a_a_sar_%_gdr | 36 - | 2021/05/21 to now | Baseline F04 | [nominal Jason orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_RefOrbit_J3J2J1TP_Tracks_GoogleEarth_V3.kmz)|                   
 
 
+**Additional information about altimetric products (product handbooks) are available [here](https://groupes.renater.fr/wiki/ctoh_news).**
+
 
 The products are updated for ongoing altimetry missions.
 
