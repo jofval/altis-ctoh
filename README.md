@@ -32,8 +32,8 @@ The products are available for the altimetry missions below :
 | Jason-1 | ja1_a_cnes_e_gdr |	1 - 259 | 2002/01/15 to 2009/01/26 |	GDR-E | [nominal Jason orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_RefOrbit_J3J2J1TP_Tracks_GoogleEarth_V3.kmz)|
 | Jason-2 | ja2_a_cnes_d_sgdr |	0 - 303 | 2008/07/04 to 2016/10/02 |	GDR-D | [nominal Jason orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_RefOrbit_J3J2J1TP_Tracks_GoogleEarth_V3.kmz)|
 | SARAL | srl_a_cnes_f_sgdr | 1 - 35 | 2013/03/14 to 2016/07/04 |	GDR-F | [nominal ERS orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_EN_Tracks_GE_OldOrbit.kmz) |
-| CryoSat-2 | cs2_b_gop_c_gdr | 1 - 10 | 2010/10/01 to 2021/12/31 | Baseline C | [annual orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_C2_Tracks_HiRes.kmz), Cryostat orbit is drifting |
-| CryoSat-2 | cs2_b_ice_d_gdr | 1 - 10 | 2010/10/01 to 2021/12/31 | Baseline D | [annual orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_C2_Tracks_HiRes.kmz), Cryostat orbit is dirfting |
+| CryoSat-2 | cs2_b_gop_c_gdr | 1 - 10 | 2010/10/01 to 2021/12/31 | Baseline C | [annual orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_C2_Tracks_HiRes.kmz), CryoSat orbit is drifting |
+| CryoSat-2 | cs2_b_ice_d_gdr | 1 - 10 | 2010/10/01 to 2021/12/31 | Baseline D | [annual orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_C2_Tracks_HiRes.kmz), CryoSat orbit is dirfting |
 | Jason-3 |	ja3_a_cnes_f_sgdr | 0 - | 2016/02/12 to now | GDR-F | [nominal Jason orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_RefOrbit_J3J2J1TP_Tracks_GoogleEarth_V3.kmz)|
 | Sentinel-3A | s3a_a_lan_%_sgdr | 5 -  | 2016/06/15 to now | LAND IPF-06.10, IPF-06.14 | [nominal sentinel-3A orbit](https://sentinel.esa.int/documents/247904/685098/Sentinel-3-Relative-Ground-Tracks) |
 | Sentinel-3B | s3b_b_lan_%_sgdr |	20 - | 2018/08/15 to now | LAND IPF-06.10, IPF-06.14 | [nominal sentinel-3B orbit](https://sentinel.esa.int/documents/247904/685098/Sentinel-3-Relative-Ground-Tracks) |
