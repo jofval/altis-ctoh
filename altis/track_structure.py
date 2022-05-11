@@ -579,7 +579,7 @@ class Track(object):
         # Création d'une structure de type
         for filename in file_list:
             update_progress(cy_idx / len(file_list), title="Structure building")
-            print(data_directory, filename, [self.time_hf_name])
+            
             (
                 data_disk_return,
                 cycle_return,
