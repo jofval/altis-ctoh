@@ -1,9 +1,9 @@
-# Altimetric Times Series Software
+Altimetric Times Series Software
 
 [[_TOC_]]
 
 
-## Installation
+# Installation
 
 For first installation of AlTiS software, you have to follow these instructions.
 
@@ -52,7 +52,7 @@ altis_win or altis_linux as function of previous point 4-.
 
 AlTiS is installed.
 
-## AlTiS Update
+# AlTiS Update
 
 If anaconda python distribution is already installed and AlTiS environment is also created, you just need to follow these instructions to update AlTiS.
 
@@ -74,7 +74,7 @@ If anaconda python distribution is already installed and AlTiS environment is al
 
 AlTiS is updated.
 
-## Start AlTiS
+# Start AlTiS
 
 Open terminal (or select Anaconda Powershell Prompt under Window OS Menu)
 
