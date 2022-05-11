@@ -1,5 +1,7 @@
 # Altimetry Time Series (AlTiS) Software
 
+[[_TOC_]]
+
 
 AlTiS is software developed by [CTOH](http://ctoh.legos.obs-mip.fr/) as part of its activities as a National Observation Service. Altis is free software and it is released as open source under the [CeCill License](LICENSE), and is available for download free of charge. Altis is working under python3 environment ([Anaconda distribution](https://www.anaconda.com)) and tested for GNU/Linux, Windows 10 (and soon for Mac OS X).
  
