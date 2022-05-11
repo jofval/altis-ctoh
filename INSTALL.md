@@ -65,10 +65,10 @@ If anaconda python distribution is already installed and AlTiS environment is al
     - Under anaconda-navigator section "environments"
     - Select "altis" environment to activate it
     - Click on the arrow to open terminal.
-    - Go into the directory altis created just before :
-        `cd <directory_path>/altis-main`
     - Uninstall the previous altis release and type this command line:
         `pip uninstall altis`
+    - Go into the directory altis created just before :
+        `cd <directory_path>/altis-main`
     - Install the new altis release and type this command line:
         `python setup.py install`
 
