@@ -11,8 +11,8 @@ The AlTiS 1.4 (2020/11) has now identifier [IDDN.FR.010.0121234.000.R.X.2020.041
  - Training : Education tools to manipulate radar altimetry data and evaluate their potential to monitor water bodies.
 
 
-## Install
-The installation instruction is available [here](INSTALL.md)
+## Setup and update
+The setup and update instructions are available [here](INSTALL.md)
 
 ## Altimetric Data
 AlTiS accepts [CTOH](http://ctoh.legos.obs-mip.fr/) altimetry products (Level 2 GDR). CTOH data are GDR, specifically conditioned for optimized the data size by making a geographical selection and includes the right altimetry parameters for hydrological studies. 
