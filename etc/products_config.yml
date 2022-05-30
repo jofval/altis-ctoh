@@ -279,7 +279,7 @@ Jason-3_GDR-F:
         # Range (Oean retracker)
         ocean_range_ku : /data_20/ku/range_ocean
         # Range (Adaptative retracker)
-        adaptive_range_ku : /data_20/ku/range_adaptive
+#        adaptive_range_ku : /data_20/ku/range_adaptive
         # Range (Ice-1 (OCOG) retracker)
 #        ice1_range_c : /data_20/c/range_ocog
         # Range (Oean retracker)
