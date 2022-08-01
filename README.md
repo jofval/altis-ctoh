@@ -11,7 +11,7 @@ The AlTiS has now identifier [IDDN.FR.010.0121234.000.R.X.2020.041.30000](https:
  - Training : Education tools to manipulate radar altimetry data and evaluate their potential to monitor water bodies.
 
 ## Documentations
-The AlTiS wiki is available [here](ctoh/altis/-/wikis/home).
+The AlTiS wiki is available [here](https://gitlab.com/ctoh/altis/-/wikis/home).
 
 ## Install and update
 The installation and update instructions are available [here](INSTALL.md)
