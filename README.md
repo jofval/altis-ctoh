@@ -10,6 +10,8 @@ The AlTiS has now identifier [IDDN.FR.010.0121234.000.R.X.2020.041.30000](https:
  - Research : Analysis tool allowing altimetry data studies over small area like rivers, lakes, flood areas in order to create water time series.
  - Training : Education tools to manipulate radar altimetry data and evaluate their potential to monitor water bodies.
 
+## Documentations
+The AlTiS wiki is available [here](wikis/home).
 
 ## Install and update
 The installation and update instructions are available [here](INSTALL.md)
