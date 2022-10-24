@@ -66,6 +66,8 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.cm import ScalarMappable
 
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
 from altis.common_data import Singleton
 
 from altis.download_data_gui import Load_data_Window
@@ -76,9 +78,9 @@ from altis.colinear_analysis import ColinAnal_Panel
 
 from altis.connection_check import check_internet
 
-from altis.para_detection import hough_transform    #, hough_transform_linear
+from altis.para_detection import hough_transform  # , hough_transform_linear
 
-from altis._version import __version__  #, __revision__
+from altis._version import __version__  # , __revision__
 
 import wx
 
@@ -89,12 +91,12 @@ import wx
 # -------------------------------------------------------------------------------
 class CtrlWindow(wx.Frame):
     """
-        Windows control class for Dataset display.
+    Windows control class for Dataset display.
     """
 
     def __init__(self, parent):  # ,cycle,date):
         """
-            initialisation
+        initialisation
         """
         super().__init__(
             parent,
@@ -131,7 +133,7 @@ class CtrlWindow(wx.Frame):
 
     def update(self, cycle, date, tracks):
         """
-            Update the dataset display.
+        Update the dataset display.
         """
         self.lctrlSelectCycle.DeleteAllItems()
         index = 0
@@ -176,18 +178,18 @@ class CtrlWindow(wx.Frame):
 
     def mk_iconbar(self, bt_txt, art_id, bt_lg_txt):
         """
-            create icon into the toolbar
+        create icon into the toolbar
         """
-        if wx.Platform == '__WXGTK__':
+        if wx.Platform == "__WXGTK__":
             if art_id == wx.ART_HELP:
-#                gtk_icon_label = "gtk-cdrom"
+                #                gtk_icon_label = "gtk-cdrom"
                 gtk_icon_label = "gtk-info"
-            elif  art_id == wx.ART_QUIT:
- #               gtk_icon_label = "gtk-cdrom"
+            elif art_id == wx.ART_QUIT:
+                #               gtk_icon_label = "gtk-cdrom"
                 gtk_icon_label = "gtk-close"
             else:
                 gtk_icon_label = "gtk-cdrom"
-#                gtk_icon_label = "gtk-indent"
+            #                gtk_icon_label = "gtk-indent"
 
             ico = wx.ArtProvider.GetBitmap(gtk_icon_label, wx.ART_TOOLBAR, (20, 20))
         else:
@@ -198,7 +200,7 @@ class CtrlWindow(wx.Frame):
 
     def onSelectAll(self, event):
         """
-            action selection of all datatset
+        action selection of all datatset
         """
         for idx in range(self.lctrlSelectCycle.GetItemCount()):
             self.lctrlSelectCycle.Select(idx)
@@ -207,7 +209,7 @@ class CtrlWindow(wx.Frame):
 
     def onSelectPassCombox(self, event):
         """
-            action selection for pass combox
+        action selection for pass combox
         """
         mask = []
         for idx in range(self.lctrlSelectCycle.GetItemCount()):
@@ -225,7 +227,7 @@ class CtrlWindow(wx.Frame):
 
     def getselectcyle(self):
         """
-            action
+        action
         """
         mask = []
         for idx in range(self.lctrlSelectCycle.GetItemCount()):
@@ -239,12 +241,14 @@ class CtrlWindow(wx.Frame):
 # -------------------------------------------------------------------------------
 class Main_Window(wx.Frame):
     """
-        main window class
+    main window class
     """
 
-    def __init__(self,):
+    def __init__(
+        self,
+    ):
         """
-            initialisation
+        initialisation
         """
         super().__init__(
             None, title="Altimetry Time Series (AlTiS) Software", size=wx.DisplaySize()
@@ -255,7 +259,7 @@ class Main_Window(wx.Frame):
 
     def InitUI(self):
         """
-            GUI Initialisation 
+        GUI Initialisation
         """
         self.get_env_var()
 
@@ -293,7 +297,7 @@ class Main_Window(wx.Frame):
 
     def mk_left_toolbar(self, panel):
         """
-            Left toolbar initialisation
+        Left toolbar initialisation
         """
         self.toolbar_left_panel = wx.Panel(panel)
 
@@ -323,19 +327,17 @@ class Main_Window(wx.Frame):
         #        self.iconUndo = self.mk_iconbar_left("Undo",wx.ART_UNDO,"Undo")
         # Ok button
         hbox_undo = wx.BoxSizer(wx.HORIZONTAL)
-#        self.iconUndo = wx.Button(self.toolbar_left_panel, wx.ID_UNDO, label="Undo")
+        #        self.iconUndo = wx.Button(self.toolbar_left_panel, wx.ID_UNDO, label="Undo")
         self.iconUndo = wx.Button(self.toolbar_left_panel, label="Undo")
         hbox_undo.Add(self.iconUndo, border=10)
         vbox.Add(hbox_undo, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
         #        vbox.Add((-1, 5))
 
         hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-#        self.btnRefresh = wx.Button(
-#            self.toolbar_left_panel, wx.ID_REFRESH, label="Refresh"
-#        )
-        self.btnRefresh = wx.Button(
-            self.toolbar_left_panel, label="Refresh"
-        )
+        #        self.btnRefresh = wx.Button(
+        #            self.toolbar_left_panel, wx.ID_REFRESH, label="Refresh"
+        #        )
+        self.btnRefresh = wx.Button(self.toolbar_left_panel, label="Refresh")
         hbox2.Add(self.btnRefresh, border=10)
         vbox.Add(hbox2, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
@@ -365,7 +367,7 @@ class Main_Window(wx.Frame):
         vbox.Add(hbox_label, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
         hbox4 = wx.BoxSizer(wx.HORIZONTAL)
-#        self.btnSave = wx.Button(self.toolbar_left_panel, wx.ID_SAVE, label="Save")
+        #        self.btnSave = wx.Button(self.toolbar_left_panel, wx.ID_SAVE, label="Save")
         self.btnSave = wx.Button(self.toolbar_left_panel, label="Save")
         hbox4.Add(self.btnSave, border=10)
         vbox.Add(hbox4, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
@@ -438,14 +440,12 @@ class Main_Window(wx.Frame):
         line = wx.StaticLine(self.toolbar_left_panel)
         vbox.Add(line, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
-#        hbox_cfg = wx.BoxSizer(wx.HORIZONTAL)
-#        self.btnCfg = wx.Button(
-#            self.toolbar_left_panel, wx.ID_PREFERENCES, label="Config. File"
-#        )
+        #        hbox_cfg = wx.BoxSizer(wx.HORIZONTAL)
+        #        self.btnCfg = wx.Button(
+        #            self.toolbar_left_panel, wx.ID_PREFERENCES, label="Config. File"
+        #        )
         hbox_cfg = wx.BoxSizer(wx.HORIZONTAL)
-        self.btnCfg = wx.Button(
-            self.toolbar_left_panel, label="Config. File"
-        )
+        self.btnCfg = wx.Button(self.toolbar_left_panel, label="Config. File")
         hbox_cfg.Add(self.btnCfg, border=10)
         vbox.Add(hbox_cfg, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
@@ -474,97 +474,123 @@ class Main_Window(wx.Frame):
         self.btnMkEnv.Bind(wx.EVT_BUTTON, self.onAppEnv)
         self.btnScanHook.Bind(wx.EVT_BUTTON, self.onScanHook)
 
-
-    def mk_subplot_ax1(self,):
+    def mk_subplot_ax1(
+        self,
+    ):
         """
-            create ax1 subplot
+        create ax1 subplot
         """
-#        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
+        #        self.ax1 = self.figure.add_subplot(2, 2, 1, projection=self.projection)
         self.ax1 = self.figure.add_subplot(2, 2, 1, projection=ccrs.PlateCarree())
-        self.ax1.set_xlabel('Longitude (deg)')
+        self.ax1.set_xlabel("Longitude (deg)")
         self.ax1.set_ylabel("Latitude (deg)")
 
-        self.ax1.text(-0.1, 0.5, "Latitude (deg)", va='bottom', ha='center',
-                    rotation='vertical', rotation_mode='anchor',
-                    transform=self.ax1.transAxes)
-        self.ax1.text(0.5, -0.1, 'Longitude (deg)', va='bottom', ha='center',
-                    rotation='horizontal', rotation_mode='anchor',
-                    transform=self.ax1.transAxes)
-        #self.ax1.set_aspect('auto', adjustable='datalim')
+        self.ax1.text(
+            -0.1,
+            0.5,
+            "Latitude (deg)",
+            va="bottom",
+            ha="center",
+            rotation="vertical",
+            rotation_mode="anchor",
+            transform=self.ax1.transAxes,
+        )
+        self.ax1.text(
+            0.5,
+            -0.1,
+            "Longitude (deg)",
+            va="bottom",
+            ha="center",
+            rotation="horizontal",
+            rotation_mode="anchor",
+            transform=self.ax1.transAxes,
+        )
+        # self.ax1.set_aspect('auto', adjustable='datalim')
         self.ax1.set_aspect("auto", adjustable="datalim", anchor="C", share=False)
-        self.gl1 = self.ax1.gridlines(ccrs.PlateCarree(), draw_labels=True) #,auto_update=True,) 
-#        self.grd_map = self.ax1.add_image(self.osm_img, 1)  #, crs=cimgt.OSM().crs)
-#        print('self.grd_map ',self.grd_map)
+        self.gl1 = self.ax1.gridlines(
+            ccrs.PlateCarree(), draw_labels=True
+        )  # ,auto_update=True,)
 
-    def mk_subplot_ax2(self,):
+    #        self.grd_map = self.ax1.add_image(self.osm_img, 1)  #, crs=cimgt.OSM().crs)
+    #        print('self.grd_map ',self.grd_map)
+
+    def mk_subplot_ax2(
+        self,
+    ):
         """
-            create ax2 subplot
+        create ax2 subplot
         """
-#        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1, projection=self.projection)
-        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1) # , projection=ccrs.PlateCarree())
+        #        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1, projection=self.projection)
+        self.ax2 = self.figure.add_subplot(
+            2, 2, 2, sharey=self.ax1
+        )  # , projection=ccrs.PlateCarree())
         self.ax2.set_ylabel("Latitude (deg)")
 
-#        self.ax2.text(-0.1, 0.5, "Latitude (deg)", va='bottom', ha='center',
-#        rotation='vertical', rotation_mode='anchor',
-#        transform=self.ax2.transAxes)
-        self.ax2.set_aspect('auto', adjustable='datalim')
+        #        self.ax2.text(-0.1, 0.5, "Latitude (deg)", va='bottom', ha='center',
+        #        rotation='vertical', rotation_mode='anchor',
+        #        transform=self.ax2.transAxes)
+        self.ax2.set_aspect("auto", adjustable="datalim")
         self.ax2.grid(True)
 
-    def mk_subplot_ax3(self,):
+    def mk_subplot_ax3(
+        self,
+    ):
         """
-            create ax3 subplot
+        create ax3 subplot
         """
-#        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1, projection=self.projection)
-        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1)    # , projection=ccrs.PlateCarree())
-        self.ax3.set_xlabel('Longitude (deg)')
-#        self.ax3.text(0.5, -0.1, 'Longitude (deg)', va='bottom', ha='center',
-#        rotation='horizontal', rotation_mode='anchor',
-#        transform=self.ax3.transAxes)
-        self.ax3.set_aspect('auto', adjustable='datalim')
+        #        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1, projection=self.projection)
+        self.ax3 = self.figure.add_subplot(
+            2, 2, 3, sharex=self.ax1
+        )  # , projection=ccrs.PlateCarree())
+        self.ax3.set_xlabel("Longitude (deg)")
+        #        self.ax3.text(0.5, -0.1, 'Longitude (deg)', va='bottom', ha='center',
+        #        rotation='horizontal', rotation_mode='anchor',
+        #        transform=self.ax3.transAxes)
+        self.ax3.set_aspect("auto", adjustable="datalim")
         self.ax3.grid(True)
 
-    def mk_subplot_ax4(self,):
+    def mk_subplot_ax4(
+        self,
+    ):
         """
-            create ax4 subplot
+        create ax4 subplot
         """
         self.ax4 = self.figure.add_subplot(2, 2, 4, sharey=self.ax3)
         self.ax4.set_xlabel("Time (YYYY-MM)")
         self.ax4.xaxis_date()
         self.ax4.grid(True)
 
-
-
     def CanvasPanel(self, panel):
         """
-            Matplotlib canvas initialisation
+        Matplotlib canvas initialisation
         """
         self.projection = ccrs.PlateCarree()
         self.crs_lonlat = ccrs.PlateCarree()
-        
+
         self.plot_panel = wx.Panel(panel)
         self.figure = Figure()
-        
+
         self.mk_subplot_ax1()
-        self.ax1.set_extent([-179., 179., -85., 85.], crs=ccrs.PlateCarree())
+        self.ax1.set_extent([-179.0, 179.0, -85.0, 85.0], crs=ccrs.PlateCarree())
         self.ax1.add_feature(cfeature.COASTLINE)
-        self.ax1.add_feature(cfeature.LAKES, color="m", zorder=0,alpha=0.5)
+        self.ax1.add_feature(cfeature.LAKES, color="m", zorder=0, alpha=0.5)
         self.ax1.add_feature(cfeature.RIVERS, edgecolor="blue")
         self.ax1.autoscale()
-        
+
         self.mk_subplot_ax2()
-#        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1)
-#        self.ax2.set_ylabel("Latitude (deg)")
+        #        self.ax2 = self.figure.add_subplot(2, 2, 2, sharey=self.ax1)
+        #        self.ax2.set_ylabel("Latitude (deg)")
 
         self.mk_subplot_ax3()
-#        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1)
-#        self.ax3.set_xlabel("Longitude (deg)")
+        #        self.ax3 = self.figure.add_subplot(2, 2, 3, sharex=self.ax1)
+        #        self.ax3.set_xlabel("Longitude (deg)")
 
         self.mk_subplot_ax4()
-#        self.ax4.set_ylim([-1,1])
-#        self.ax4.grid(True)
+        #        self.ax4.set_ylim([-1,1])
+        #        self.ax4.grid(True)
 
-#        self.ax4 = self.figure.add_subplot(2, 2, 4, sharey=self.ax3)
-#        self.ax4.set_xlabel("Time (YYYY-MM)")
+        #        self.ax4 = self.figure.add_subplot(2, 2, 4, sharey=self.ax3)
+        #        self.ax4.set_xlabel("Time (YYYY-MM)")
 
         self.canvas = FigureCanvas(self.plot_panel, -1, self.figure)
 
@@ -590,7 +616,7 @@ class Main_Window(wx.Frame):
 
     def onMotion(self, event):
         """
-            mouse action event to display coordinates in the statusbar.
+        mouse action event to display coordinates in the statusbar.
         """
         xdata = event.xdata
         ydata = event.ydata
@@ -598,8 +624,12 @@ class Main_Window(wx.Frame):
             idx = self.list_axes.index(event.inaxes)
             [xlabel, ylabel] = self.list_axes_coord[idx]
             if idx == 0:
-                if not 'PlateCarree' in ('%s' % getattr(self.ax1.projection,'__class__')):
-                    xdata,ydata = self.crs_lonlat.transform_point(xdata, ydata, self.ax1.projection)
+                if not "PlateCarree" in (
+                    "%s" % getattr(self.ax1.projection, "__class__")
+                ):
+                    xdata, ydata = self.crs_lonlat.transform_point(
+                        xdata, ydata, self.ax1.projection
+                    )
             self.statusbar.SetStatusText(
                 "Coordinates :\t%s : %s, %s : %s"
                 % (xlabel, "{: 10.6f}".format(xdata), ylabel, "{: 10.6f}".format(ydata))
@@ -609,7 +639,7 @@ class Main_Window(wx.Frame):
 
     def draw(self, lon, lat, time, param, mask, cm, groundmap):
         """
-            draw the data selection
+        draw the data selection
         """
         if self.data_sel_config["gdr_flag"] | self.data_sel_config["gdr_altis_flag"]:
             mode_flag = "GDR files"
@@ -641,70 +671,45 @@ class Main_Window(wx.Frame):
             lon, lat, c=param, marker="+", cmap=cm, transform=ccrs.PlateCarree()
         )
 
-#        gl = self.ax1.gridlines(linewidth=0.5)
+        #        gl = self.ax1.gridlines(linewidth=0.5)
 
-#        #        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(),draw_labels=True)
-#        gl.xlabels_top = gl.ylabels_right = False
-#        gl.xformatter = LONGITUDE_FORMATTER
-#        gl.yformatter = LATITUDE_FORMATTER
-#        #
-#        #        self.ax1.plot(x,y,transform=ccrs.PlateCarree())
-#        #        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
-#        #                          linewidth=0.5, color='white', alpha=1.0, linestyle='--')
-#        #        gl.xlabels_top = True
-#        #        gl.ylabels_left = True
-#        #        gl.xlabels_bottom = False
-#        #        gl.ylabels_right = False
-#        #        gl.xlines = True
-#        #        gl.xformatter = LONGITUDE_FORMATTER
-#        #        gl.yformatter = LATITUDE_FORMATTER
+        #        #        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(),draw_labels=True)
+        #        gl.xlabels_top = gl.ylabels_right = False
+        #        gl.xformatter = LONGITUDE_FORMATTER
+        #        gl.yformatter = LATITUDE_FORMATTER
+        #        #
+        #        #        self.ax1.plot(x,y,transform=ccrs.PlateCarree())
+        #        #        gl = self.ax1.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+        #        #                          linewidth=0.5, color='white', alpha=1.0, linestyle='--')
+        #        #        gl.xlabels_top = True
+        #        #        gl.ylabels_left = True
+        #        #        gl.xlabels_bottom = False
+        #        #        gl.ylabels_right = False
+        #        #        gl.xlines = True
+        #        #        gl.xformatter = LONGITUDE_FORMATTER
+        #        #        gl.yformatter = LATITUDE_FORMATTER
 
-#        self.ax1.set_aspect("auto", adjustable="datalim", anchor="C", share=False)
+        #        self.ax1.set_aspect("auto", adjustable="datalim", anchor="C", share=False)
 
         self.ax2.set_xlabel(param.attrs["long_name"])
-#        self.ax2.set_ylabel("Latitude (deg)")
+        #        self.ax2.set_ylabel("Latitude (deg)")
         self.plt2 = self.ax2.scatter(param, lat, c=param, marker="+", cmap=cm)
-#        self.ax2.grid(True)
+        #        self.ax2.grid(True)
 
         self.plt3 = self.ax3.scatter(lon, param, c=param, marker="+", cmap=cm)
-#        self.ax3.grid(True)
+        #        self.ax3.grid(True)
         self.ax3.set_ylabel(param.attrs["long_name"])
-#        self.ax3.set_xlabel("Longitude (deg)")
+        #        self.ax3.set_xlabel("Longitude (deg)")
 
         self.plt4 = self.ax4.scatter(
             np.array(time), param, c=param, marker="+", cmap=cm
         )
-#        self.ax4.grid(True)
-#        self.ax4.set_xlabel("Time (YYYY-MM)")
+        #        self.ax4.grid(True)
+        #        self.ax4.set_xlabel("Time (YYYY-MM)")
         self.ax4.set_ylabel(param.attrs["long_name"])
 
-        if hasattr(self, "cbar"):
-            self.cbar.remove()
-#            self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
-#            self.scalarmap.set_cmap(cmap=cm)
-#            self.cbar.set_label(param.attrs["long_name"], rotation=270, labelpad=10, y=0.5)
-##            self.cbar.draw_all()
-#        else:
-        from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-        axins = inset_axes(self.ax2,
-               width="2.5%",  # width = 5% of parent_bbox width
-               height="100%",  # height : 50%
-               loc='lower left',
-               bbox_to_anchor=(1.1, -0.5, 1, 1),
-               bbox_transform=self.ax2.transAxes,
-               borderpad=.2,
-               )
-        self.scalarmap = ScalarMappable(cmap=cm)
-#            self.cbar = self.figure.colorbar(
-#                self.scalarmap, ax=[self.ax2, self.ax4], orientation="vertical"
-#            )
-        self.cbar = self.figure.colorbar(
-            self.scalarmap, cax=axins)
-        self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
-        self.cbar.set_label(param.attrs["long_name"], rotation=270, labelpad=10, y=0.5)
-
+        self.colorbar_update(param,cm)
         self.rescale(coord=True)
-
 
     def create_toolbar(self):
         """
@@ -716,7 +721,11 @@ class Main_Window(wx.Frame):
         self.iconQuit = self.mk_iconbar("Quit", wx.ART_QUIT, "Quit AlTiS")
         self.toolbar.AddSeparator()
 
-        self.ListKindData = ["Import data ... ", "GDR Tracks", "AlTiS GDR"] #, "Normpass"]
+        self.ListKindData = [
+            "Import data ... ",
+            "GDR Tracks",
+            "AlTiS GDR",
+        ]  # , "Normpass"]
         self.comboKindData = wx.ComboBox(
             self.toolbar,
             value=self.ListKindData[0],
@@ -776,12 +785,12 @@ class Main_Window(wx.Frame):
 
     def mk_iconbar(self, bt_txt, art_id, bt_lg_txt):
         """
-            to make icon in the toolbar
+        to make icon in the toolbar
         """
-        if wx.Platform == '__WXGTK__':
+        if wx.Platform == "__WXGTK__":
             if art_id == wx.ART_HELP:
                 gtk_icon_label = "gtk-info"
-            elif  art_id == wx.ART_QUIT:
+            elif art_id == wx.ART_QUIT:
                 gtk_icon_label = "gtk-close"
             else:
                 gtk_icon_label = "gtk-cdrom"
@@ -789,13 +798,13 @@ class Main_Window(wx.Frame):
             ico = wx.ArtProvider.GetBitmap(gtk_icon_label, wx.ART_TOOLBAR, (20, 20))
         else:
             ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (20, 20))
-            
+
         itemTool = self.toolbar.AddTool(wx.ID_ANY, bt_txt, ico, bt_lg_txt)
         return itemTool
 
     def mk_iconbar_left(self, bt_txt, art_id, bt_lg_txt):
         """
-            to make icon in the toolbar
+        to make icon in the toolbar
         """
         ico = wx.ArtProvider.GetBitmap(art_id, wx.ART_TOOLBAR, (20, 20))
         itemTool = self.toolbar_left.AddTool(wx.ID_ANY, bt_txt, ico, bt_lg_txt)
@@ -803,7 +812,7 @@ class Main_Window(wx.Frame):
 
     def plot_hull(self, lon_hull, lat_hull, param_hull, color):
         """
-            plot hull.
+        plot hull.
         """
         hull_lonlat = ConvexHull(np.array([lon_hull, lat_hull]).T)
         hull_paramlat = ConvexHull(np.array([param_hull, lat_hull]).T)
@@ -859,7 +868,7 @@ class Main_Window(wx.Frame):
 
     def onExpEnv(self, event):
         """
-           Export convex hull into csv file. 
+        Export convex hull into csv file.
         """
         mask = (
             self.common_data.CYCLE_SEL
@@ -941,7 +950,7 @@ class Main_Window(wx.Frame):
 
     def onImpEnv(self, event):
         """
-            import convex hull csv file.
+        import convex hull csv file.
         """
         with wx.FileDialog(
             self,
@@ -977,7 +986,7 @@ class Main_Window(wx.Frame):
 
     def in_hull(self, p, hull):
         """
-            Test if the point is into the hull
+        Test if the point is into the hull
         """
         if not isinstance(hull, Delaunay):
             hull = Delaunay(hull)
@@ -986,7 +995,7 @@ class Main_Window(wx.Frame):
 
     def onAppEnv(self, event):
         """
-            Applied the hull selection on to the dataset
+        Applied the hull selection on to the dataset
         """
         mask = (
             self.common_data.CYCLE_SEL
@@ -1029,7 +1038,7 @@ class Main_Window(wx.Frame):
 
     def onCfg(self, event):
         """
-            Dialog window for Export the configuration file
+        Dialog window for Export the configuration file
         """
         message = (
             "You have specific parameters in Normpass or GDR pass files.\n\n"
@@ -1051,7 +1060,7 @@ class Main_Window(wx.Frame):
 
     def mkCfgFile(self):
         """
-            Export the configuration file
+        Export the configuration file
         """
         altis_mission_cfg = pkg_resources.resource_filename(
             "altis", "../etc/products_config.yml"
@@ -1080,7 +1089,7 @@ class Main_Window(wx.Frame):
 
     def onScanHook(self, event):
         """
-            Hooking scan processing. 
+        Hooking scan processing.
         """
         cursor_wait = wx.BusyCursor()
 
@@ -1102,7 +1111,7 @@ class Main_Window(wx.Frame):
         param = self.common_data.param.where(mask)
         lon = self.common_data.lon.where(mask)
         lat = self.common_data.lat.where(mask)
-#        time = self.common_data.time.where(mask)
+        #        time = self.common_data.time.where(mask)
 
         if "gdr_index" in self.common_data.param.dims:
             self.dim_index = "gdr_index"
@@ -1125,11 +1134,11 @@ class Main_Window(wx.Frame):
         all_lon = []
         all_lat = []
 
-#        all_x_tab_line = []
-#        all_y_tab_line = []
-#        all_h = []
-#        all_nwf = []
-#        all_nb_line = []
+        #        all_x_tab_line = []
+        #        all_y_tab_line = []
+        #        all_h = []
+        #        all_nwf = []
+        #        all_nb_line = []
 
         x_idx = np.array(param.coords[self.dim_index].data, dtype="int")
         self.lonlat_para_center = []
@@ -1194,7 +1203,7 @@ class Main_Window(wx.Frame):
 
     def onColAnalysis(self, event):
         """
-            Colinear Processing Dialog window
+        Colinear Processing Dialog window
         """
         #        mask = self.common_data.CYCLE_SEL\
         #             &  self.common_data.DATA_MASK_SEL[-1]\
@@ -1205,7 +1214,7 @@ class Main_Window(wx.Frame):
 
     def onTimeSeries(self, event):
         """
-            Time series Dialog window
+        Time series Dialog window
         """
         #        mask = self.common_data.CYCLE_SEL\
         #             &  self.common_data.DATA_MASK_SEL[-1]\
@@ -1216,7 +1225,7 @@ class Main_Window(wx.Frame):
 
     def onRefresh(self, event):
         """
-            Refresh action to update the plot.
+        Refresh action to update the plot.
         """
         self.btnSelectData.Enable()
         if hasattr(self, "select_text_info"):
@@ -1225,13 +1234,13 @@ class Main_Window(wx.Frame):
 
     def onRescale(self, event):
         """
-            Rescale action
+        Rescale action
         """
         self.rescale()
 
     def rescale(self, coord=False):
         """
-            To rescale the plots
+        To rescale the plots
         """
         cursor_wait = wx.BusyCursor()
 
@@ -1265,44 +1274,46 @@ class Main_Window(wx.Frame):
         self.ax3.set_ylim(param_lim)
         self.ax4.set_ylim(param_lim)
         self.canvas.draw()
-        
+
         del cursor_wait
 
-    def get_ax1_xylim(self,):
+    def get_ax1_xylim(
+        self,
+    ):
         """
-            get xlim and ylim of the plt1 into ax1.
+        get xlim and ylim of the plt1 into ax1.
         """
         if hasattr(self, "plt1"):
             x0, x1 = self.ax1.get_xlim()
             y0, y1 = self.ax1.get_ylim()
-            x0,y0 = self.get_xylim_PlateCarree(x0, y0, self.projection)
-            x1,y1 = self.get_xylim_PlateCarree(x1, y1, self.projection)
-            self.ax1_zoom = {"x": (x0,x1), "y": (y0,y1)}
-            
+            x0, y0 = self.get_xylim_PlateCarree(x0, y0, self.projection)
+            x1, y1 = self.get_xylim_PlateCarree(x1, y1, self.projection)
+            self.ax1_zoom = {"x": (x0, x1), "y": (y0, y1)}
+
         else:
             self.ax1_zoom = {"x": None, "y": None}
 
-
     def onCoast(self, event):
         """
-            event to display the coast line
+        event to display the coast line
         """
         self.update_CoastFeatures()
         self.canvas.draw()
-    
-    def update_CoastFeatures(self,):
+
+    def update_CoastFeatures(
+        self,
+    ):
         """
-            To display the coast line.
+        To display the coast line.
         """
         cursor_wait = wx.BusyCursor()
         self.get_ax1_xylim()
-        if self.ax1_zoom['x'] is not None:
-            xlim_diff = np.diff(self.ax1_zoom['x'])
-            ylim_diff = np.diff(self.ax1_zoom['y'])
+        if self.ax1_zoom["x"] is not None:
+            xlim_diff = np.diff(self.ax1_zoom["x"])
+            ylim_diff = np.diff(self.ax1_zoom["y"])
             resol_param = np.sqrt(xlim_diff * xlim_diff + ylim_diff * ylim_diff)
         else:
             resol_param = None
-
 
         if resol_param < 0.5:
             resol = "full"
@@ -1315,34 +1326,35 @@ class Main_Window(wx.Frame):
         else:
             resol = "coarse"
 
-        print ('resol_coast',resol)
+        print("resol_coast", resol)
         if self.checkCoast.IsChecked():
             COAST = GSHHSFeature(scale=resol, levels=[1, 2, 3, 4], edgecolor="red")
             self.coast = self.ax1.add_feature(COAST)
             self.canvas.draw()
         #            print('Done')
         else:
-            if hasattr(self,"coast"):
+            if hasattr(self, "coast"):
                 self.coast.remove()
 
         del cursor_wait
 
-    def update_RiversFeatures(self,):
+    def update_RiversFeatures(
+        self,
+    ):
         """
-            update map plot display of rivers features (hid/show)
+        update map plot display of rivers features (hid/show)
         """
         """
             To display the rivers and lakes shapeline
         """
         cursor_wait = wx.BusyCursor()
         self.get_ax1_xylim()
-        if self.ax1_zoom['x'] is not None:
-            xlim_diff = np.diff(self.ax1_zoom['x'])
-            ylim_diff = np.diff(self.ax1_zoom['y'])
+        if self.ax1_zoom["x"] is not None:
+            xlim_diff = np.diff(self.ax1_zoom["x"])
+            ylim_diff = np.diff(self.ax1_zoom["y"])
             resol_param = np.sqrt(xlim_diff * xlim_diff + ylim_diff * ylim_diff)
         else:
             resol_param = None
-            
 
         riverslakes_resol = {"low": "110m", "medium": "50m", "high": "10m"}
 
@@ -1353,8 +1365,8 @@ class Main_Window(wx.Frame):
         else:
             resol = "low"
 
-        print ('resol_river',resol)
-#                print(resol_param,resol,self.checkRiversLakes.IsChecked())
+        print("resol_river", resol)
+        #                print(resol_param,resol,self.checkRiversLakes.IsChecked())
         if self.checkRiversLakes.IsChecked():
             RIVERS = NaturalEarthFeature(
                 "physical",
@@ -1365,9 +1377,9 @@ class Main_Window(wx.Frame):
             )
             self.rivers = self.ax1.add_feature(RIVERS)
             self.canvas.draw()
-#                    print('Done')
+        #                    print('Done')
         else:
-            if hasattr(self,"rivers"):
+            if hasattr(self, "rivers"):
                 self.rivers.remove()
 
         del cursor_wait
@@ -1375,10 +1387,10 @@ class Main_Window(wx.Frame):
     def onRiversLakes(self, event):
         self.update_RiversFeatures()
         self.canvas.draw()
-        
+
     def onColorMap(self, event):
         """
-            To change the color bar
+        To change the color bar
         """
         cursor_wait = wx.BusyCursor()
         self.get_ax1_xylim()
@@ -1393,21 +1405,21 @@ class Main_Window(wx.Frame):
 
     def onGroundMap(self, event):
         """
-            To display the groundMAP
+        To display the groundMAP
         """
-        if self.internet_connection_check() :
+        if self.internet_connection_check():
             self.comboGroundMap.SetSelection(0)
             return -1
-        
-        print('mk background')
+
+        print("mk background")
         cursor_wait = wx.BusyCursor()
-        
+
         self.get_ax1_xylim()
 
         self.cm = self.comboColorMap.GetValue()
         self.groundmap = self.comboGroundMap.GetValue()
         self.param = self.comboSelParam.GetValue()
-        
+
         if self.groundmap == "LandSat":
             altis_cfg = pkg_resources.resource_filename(
                 "altis", "../etc/altis_config.yml"
@@ -1469,39 +1481,43 @@ class Main_Window(wx.Frame):
 
         del cursor_wait
 
-    def get_xylim_PlateCarree(self,x,y, proj):
+    def get_xylim_PlateCarree(self, x, y, proj):
         """
-            return x,y coordinates in lon/lat
+        return x,y coordinates in lon/lat
         """
-        if not 'PlateCarree' in ('%s' % getattr(proj,'__class__')):
+        if not "PlateCarree" in ("%s" % getattr(proj, "__class__")):
             x, y = self.crs_lonlat.transform_point(x, y, proj)
 
         return x, y
 
-    def internet_connection_check(self,):
+    def internet_connection_check(
+        self,
+    ):
         """
-            Check internet connection availability
-            
+        Check internet connection availability
+
         """
         if check_internet():
-            print('Internet connection ok.')
+            print("Internet connection ok.")
             return False
         else:
-            message = ("The internet connection is not allowed. Check your network configuration.")
-            
-            with wx.MessageDialog(None, message=message, caption="Info",
-                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_WARNING,)as mssg_dlg:
+            message = "The internet connection is not allowed. Check your network configuration."
+
+            with wx.MessageDialog(
+                None,
+                message=message,
+                caption="Info",
+                style=wx.OK | wx.OK_DEFAULT | wx.ICON_WARNING,
+            ) as mssg_dlg:
 
                 if mssg_dlg.ShowModal() == wx.ID_OK:
                     return True
-        
-
 
     def onSelectData(self, event):
         """
-            Graphical data selection
-        """        
-#        print("self.mpl_toolbar.mode",self.mpl_toolbar.mode)
+        Graphical data selection
+        """
+        #        print("self.mpl_toolbar.mode",self.mpl_toolbar.mode)
 
         if self.mpl_toolbar.mode == "zoom rect":
             self.mpl_toolbar.ToggleTool(self.mpl_toolbar.wx_ids["Zoom"], False)
@@ -1523,7 +1539,8 @@ class Main_Window(wx.Frame):
             color="r",
             fontweight="bold",
             fontsize=15,
-            transform=self.ax1.transAxes, zorder = 0,
+            transform=self.ax1.transAxes,
+            zorder=0,
         )
         self.canvas.draw()
         selection = DatasetSelection(
@@ -1531,7 +1548,8 @@ class Main_Window(wx.Frame):
             self.figure,
             [self.plt1, self.plt2, self.plt3, self.plt4],
             [self.ax1, self.ax2, self.ax3, self.ax4],
-            self.select_text_info, self.selectall_flag
+            self.select_text_info,
+            self.selectall_flag,
         )
         self.iconUndo.Enable()
         self.btnRefresh.Enable()
@@ -1539,7 +1557,7 @@ class Main_Window(wx.Frame):
 
     def onSave(self, event):
         """
-            Save action of the current dataset
+        Save action of the current dataset
         """
         if hasattr(self, "tr"):
 
@@ -1636,7 +1654,7 @@ class Main_Window(wx.Frame):
 
     def onQuit(self, event):
         """
-            Close action of AlTiS Software
+        Close action of AlTiS Software
         """
         self.data_selection_frame.Close()
         if hasattr(self, "ts_panel"):
@@ -1648,15 +1666,17 @@ class Main_Window(wx.Frame):
 
     def onUndo(self, event):
         """
-            Undo action data seltect
+        Undo action data seltect
         """
         if len(self.common_data.DATA_MASK_SEL) > 1:
             self.common_data.DATA_MASK_SEL.pop()
             self.update_plot()
 
-    def update_plot(self,):
+    def update_plot(
+        self,
+    ):
         """
-            Update diplay plots
+        Update diplay plots
         """
         cursor_wait = wx.BusyCursor()
 
@@ -1683,24 +1703,46 @@ class Main_Window(wx.Frame):
             np.array(time), param, c=param, marker="+", cmap=self.cm
         )
 
-        #        self.cbar.remove()
-        self.scalarmap.set_cmap(cmap=self.cm)
-        self.cbar.set_label(param.attrs["long_name"], rotation=270)
-        self.cbar.draw_all()
 
+        self.colorbar_update(param,self.cm)
         self.canvas.draw()
         del cursor_wait
 
+
+
+    def colorbar_update(self,param,cm):
+        """
+        Mise à jour de la colorbar
+        """
+        if hasattr(self, "cbar"):
+            self.cbar.remove()
+
+        ax2ins = inset_axes(
+            self.ax2,
+            width="2.5%",  # width = 5% of parent_bbox width
+            height="100%",  # height : 50%
+            loc="lower left",
+            bbox_to_anchor=(1.1, -0.5, 1, 1),
+            bbox_transform=self.ax2.transAxes,
+            borderpad=0.2,
+            )
+
+        self.scalarmap = ScalarMappable(cmap=cm)
+        self.cbar = self.figure.colorbar(self.scalarmap, cax=ax2ins)
+        self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
+        self.cbar.set_label(param.attrs["long_name"], rotation=270, labelpad=10, y=0.5)
+
+
     def onHelp(self, event):
         """
-            Help Dialog window
+        Help Dialog window
         """
         help = Help_Window()
         help.OnAboutBox()
 
     def onSelParam(self, event):
         """
-           Parameter selection action 
+        Parameter selection action
         """
         cursor_wait = wx.BusyCursor()
 
@@ -1708,15 +1750,14 @@ class Main_Window(wx.Frame):
         self.common_data.param_name = self.param
         self.common_data.param = self.tr.data_val[self.param]
 
-
         self.common_data.DATA_MASK_PARAM = (
             ~np.isnan(self.common_data.param)
             & ~np.isnan(self.common_data.lon)
             & ~np.isnan(self.common_data.lat)
             & ~np.isnat(self.common_data.time)
         )
-     #   print('>> DATA_MASK_PARAM.shape',self.common_data.DATA_MASK_PARAM.shape)
-      #  print('>> DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
+        #   print('>> DATA_MASK_PARAM.shape',self.common_data.DATA_MASK_PARAM.shape)
+        #  print('>> DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
 
         mask = (
             self.common_data.CYCLE_SEL
@@ -1751,14 +1792,14 @@ class Main_Window(wx.Frame):
 
         self.draw(lon, lat, time, param, mask, self.cm, self.groundmap)
 
-#        if (self.data_sel_config["mission"] == self.current_mission) and (
-#            self.data_sel_config["track"] == self.current_track
-#        ):
+        #        if (self.data_sel_config["mission"] == self.current_mission) and (
+        #            self.data_sel_config["track"] == self.current_track
+        #        ):
 
-#            self.ax1.set_xlim(self.ax1_zoom["x"])
-#            self.ax1.set_ylim(self.ax1_zoom["y"])
+        #            self.ax1.set_xlim(self.ax1_zoom["x"])
+        #            self.ax1.set_ylim(self.ax1_zoom["y"])
 
-#        self.canvas.draw()
+        #        self.canvas.draw()
         self.current_mission = self.data_sel_config["mission"]
         self.current_track = self.data_sel_config["track"]
 
@@ -1774,12 +1815,12 @@ class Main_Window(wx.Frame):
         self.btnExpEnv.Enable()
         self.btnImpEnv.Enable()
         self.btnRescale.Enable()
-#        self.btnScanHook.Enable()
+        #        self.btnScanHook.Enable()
         del cursor_wait
 
     def onOpen(self, event):
         """
-            Data file selection Dialog
+        Data file selection Dialog
         """
         if self.comboKindData.GetValue() != self.ListKindData[0]:
             self.get_env_var()
@@ -1790,14 +1831,14 @@ class Main_Window(wx.Frame):
                 load_data_args.Center()
                 load_data_args.Show()
                 if load_data_args.ShowModal() == wx.ID_OK:
-                 #   print("ShowModal == wx.ID_OK")
+                    #   print("ShowModal == wx.ID_OK")
                     self.load_data_process(event, load_data_args.data_sel_config)
                 else:
                     print("Cancel")
 
     def load_data_process(self, event, load_data_args):
         """
-            Data loading process
+        Data loading process
         """
         self.data_sel_config = load_data_args
 
@@ -1814,16 +1855,16 @@ class Main_Window(wx.Frame):
         self.current_track = None
 
         cursor_wait = wx.BusyCursor()
-        
+
         # If any data file is already open, it has to be closed.
-        if hasattr(self,'tr'):
-            if hasattr(self.tr,'data_val'):
-                if isinstance(self.tr.data_val,dict):
+        if hasattr(self, "tr"):
+            if hasattr(self.tr, "data_val"):
+                if isinstance(self.tr.data_val, dict):
                     for k in self.tr.data_val.keys():
                         self.tr.data_val[k].close()
                 else:
                     self.tr.data_val.close()
-        
+
         if self.data_sel_config["normpass_flag"]:
             mission = self.data_sel_config["mission"]
             kml_file = self.data_sel_config["kml_file"]
@@ -1881,7 +1922,7 @@ class Main_Window(wx.Frame):
 
             #            pdb.set_trace()
             self.data_sel_config["track"] = str(self.tr.data_val.pass_number)
-    #        print("Normpass file has been successfully read.")
+            #        print("Normpass file has been successfully read.")
 
             param_name = self.tr.time_hf_name
             data = self.tr.data_val[param_name]
@@ -1959,7 +2000,7 @@ class Main_Window(wx.Frame):
                         self.progress.Destroy()
                         return -1
 
-      #      print("GDR files have been successfully read.")
+            #      print("GDR files have been successfully read.")
 
             param_name = self.tr.time_hf_name
             data = self.tr.data_val[param_name]
@@ -1977,15 +2018,15 @@ class Main_Window(wx.Frame):
                 self.progress.Destroy()
                 return -1
 
-            #print('>>>>>:',mission,filename,kml_file)
+            # print('>>>>>:',mission,filename,kml_file)
             try:
-                self.tr = GDR_altis(self.data_sel_config,
+                self.tr = GDR_altis(
+                    self.data_sel_config,
                     filename,
                     mission_config_file=cfgfile_name,
                     kml_file=kml_file,
                 )
-            except (GDR_altis.OutOfAreaError,
-                        GDR_altis.NotAltisGDRFileError) as e:
+            except (GDR_altis.OutOfAreaError, GDR_altis.NotAltisGDRFileError) as e:
                 message = e.message_gui
                 print(">>>>>>>>> ", message)
                 with wx.MessageDialog(
@@ -2000,7 +2041,7 @@ class Main_Window(wx.Frame):
                         self.progress.Update(100, "Done.")
                         self.progress.Destroy()
                         return -1
-            
+
             except Exception:
                 message = (
                     "The data file does not suit to the "
@@ -2021,7 +2062,7 @@ class Main_Window(wx.Frame):
                         self.progress.Update(100, "Done.")
                         self.progress.Destroy()
                         return -1
-         #   print("GDR files have been successfully read.")
+            #   print("GDR files have been successfully read.")
 
             param_name = self.tr.time_hf_name
             data = self.tr.data_val[param_name]
@@ -2109,7 +2150,7 @@ class Main_Window(wx.Frame):
         #            self.canvas.draw()
 
         self.initDataSelect(event)
-        self.selectall_flag=True
+        self.selectall_flag = True
         self.comboSelParam.Clear()
         for param in self.param_list:
             self.comboSelParam.Append(param)
@@ -2124,25 +2165,31 @@ class Main_Window(wx.Frame):
         self.set_env_var()
 
         if self.data_sel_config["messagedialog"]:
-            message = ("The data loading has been successfully done.\n\n"
-                        +" You have to choose an altimetric parameter in \n\tthe selection menu to display it.")
-            
-            with wx.RichMessageDialog(None, message=message, caption="Info",
-                    style=wx.OK | wx.OK_DEFAULT | wx.ICON_INFORMATION,)as mssg_dlg:
+            message = (
+                "The data loading has been successfully done.\n\n"
+                + " You have to choose an altimetric parameter in \n\tthe selection menu to display it."
+            )
+
+            with wx.RichMessageDialog(
+                None,
+                message=message,
+                caption="Info",
+                style=wx.OK | wx.OK_DEFAULT | wx.ICON_INFORMATION,
+            ) as mssg_dlg:
 
                 mssg_dlg.ShowCheckBox("Don't show again")
 
                 if mssg_dlg.ShowModal() == wx.ID_OK:
                     if mssg_dlg.IsCheckBoxChecked():
-#                     ... make sure we won't show it again the next time ...
+                        #                     ... make sure we won't show it again the next time ...
                         self.data_sel_config["messagedialog"] = False
                         self.set_env_var()
-#                    print('check?',mssg_dlg.IsCheckBoxChecked(),self.data_sel_config["messagedialog"])
+                    #                    print('check?',mssg_dlg.IsCheckBoxChecked(),self.data_sel_config["messagedialog"])
                     return -1
 
     def initDataSelect(self, event):
         """
-            Initialisation mask data selection
+        Initialisation mask data selection
         """
         self.data_selection_frame.update(self.cycle, self.date, self.tracks)
         self.cycle_mask = self.data_selection_frame.onSelectAll(event)
@@ -2150,31 +2197,32 @@ class Main_Window(wx.Frame):
         self.common_data.CYCLE_SEL = self.cycle_mask
         self.common_data.DATA_MASK_SEL = list()
         self.common_data.DATA_MASK_SEL.append(self.cycle_mask)
-       # print('DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
+
+    # print('DATA_MASK_SEL[-1].shape',self.common_data.DATA_MASK_SEL[-1].shape)
 
     def onSelectCycle(self, event):
         """
-            Mask data configuration for cycle 
+        Mask data configuration for cycle
         """
         cycle_mask = self.data_selection_frame.getselectcyle()
         cycle_mask = np.tile(cycle_mask, (len(self.norm_index), 1)).T
         self.common_data.CYCLE_SEL = cycle_mask
         self.update_plot()
-        self.selectall_flag=False
+        self.selectall_flag = False
 
     def onSelectAll(self, event):
         """
-            Mask data configuration for all cycles
+        Mask data configuration for all cycles
         """
         cycle_mask = self.data_selection_frame.onSelectAll(event)
         cycle_mask = np.tile(cycle_mask, (len(self.norm_index), 1)).T
         self.common_data.CYCLE_SEL = cycle_mask
         self.update_plot()
-        self.selectall_flag=True
+        self.selectall_flag = True
 
     def onSelectPassCombox(self, event):
         """
-            Mask data Selection for a pass
+        Mask data Selection for a pass
         """
         cycle_mask = self.data_selection_frame.onSelectPassCombox(event)
         cycle_mask = np.tile(cycle_mask, (len(self.norm_index), 1)).T
@@ -2183,7 +2231,7 @@ class Main_Window(wx.Frame):
 
     def get_env_var(self):
         """
-            Environment variable load file.
+        Environment variable load file.
         """
         altis_tmp_file = os.path.join(tempfile.gettempdir(), "altis.tmp")
 
@@ -2223,7 +2271,7 @@ class Main_Window(wx.Frame):
 
     def set_env_var(self):
         """
-            Save environment variable.
+        Save environment variable.
         """
         altis_tmp_file = os.path.join(tempfile.gettempdir(), "altis.tmp")
         #        pdb.set_trace()
@@ -2233,7 +2281,7 @@ class Main_Window(wx.Frame):
 
 def main():
     """
-        Main
+    Main
     """
     app = wx.App(redirect=False)
     frame_main = Main_Window()
