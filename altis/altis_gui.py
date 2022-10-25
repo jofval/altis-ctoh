@@ -708,7 +708,7 @@ class Main_Window(wx.Frame):
         #        self.ax4.set_xlabel("Time (YYYY-MM)")
         self.ax4.set_ylabel(param.attrs["long_name"])
 
-        self.colorbar_update(param,cm)
+        self.colorbar_update(param, cm)
         self.rescale(coord=True)
 
     def create_toolbar(self):
@@ -1497,9 +1497,41 @@ class Main_Window(wx.Frame):
         Check internet connection availability
 
         """
-        if check_internet():
-            print("Internet connection ok.")
-            return False
+        url_list = ["http://www.google.com/", "https://www.baidu.com/"]
+        internet_connection = False
+        for url in url_list:
+            if check_internet(url):
+                print("Internet connection ok.")
+                internet_connection = True
+                break
+
+        if internet_connection:
+            altis_cfg = pkg_resources.resource_filename(
+                "altis", "../etc/altis_config.yml"
+            )
+            with open(altis_cfg) as f:
+                #                try:
+                #                    yaml_data = yaml.safe_load(f)
+                #                except:
+                yaml_data = yaml.load(
+                    f, Loader=yaml.FullLoader
+                )  # A revoir pour créer un vrai loader
+            url = yaml_data["wmts"]["ground_map"]["url"]
+            if check_internet(url):
+                print("LandSat ground map is downloading... Please wait.")
+                return False
+            else:
+                message = "NASA Earth Data server is currently not available. LandSat ground map can not be downloaded. Sorry!"
+
+                with wx.MessageDialog(
+                      None,
+                      message=message,
+                      caption="Info",
+                      style=wx.OK | wx.OK_DEFAULT | wx.ICON_WARNING,
+                ) as mssg_dlg:
+
+                    if mssg_dlg.ShowModal() == wx.ID_OK:
+                        return True               
         else:
             message = "The internet connection is not allowed. Check your network configuration."
 
@@ -1703,14 +1735,11 @@ class Main_Window(wx.Frame):
             np.array(time), param, c=param, marker="+", cmap=self.cm
         )
 
-
-        self.colorbar_update(param,self.cm)
+        self.colorbar_update(param, self.cm)
         self.canvas.draw()
         del cursor_wait
 
-
-
-    def colorbar_update(self,param,cm):
+    def colorbar_update(self, param, cm):
         """
         Mise à jour de la colorbar
         """
@@ -1725,13 +1754,12 @@ class Main_Window(wx.Frame):
             bbox_to_anchor=(1.1, -0.5, 1, 1),
             bbox_transform=self.ax2.transAxes,
             borderpad=0.2,
-            )
+        )
 
         self.scalarmap = ScalarMappable(cmap=cm)
         self.cbar = self.figure.colorbar(self.scalarmap, cax=ax2ins)
         self.scalarmap.set_clim(vmin=np.min(param), vmax=np.max(param))
         self.cbar.set_label(param.attrs["long_name"], rotation=270, labelpad=10, y=0.5)
-
 
     def onHelp(self, event):
         """

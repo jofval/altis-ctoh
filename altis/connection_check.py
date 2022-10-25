@@ -10,12 +10,13 @@
 
 import requests
 
-def check_internet():
-    url = 'http://www.google.com/'
+def check_internet(url):
     timeout = 5
     try:
         _ = requests.get(url, timeout=timeout)
         return True
     except requests.ConnectionError:
+        return False
+    except requests.exceptions.InvalidSchema:
         return False
 
