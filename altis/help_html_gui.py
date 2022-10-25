@@ -37,7 +37,8 @@ from altis._version import __version__, __revision__
 class Help_Window(wx.Frame):
     def OnAboutBox(self):
         logo_file = pkg_resources.resource_filename(
-            "altis", "../etc/altis_logo.png"
+            #"altis", "../etc/altis_logo.png"
+            "altis", "../etc/logo_altis.png"
         )
 #        licence_file = pkg_resources.resource_filename(
 #            "altis", "../etc/Licence_CeCILL_V2.1-en.txt"
@@ -68,7 +69,7 @@ class Help_Window(wx.Frame):
         info.SetCopyright("\n\n\nCeCill FREE SOFTWARE LICENSE, 2019-"+str(year)+", CTOH\n\n"
                           +"  IDDN Certification : IDDN.FR.010.0121234.000.R.X.2020.041.30000\n\n\n")
         info.SetWebSite(
-            "http://ctoh.legos.obs-mip.fr/applications/land_surfaces/softwares/altis",
+            "https://gitlab.com/ctoh/altis",
             "AlTiS Web Site",
         )
 
