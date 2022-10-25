@@ -558,6 +558,7 @@ class Main_Window(wx.Frame):
         self.ax4 = self.figure.add_subplot(2, 2, 4, sharey=self.ax3)
         self.ax4.set_xlabel("Time (YYYY-MM)")
         self.ax4.xaxis_date()
+        #self.ax4.autofmt_xdate()
         self.ax4.grid(True)
 
     def CanvasPanel(self, panel):
@@ -706,6 +707,18 @@ class Main_Window(wx.Frame):
         )
         #        self.ax4.grid(True)
         #        self.ax4.set_xlabel("Time (YYYY-MM)")
+
+        time_min=np.min(np.array(time)[~np.array(np.isnan(time))])
+        time_max=np.max(np.array(time)[~np.array(np.isnan(time))])
+
+        delta_time = (time_max-time_min)*0.1
+
+        time_min=time_min-delta_time
+
+        time_max=time_max+delta_time
+
+
+        self.ax4.set_xlim([time_min,time_max])
         self.ax4.set_ylabel(param.attrs["long_name"])
 
         self.colorbar_update(param, cm)
