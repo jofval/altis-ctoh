@@ -76,7 +76,7 @@ from altis.help_html_gui import Help_Window
 from altis.time_series import Time_Series_Panel
 from altis.colinear_analysis import ColinAnal_Panel
 
-from altis.connection_check import check_internet
+from altis.connection_check import check_internet,check_altis_version
 
 from altis.para_detection import hough_transform  # , hough_transform_linear
 
@@ -257,6 +257,32 @@ class Main_Window(wx.Frame):
         self.InitUI()
         self.Center()
 
+    def check_altis_update(self,):
+
+        if self.internet_check():
+            test, last_version = check_altis_version(__version__)
+            if test is not None:
+                if test :
+                    print("AlTiS is up-to-date.")
+                else:
+                    msg=(f"AlTiS need to be updated! The new version is {last_version}.\n"
+                            f"Download and install the latest version of AlTiS software : https://gitlab.com/ctoh/altis")
+                    print(msg)
+                    with wx.MessageDialog(
+                          None,
+                          message=msg,
+                          caption="Info",
+                          style=wx.OK | wx.OK_DEFAULT | wx.ICON_WARNING,
+                    ) as mssg_dlg:
+
+                        if mssg_dlg.ShowModal() == wx.ID_OK:
+                            return True               
+
+
+                    print(msg)
+            else:
+                print("AlTiS version check has failed!")
+
     def InitUI(self):
         """
         GUI Initialisation
@@ -286,6 +312,9 @@ class Main_Window(wx.Frame):
         version_size = wx.Window.GetTextExtent(self, status_bar_right_text)
         self.SetStatusWidths([-1, version_size.width])
         self.statusbar.SetStatusText(status_bar_right_text, 1)
+
+
+        self.check_altis_update()
 
         self.cycle = []
         self.date = []
@@ -1503,7 +1532,7 @@ class Main_Window(wx.Frame):
 
         return x, y
 
-    def internet_connection_check(
+    def internet_check(
         self,
     ):
         """
@@ -1511,12 +1540,19 @@ class Main_Window(wx.Frame):
 
         """
         url_list = ["http://www.google.com/", "https://www.baidu.com/"]
-        internet_connection = False
         for url in url_list:
             if check_internet(url):
                 print("Internet connection ok.")
-                internet_connection = True
-                break
+                return True
+        return False
+            
+    def internet_connection_check(
+        self,
+    ):
+        """
+        Check internet connection availability and LandSat ground map
+        """
+        internet_connection = self.internet_check()
 
         if internet_connection:
             altis_cfg = pkg_resources.resource_filename(
