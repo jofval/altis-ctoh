@@ -9,8 +9,8 @@
 
 surface_types :
     - None
-    - GreatLakes
-    - Ocean
+      #- GreatLakes
+      #- Ocean
     - RiversLakes
 
 wmts:   # Web Map Tile Service
