@@ -265,8 +265,8 @@ class Main_Window(wx.Frame):
                 if test :
                     print("AlTiS is up-to-date.")
                 else:
-                    msg=(f"AlTiS need to be updated! The new version is {last_version}.\n"
-                            f"Download and install the latest version of AlTiS software : https://gitlab.com/ctoh/altis")
+                    msg=(f"There is a new version of AlTiS software : {__version__} --> {last_version}.\n"
+                    f"The AlTiS update procedure : https://gitlab.com/ctoh/altis/-/blob/main/INSTALL.md#altis-update")
                     print(msg)
                     with wx.MessageDialog(
                           None,
