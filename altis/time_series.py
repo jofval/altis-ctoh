@@ -28,6 +28,8 @@ from matplotlib.figure import Figure
 import pandas as pd
 from pandas.plotting import register_matplotlib_converters
 
+import datetime
+
 register_matplotlib_converters()
 
 from altis.common_data import Singleton
@@ -37,7 +39,6 @@ import warnings
 
 
 class Time_Series_Panel(wx.Frame):
-#class Time_Series_Panel(wx.Dialog):
     def __init__(self, parent, data_opt):
         super().__init__(
             parent,
@@ -540,7 +541,250 @@ class Time_Series_Panel(wx.Frame):
 
     def onHydroWebexport(self,event):
         """
-         HydroWeb file format export
+            Select River or Lake file format output
+        """
+        self.hydroweb_file_format = "River"
+        self.hydroweb_file_format = self.hydroweb_file_format_dialog(self.hydroweb_file_format)
+        
+        if self.hydroweb_file_format == "River":
+            self.HydroWebexport_R()
+        else:
+            self.HydroWebexport_L()
+
+    def toYearFraction(self,date):
+        def sinceEpoch(date): # returns seconds since epoch
+            return time.mktime(date.timetuple())
+        s = sinceEpoch
+
+        year = date.year
+        startOfThisYear = datetime.datetime(year=year, month=1, day=1)
+        startOfNextYear = datetime.datetime(year=year+1, month=1, day=1)
+
+        yearElapsed = s(date) - s(startOfThisYear)
+        yearDuration = s(startOfNextYear) - s(startOfThisYear)
+        fraction = yearElapsed/yearDuration
+
+        return date.year + fraction
+
+
+    def HydroWebexport_L(self):
+        """
+         HydroWeb file Lake format export
+        """
+        list_param_coord,list_param,mask = self.get_param_list()
+
+        if list_param is None:
+            return
+
+
+        mask_cycle = np.any(mask, axis=1).data
+
+        array = list()
+        
+        year_fraction=[]
+        for date in pd.Series(self.common_data.param.coords["date"].where(mask.any(axis=1))):
+            if date is not np.nan:
+                year_fraction.append(self.toYearFraction(date))
+            else:
+                year_fraction.append(np.nan)
+        year_fraction = np.array(year_fraction)[mask_cycle]
+        start_year_fraction = year_fraction[0]
+        end_year_fraction = year_fraction[-1]
+
+
+        array.append(year_fraction)
+
+        dates = np.array(pd.Series(
+                                  self.common_data.param.coords["date"].where(mask.any(axis=1))
+                                  ).dt.strftime("%Y/%m/%d")
+                        )[mask_cycle]
+        start_date = dates[0]
+        end_date = dates[-1]
+
+        nber_meas=len(dates)
+        array.append(dates)
+
+        times = np.array(
+                    pd.Series(
+                        self.common_data.param.coords["date"].where(mask.any(axis=1))
+                    ).dt.strftime("%H:%M")
+                    )[mask_cycle]
+
+        array.append(times)
+
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+
+            for param in list_param:
+                if ("ice1_" in param) and ("_SurfHeight" in param) :
+                    if "units" not in self.common_data.tr[param].attrs.keys():
+                        self.common_data.tr[param].attrs["units"] = "None"
+                    
+                    array.append(
+                        np.round(self.common_data.tr[param]
+                        .where(mask)
+                        .median(dim=self.dim_index)
+                        .data[mask_cycle],2)
+                    )
+                    array.append(
+                        np.round(med_abs_dev(
+                            self.common_data.tr[param].where(mask), self.dim_index
+                        ).data[mask_cycle],2)
+                    )
+        
+        array.append(np.array([np.nan]*nber_meas))
+        array.append(np.array([np.nan]*nber_meas))
+        array.append(np.array([np.nan]*nber_meas))
+        array.append(np.array([np.nan]*nber_meas))
+        
+        array = pd.DataFrame(array).T
+
+        lonpos = (
+            self.common_data.lon.where(mask)
+            .mean(dim=self.dim_index)
+            .mean(dim=self.dim_cycle)
+        )
+        if lonpos >= 0.0:
+            lonpos_flag = "E{:04d}".format(int(lonpos * 100))
+        else:
+            lonpos_flag = "W{:04d}".format(int(lonpos * -100))
+
+
+        latpos = (
+            self.common_data.lat.where(mask)
+            .mean(dim=self.dim_index)
+            .mean(dim=self.dim_cycle)
+        )
+        if latpos >= 0.0:
+            latpos_flag = "N{:04d}".format(int(latpos * 100))
+        else:
+            latpos_flag = "S{:04d}".format(int(latpos * -100))
+
+
+        hydroweb_header_fields={ "basin_name" : "",
+                "lake_name" : "",
+                "country" :"",
+                "virtual_station_id" : f"{latpos_flag}{lonpos_flag}"}
+        mean_lon = f"{float(lonpos):9.4f}"
+        mean_lat = f"{float(latpos):9.4f}"
+        processor_date = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        altis_version = __version__ 
+
+        while ((hydroweb_header_fields['basin_name'] == "") 
+                and (hydroweb_header_fields['lake_name'] == "")):
+
+            hydroweb_header_fields['basin_name'] = self.data_sel_config['basin_name']
+            hydroweb_header_fields['lake_name'] = self.data_sel_config['lake_name']
+
+            hydroweb_header_fields = self.hydroweb_control_dialog(hydroweb_header_fields)
+            
+            if ((hydroweb_header_fields['basin_name'] == "")
+                and (hydroweb_header_fields['lake_name'] == "")):
+                msg = (f"Basin and lake name have to be field !"
+                        )
+                with wx.MessageDialog(
+                      None,
+                      message=msg,
+                      caption="Error",
+                      style=wx.OK | wx.OK_DEFAULT | wx.ICON_ERROR,
+                ) as save_dataset_dlg:
+
+                    if save_dataset_dlg.ShowModal() == wx.ID_OK:
+                        continue
+            else:
+                self.data_sel_config['basin_name'] = hydroweb_header_fields['basin_name']
+                self.data_sel_config['lake_name'] = hydroweb_header_fields['lake_name']
+                self.parent.set_env_var()
+
+        hydroweb_header=[
+            [f"lake={hydroweb_header_fields['lake_name']};country={hydroweb_header_fields['country']};basin={hydroweb_header_fields['basin_name']};lat={mean_lat};lon={mean_lon};date={processor_date};first_date={start_year_fraction};last_date={end_year_fraction};type=AlTiS processing {altis_version};diff=public;id={hydroweb_header_fields['virtual_station_id']}"],
+            ["#"],
+            ["# Length: NaN  km"],
+            ["# width: NaN  km"],
+            ["# maximum of depth:   NaN m"],
+            ["# Mean area:  NaN  km2"],
+            ["# Catchment area: NaN  km2"],
+            ["# Mean volume:    NaN  km3"],
+            ["#"],
+            ["# Water height from satellite altimetry:"],
+            [f"# {self.data_sel_config['mission']}       track number: "+"{:4d}".format(int(self.data_sel_config["track"]))],
+            ["#"],
+            ["# corrections applied: Solid Earth tide, pole tide, ionospheric delay"],
+            ["# wet and dry tropospheric delay"],
+            ["#"],
+#            ["# surface of reference: GGMO2C; high resolution global gravity model"],
+#            ["# developped to degree and order 200 at CSR"],
+#            ["# Center for Space research, university of Texas, austin, USA"],
+#            ["# ref: Tapley B, Ries J, Bettatpur S, et al., (2005),"],
+#            ["# GGM02 - an improved Earth Gravity field from GRACE, J.geod. 79: 467-478"],
+#            ["#"],
+            [f"# first date {start_date} yr month day"],
+            [f"# last date {end_date} yr month day"],
+            ["#"],
+            ["# data file format"],
+            ["# (1): decimal year (2) date = yyyy/mm/dd (3): time = hh:mm"],
+            ["# (4): height above surface of ref (m), (5): standard deviation from height (m)"],
+            ["# (6): area (km2), (7): volume with respect to volume of first date (km3)"],
+            ["# (8): flag"],
+            ["#"],
+            ["# citation: Generated by AlTiS Software, developed by the CTOH-LEGOS"],
+            ["# sources: Altimetric GDR data product supplied by CTOH"],
+            ["#"],
+            ["# status: AlTiS processing {altis_version}"],
+            ["# validation criteria:: AlTiS user"],
+            ["#"],
+        ]
+
+        if self.data_sel_config["track"] == "Tracks":
+            default_filaname = (
+                f"L_"
+                f"{hydroweb_header_fields['lake_name']}_"
+                f"AlTiS_TimeSeries_" 
+                + self.data_sel_config["mission"] + "_Tracks"
+            )
+        else:
+            default_filaname = (
+                f"L_"
+                f"{hydroweb_header_fields['lake_name']}_AlTiS_TimeSeries_"
+                + self.data_sel_config["mission"]
+                + "_{:04d}".format(int(self.data_sel_config["track"]))
+            )
+
+        if self.data_sel_config["hydroweb_dir"] == "" :
+            self.data_sel_config["hydroweb_dir"] = self.data_sel_config["data_dir"]
+
+        with wx.FileDialog(
+            self,
+            message="Export as HydroWeb Time Series (ASCII file)",
+            defaultDir=self.data_sel_config["hydroweb_dir"],
+            defaultFile=default_filaname + "_" + latpos_flag,
+            wildcard="TXT files (*.txt)|*.txt",
+            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
+        ) as fileDialog:
+
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return  # the user changed their mind
+
+            # save the current contents in the file
+            pathname = fileDialog.GetPath()
+            
+            self.data_sel_config["hydroweb_dir"] = os.path.dirname(fileDialog.GetPath())
+            self.parent.set_env_var()
+
+            with open(pathname, 'w') as f:
+                for line in hydroweb_header:
+                    f.write(line[0]+'\n')
+                lines = array.to_string(index=False).split('\n')
+                lines.pop(0)
+                for line in lines:
+                    line=";".join(line.split(' '))
+                    f.write(line+'\n')
+
+
+    def HydroWebexport_R(self):
+        """
+         HydroWeb file river format export
         """
         list_param_coord,list_param,mask = self.get_param_list()
 
@@ -660,6 +904,7 @@ class Time_Series_Panel(wx.Frame):
             latpos_flag = "N{:04d}".format(int(latpos * 100))
         else:
             latpos_flag = "S{:04d}".format(int(latpos * -100))
+
 
         hydroweb_header_fields={ "basin_name" : "",
                 "river_name" : "",
@@ -802,6 +1047,21 @@ class Time_Series_Panel(wx.Frame):
                 return param_output_diag.param_sel
             else:
                 return None
+
+    def hydroweb_file_format_dialog(self,hydroweb_file_format):
+        """
+        Appel de la fenetre de dialogue pour choisir le format river ou lac du fichier HydroWeb.
+        """
+        with Export_HydroWeb_file_format_Window(hydroweb_file_format) as param_output_diag:
+            param_output_diag.Center()
+            param_output_diag.Show()
+            if param_output_diag.ShowModal() == wx.ID_OK:
+                return param_output_diag.hydroweb_file_format
+            else:
+                return None
+
+
+
 
     def hydroweb_control_dialog(self,hydroweb_header):
         """
@@ -1008,4 +1268,86 @@ class Export_HydroWeb_Window(wx.Dialog):
         for k in self.hydroweb_header.keys():
             self.hydroweb_header[k]=self.textctrl[k].GetValue()
 
+        event.Skip()
+
+
+
+
+class Export_HydroWeb_file_format_Window(wx.Dialog):
+    def __init__(self, hydroweb_file_format):  # ,data_opt):
+        super().__init__(
+            None, title="HydroWeb File Format", style=wx.RESIZE_BORDER
+        )  # ,size = wx.GetClientSize()) #wx.DisplaySize())
+
+        self.hydroweb_file_format = hydroweb_file_format
+
+        self.IU_Panel()
+
+        self.Show()
+
+    def IU_Panel(self):
+        scroll_panel = wx.lib.scrolledpanel.ScrolledPanel(self)
+        scroll_panel.SetupScrolling()
+
+        sizer = wx.GridBagSizer(6, 10)
+
+#        sb = wx.StaticBox(scroll_panel, label="HydroWeb output file format")
+#        boxsizer = wx.StaticBoxSizer(sb, wx.VERTICAL)
+
+
+        lblList = ["River","Lake"] 
+		  
+        self.rbox = wx.RadioBox(scroll_panel, label = "HydroWeb output file format", choices = lblList,
+                    pos=(4, 2))
+
+#        boxsizer = wx.StaticBoxSizer(self.rbox, wx.VERTICAL)
+
+
+#        self.river_radiobutton = wx.RadioButton(scroll_panel, label="River")
+#        boxsizer.Add(self.river_radiobutton,  flag=wx.LEFT | wx.TOP, border=5)
+#        self.lake_radiobutton = wx.RadioButton(scroll_panel, label="Lake")
+#        boxsizer.Add(self.lake_radiobutton,  flag=wx.LEFT | wx.TOP, border=5)
+           
+
+#        sizer.Add(
+#            boxsizer,
+#            pos=(2, 0),
+#            span=(1, 5),
+#            flag=wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT,
+#            border=10,
+#        )
+
+        btn_help = wx.Button(scroll_panel, label="Help")
+        sizer.Add(btn_help, pos=(7, 0), flag=wx.LEFT, border=10)
+
+        btn_ok = wx.Button(scroll_panel, wx.ID_OK, label="Ok")
+        sizer.Add(btn_ok, pos=(7, 3))
+
+        btn_cancel = wx.Button(scroll_panel, wx.ID_CANCEL, label="Cancel")
+        sizer.Add(
+            btn_cancel, pos=(7, 4), span=(1, 1), flag=wx.BOTTOM | wx.RIGHT, border=10
+        )
+
+        sizer.AddGrowableCol(2)
+
+        scroll_panel.SetSizer(sizer)
+        sizer.Fit(self)
+
+        #self.rbox.Bind(wx.EVT_RADIOBOX,self.onRadioBox) 
+        btn_ok.Bind(wx.EVT_BUTTON, self.onOk)
+
+
+    def onRadioBox(self, event):
+        """
+        """
+        self.hydroweb_file_format = self.rbox.GetStringSelection()
+
+    def onOk(self, event):
+        
+#        if self.river_radiobutton.GetValue():
+#            self.hydroweb_file_format = "R"
+#        else:
+#            self.hydroweb_file_format = "L"
+
+        self.hydroweb_file_format = self.rbox.GetStringSelection()
         event.Skip()

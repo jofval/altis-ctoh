@@ -2345,6 +2345,7 @@ class Main_Window(wx.Frame):
             self.data_sel_config["messagedialog"] = True
             self.data_sel_config["basin_name"] = ""
             self.data_sel_config["river_name"] = ""
+            self.data_sel_config["lake_name"] = ""
             self.data_sel_config["hydroweb_dir"] = ""
             self.data_sel_config["csv_dir"] = ""
             with open(altis_tmp_file, "w") as f:
