@@ -160,7 +160,7 @@ class GDR_altis(object):
 
         return (
             "AlTiS_gdrpass_"
-            + self.mission
+            + self.data_sel_config["mission"]
             + "_"
             + track
             + "_"
