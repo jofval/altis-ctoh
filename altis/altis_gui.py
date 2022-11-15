@@ -2310,6 +2310,29 @@ class Main_Window(wx.Frame):
         """
         Environment variable load file.
         """
+        self.data_sel_config = dict()
+        self.data_sel_config["cfg_file"] = None
+        self.data_sel_config["data_type"] = ""
+        self.data_sel_config["data_dir"] = ""
+        self.data_sel_config["list_file"] = []
+        self.data_sel_config["track"] = None
+        self.data_sel_config["list_track"] = []
+        self.data_sel_config["mission"] = ""
+        self.data_sel_config["surf_type"] = None
+        self.data_sel_config["kml_file"] = None
+        self.data_sel_config["normpass_flag"] = None
+        self.data_sel_config["gdr_flag"] = None
+        self.data_sel_config["normpass_file"] = ""
+        self.data_sel_config["gdr_altis_flag"] = None
+        self.data_sel_config["gdr_altis_file"] = ""
+        self.data_sel_config["messagedialog"] = True
+        self.data_sel_config["basin_name"] = ""
+        self.data_sel_config["river_name"] = ""
+        self.data_sel_config["lake_name"] = ""
+        self.data_sel_config["hydroweb_dir"] = ""
+        self.data_sel_config["csv_dir"] = ""
+   
+
         altis_tmp_file = os.path.join(tempfile.gettempdir(), "altis.tmp")
 
         if os.path.isfile(altis_tmp_file):
@@ -2322,32 +2345,11 @@ class Main_Window(wx.Frame):
                     f, Loader=yaml.FullLoader
                 )  # A revoir pour créer un vrai loader
 
-            self.data_sel_config = dict()
+#            self.data_sel_config = dict()
             for k in yaml_data.keys():
                 self.data_sel_config[k] = yaml_data[k]
 
         else:
-            self.data_sel_config = dict()
-            self.data_sel_config["cfg_file"] = None
-            self.data_sel_config["data_type"] = ""
-            self.data_sel_config["data_dir"] = ""
-            self.data_sel_config["list_file"] = []
-            self.data_sel_config["track"] = None
-            self.data_sel_config["list_track"] = []
-            self.data_sel_config["mission"] = ""
-            self.data_sel_config["surf_type"] = None
-            self.data_sel_config["kml_file"] = None
-            self.data_sel_config["normpass_flag"] = None
-            self.data_sel_config["gdr_flag"] = None
-            self.data_sel_config["normpass_file"] = ""
-            self.data_sel_config["gdr_altis_flag"] = None
-            self.data_sel_config["gdr_altis_file"] = ""
-            self.data_sel_config["messagedialog"] = True
-            self.data_sel_config["basin_name"] = ""
-            self.data_sel_config["river_name"] = ""
-            self.data_sel_config["lake_name"] = ""
-            self.data_sel_config["hydroweb_dir"] = ""
-            self.data_sel_config["csv_dir"] = ""
             with open(altis_tmp_file, "w") as f:
                 yaml.dump(self.data_sel_config, f, default_flow_style=False)
 
