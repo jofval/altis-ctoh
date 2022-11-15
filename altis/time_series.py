@@ -682,7 +682,7 @@ class Time_Series_Panel(wx.Frame):
         altis_version = __version__ 
 
         while ((hydroweb_header_fields['basin_name'] == "") 
-                and (hydroweb_header_fields['lake_name'] == "")):
+                or (hydroweb_header_fields['lake_name'] == "")):
 
             hydroweb_header_fields['basin_name'] = self.data_sel_config['basin_name']
             hydroweb_header_fields['lake_name'] = self.data_sel_config['lake_name']
@@ -690,7 +690,7 @@ class Time_Series_Panel(wx.Frame):
             hydroweb_header_fields = self.hydroweb_control_dialog(hydroweb_header_fields)
             
             if ((hydroweb_header_fields['basin_name'] == "")
-                and (hydroweb_header_fields['lake_name'] == "")):
+                or (hydroweb_header_fields['lake_name'] == "")):
                 msg = (f"Basin and lake name have to be field !"
                         )
                 with wx.MessageDialog(
@@ -931,7 +931,7 @@ class Time_Series_Panel(wx.Frame):
         altis_version = __version__ 
 
         while ((hydroweb_header_fields['basin_name'] == "") 
-                and (hydroweb_header_fields['river_name'] == "")):
+                or (hydroweb_header_fields['river_name'] == "")):
 
             hydroweb_header_fields['basin_name'] = self.data_sel_config['basin_name']
             hydroweb_header_fields['river_name'] = self.data_sel_config['river_name']
@@ -939,7 +939,7 @@ class Time_Series_Panel(wx.Frame):
             hydroweb_header_fields = self.hydroweb_control_dialog(hydroweb_header_fields)
             
             if ((hydroweb_header_fields['basin_name'] == "")
-                and (hydroweb_header_fields['river_name'] == "")):
+                or (hydroweb_header_fields['river_name'] == "")):
                 msg = (f"Basin and river name have to be field !"
                         )
                 with wx.MessageDialog(
