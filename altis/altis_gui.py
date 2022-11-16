@@ -2329,6 +2329,7 @@ class Main_Window(wx.Frame):
         self.data_sel_config["basin_name"] = ""
         self.data_sel_config["river_name"] = ""
         self.data_sel_config["lake_name"] = ""
+        self.data_sel_config["country"] = ""
         self.data_sel_config["hydroweb_dir"] = ""
         self.data_sel_config["csv_dir"] = ""
    

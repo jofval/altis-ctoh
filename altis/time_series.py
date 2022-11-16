@@ -686,6 +686,7 @@ class Time_Series_Panel(wx.Frame):
 
             hydroweb_header_fields['basin_name'] = self.data_sel_config['basin_name']
             hydroweb_header_fields['lake_name'] = self.data_sel_config['lake_name']
+            hydroweb_header_fields['country'] = self.data_sel_config['country']
 
             hydroweb_header_fields = self.hydroweb_control_dialog(hydroweb_header_fields)
             
@@ -705,6 +706,7 @@ class Time_Series_Panel(wx.Frame):
             else:
                 self.data_sel_config['basin_name'] = hydroweb_header_fields['basin_name']
                 self.data_sel_config['lake_name'] = hydroweb_header_fields['lake_name']
+                self.data_sel_config['country'] = hydroweb_header_fields['country']
                 self.parent.set_env_var()
 
         hydroweb_header=[
@@ -742,7 +744,7 @@ class Time_Series_Panel(wx.Frame):
             ["# sources: Altimetric GDR data product supplied by CTOH"],
             ["#"],
             [f"# status: AlTiS processing {altis_version}"],
-            ["# validation criteria:: AlTiS user"],
+            ["# validation criteria: AlTiS user"],
             [f"# production date: {processor_date_str}"],
             ["#"],
         ]
