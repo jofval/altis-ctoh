@@ -84,7 +84,7 @@ class Time_Series_Panel(wx.Frame):
         self.checkMean = wx.CheckBox(self.toolbar, label="Mean/Std")
         self.toolbar.AddControl(self.checkMean, label="Show/Hide Mean/Std")
         self.toolbar.AddSeparator()
-        self.btnCSVexport = wx.Button(self.toolbar, label="Export CSV")
+        self.btnCSVexport = wx.Button(self.toolbar, label="CSV Export")
         self.toolbar.AddControl(self.btnCSVexport, label="Custom output parameters")
         self.toolbar.AddSeparator()
         self.btnHydroWebexport = wx.Button(self.toolbar, label="HydroWeb Export")
@@ -543,6 +543,17 @@ class Time_Series_Panel(wx.Frame):
         """
             Select River or Lake file format output
         """
+        
+        if self.data_sel_config["track"] == "Tracks":
+            msg=("HydroWeb export is not allowed for multiple tracks processing."
+                    )
+            wx.MessageBox(
+                  msg,
+                  "Error",
+                  wx.OK | wx.ICON_ERROR,
+            ) 
+            return False 
+
         self.hydroweb_file_format = "River"
         self.hydroweb_file_format = self.hydroweb_file_format_dialog(self.hydroweb_file_format)
         
