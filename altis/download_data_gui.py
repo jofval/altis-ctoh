@@ -756,7 +756,7 @@ class Load_data_Window(wx.Dialog):
 
             # Selection des fichiers trace
             try:
-                self.file_struct = __regex_file_parser__(
+                self.file_struct, self.mission_name_code = __regex_file_parser__(
                     self.sel_mission.GetValue(), self.gdr_dir, None
                 )
             except FilenameNotConformError as e:
@@ -790,7 +790,7 @@ class Load_data_Window(wx.Dialog):
 #            )
             #print("self.sel_mission.GetValue()", self.sel_mission.GetValue())
             self.gdr_dir = self.text_ctrl_gdr_dir.GetValue()
-            self.file_struct = __regex_file_parser__(
+            self.file_struct, self.mission_name_code = __regex_file_parser__(
                 self.sel_mission.GetValue(), self.gdr_dir, None
             )
 
@@ -886,6 +886,9 @@ class Load_data_Window(wx.Dialog):
             self.data_sel_config["normpass_flag"] = False
             self.data_sel_config["gdr_flag"] = True
             self.data_sel_config["gdr_altis_flag"] = False
+
+            self.data_sel_config["mission_name_code"] = self.mission_name_code
+
             self.data_sel_config[
                 "data_dir"
             ] = self.gdr_dir  # wx.TextCtrl.GetValue(self.text_ctrl_nc_files)

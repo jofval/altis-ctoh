@@ -161,7 +161,6 @@ def __config_load__(mission, mission_config_file):
         lecture et selection des parametres de la mission
     """
     yaml_data = __read_cfg_file__(mission_config_file)
-
     if mission in yaml_data.keys():
         return yaml_data[mission]
     else:
@@ -186,6 +185,7 @@ def __regex_file_parser__(mission, directory, mission_config_file):
 
     track = []
     cycle = []
+    mission_name = []
     file_list_bad_regex = []
     file_list_ok_regex = []
     for idx, filename in enumerate(file_list):
@@ -195,9 +195,10 @@ def __regex_file_parser__(mission, directory, mission_config_file):
         else:
             track.append(int(match.group("track")))
             cycle.append(int(match.group("cycle")))
+            mission_name.append(match.group("mission"))
+
             file_list_ok_regex.extend([filename])
 
-    #    if track.count(None) > 0:
     if len(file_list_bad_regex) == len(file_list):
         message = (
             "The GDR files are not for "+mission+" product. "
@@ -207,15 +208,13 @@ def __regex_file_parser__(mission, directory, mission_config_file):
         )
         print("altis_utils.tools.FilenameNotConformError : ",message)
         raise FilenameNotConformError(message)
-    #        else:
-    #            raise Exception('Some filenames are not conform to the filename '\
-    #                            +'pattern of '+mission+' mission and could not '\
-    #                            +'be load : \n',file_list_bad_regex)
     else:
         file_list = file_list_ok_regex
         track = np.array(track, dtype=np.int)
         cycle = np.array(cycle, dtype=np.int)
         list_track = np.unique(track)
+        mission_name = np.unique(mission_name).tolist()[0]
+
         print(
             str(len(file_list))
             + " Files found for "
@@ -235,8 +234,8 @@ def __regex_file_parser__(mission, directory, mission_config_file):
         file_struct["track"] = track
         file_struct["cycle"] = cycle
         file_struct["filename"] = file_list
-        return file_struct
         
+        return file_struct, mission_name
         
         
 def __grp_format__(name):

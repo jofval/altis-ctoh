@@ -2012,6 +2012,7 @@ class Main_Window(wx.Frame):
             file_list = self.data_sel_config["list_file"]
             data_dir = self.data_sel_config["data_dir"]
             cfgfile_name = self.data_sel_config["cfg_file"]
+            mission_name_code = self.data_sel_config["mission_name_code"]
             self.set_env_var()
 
             if len(file_list) == 0:
@@ -2022,6 +2023,7 @@ class Main_Window(wx.Frame):
             try:
                 self.tr = Track(
                     mission,
+                    mission_name_code,
                     surf_type,
                     data_dir,
                     file_list,
@@ -2145,6 +2147,7 @@ class Main_Window(wx.Frame):
             data = self.tr.data_val[param_name]
             self.norm_index = np.array(data.coords["gdr_index"])
 
+            self.data_sel_config["mission_name_code"] = self.tr.mission_name_code
         else:
             raise Exception("Error: normpass_flag and gdr_flag")
 
@@ -2318,6 +2321,7 @@ class Main_Window(wx.Frame):
         self.data_sel_config["track"] = None
         self.data_sel_config["list_track"] = []
         self.data_sel_config["mission"] = ""
+        self.data_sel_config["mission_name_code"] = ""
         self.data_sel_config["surf_type"] = None
         self.data_sel_config["kml_file"] = None
         self.data_sel_config["normpass_flag"] = None

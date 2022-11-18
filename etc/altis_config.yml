@@ -18,5 +18,19 @@ wmts:   # Web Map Tile Service
         # Global Imagery Browse Services (GIBS)
         url : https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/wmts.cgi
         layer : Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual # Landsat 30 m resol
-        
+
+hydroweb:
+    JA1: "jason"
+    JA2: "jason2"
+    JA3: "jason3"
+    S3A: "sentinel3A"
+    S3B: "sentinel3B"
+    S6A: "sentinel6A"
+    ENV: "envisat"
+    SRL: "saral"
+    E2: "ers2"
+    tpx: "topex / poseidon"
+    CS: "cryosat2"
+
+
     

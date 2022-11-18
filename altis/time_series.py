@@ -27,7 +27,8 @@ from matplotlib.figure import Figure
 
 import pandas as pd
 from pandas.plotting import register_matplotlib_converters
-
+import pkg_resources
+import yaml
 import datetime
 
 register_matplotlib_converters()
@@ -185,6 +186,8 @@ class Time_Series_Panel(wx.Frame):
 
     def onUpdate(self, event):
 
+        self.parent.get_env_var()
+        self.data_sel_config = self.parent.data_sel_config
         self.param_compute()
         self.param_name = self.common_data.param_name
         self.figure.suptitle(self.param_name, fontsize=16)
@@ -677,8 +680,8 @@ class Time_Series_Panel(wx.Frame):
 
         hydroweb_header_fields={ "basin_name" : "",
                 "lake_name" : "",
-                "country" :"",
-                "virtual_station_id" : f"{latpos_flag}{lonpos_flag}"}
+                "country" :""}
+            #    "virtual_station_id" : f"{latpos_flag}{lonpos_flag}"}
         mean_lon = f"{float(lonpos):.4f}"
         mean_lat = f"{float(latpos):.4f}"
 
@@ -717,8 +720,21 @@ class Time_Series_Panel(wx.Frame):
                 self.data_sel_config['country'] = hydroweb_header_fields['country']
                 self.parent.set_env_var()
 
+        altis_cfg = pkg_resources.resource_filename(
+              "altis", "../etc/altis_config.yml"
+          )
+        with open(altis_cfg) as f:
+            yaml_data = yaml.load(
+                 f, Loader=yaml.FullLoader
+            )  # A revoir pour créer un vrai loader
+        if self.data_sel_config['mission_name_code'] in yaml_data["hydroweb"].keys():
+            mission_name_code = yaml_data["hydroweb"][self.data_sel_config['mission_name_code']]
+        else:
+            mission_name_code = self.data_sel_config['mission_name_code']
+
+
         hydroweb_header=[
-                [f"lake={hydroweb_header_fields['lake_name']};country={hydroweb_header_fields['country']};basin={hydroweb_header_fields['basin_name']};lat={mean_lat};lon={mean_lon};date={processor_date_fraction:11.6f};first_date={start_year_fraction:11.6f};last_date={end_year_fraction:11.6f};type=research;diff=public;id={hydroweb_header_fields['virtual_station_id']}"],
+                [f"lake={hydroweb_header_fields['lake_name'].lower()};country={hydroweb_header_fields['country'].title()};basin={hydroweb_header_fields['basin_name'].title()};lat={mean_lat};lon={mean_lon};date={processor_date_fraction:11.6f};first_date={start_year_fraction:11.6f};last_date={end_year_fraction:11.6f};type=research;diff=public"],  #;id={hydroweb_header_fields['virtual_station_id']}"],
             ["#"],
             ["# Length: -- km"],
             ["# width: -- km"],
@@ -728,7 +744,7 @@ class Time_Series_Panel(wx.Frame):
             ["# Mean volume: -- km3"],
             ["#"],
             ["# Water height from satellite altimetry:"],
-            [f"# {self.data_sel_config['mission']}       track number: "+"{:4d}".format(int(self.data_sel_config["track"]))],
+            [f"# {mission_name_code}       track number: "+"{:4d}".format(int(self.data_sel_config["track"]))],
             ["#"],
             ["# corrections applied: Solid Earth tide, pole tide, ionospheric delay"],
             ["# wet and dry tropospheric delay"],
@@ -758,20 +774,20 @@ class Time_Series_Panel(wx.Frame):
             ["#"],
         ]
 
-        if self.data_sel_config["track"] == "Tracks":
-            default_filaname = (
+#        if self.data_sel_config["track"] == "Tracks":
+#            default_filaname = (
+#                f"L_"
+#                f"{hydroweb_header_fields['lake_name'].lower()}_"
+#                f"AlTiS_TimeSeries_" 
+#                + self.data_sel_config["mission"] + "_Tracks"
+#            )
+#        else:
+        default_filaname = (
                 f"L_"
-                f"{hydroweb_header_fields['lake_name']}_"
-                f"AlTiS_TimeSeries_" 
-                + self.data_sel_config["mission"] + "_Tracks"
-            )
-        else:
-            default_filaname = (
-                f"L_"
-                f"{hydroweb_header_fields['lake_name']}_AlTiS_TimeSeries_"
-                + self.data_sel_config["mission"]
-                + "_{:04d}".format(int(self.data_sel_config["track"]))
-            )
+                f"{hydroweb_header_fields['lake_name'].lower()}")    #_AlTiS_TimeSeries_"
+#                + self.data_sel_config["mission"]
+#                + "_{:04d}".format(int(self.data_sel_config["track"]))
+#            )
 
         if self.data_sel_config["hydroweb_dir"] == "" :
             self.data_sel_config["hydroweb_dir"] = self.data_sel_config["data_dir"]
@@ -780,7 +796,7 @@ class Time_Series_Panel(wx.Frame):
             self,
             message="Export as HydroWeb Time Series (ASCII file)",
             defaultDir=self.data_sel_config["hydroweb_dir"],
-            defaultFile=default_filaname + "_" + latpos_flag,
+            defaultFile=default_filaname,    # + "_" + latpos_flag,
             wildcard="TXT files (*.txt)|*.txt",
             style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
         ) as fileDialog:
@@ -889,7 +905,7 @@ class Time_Series_Panel(wx.Frame):
         array.append(np.array([np.nan]*nber_meas))
 
         
-        array.append(np.array([self.data_sel_config["mission"]]*nber_meas))
+        array.append(np.array([self.data_sel_config["mission_name_code"]]*nber_meas))
         array.append(np.array(["REP"]*nber_meas))
         
         if "tracks" in self.common_data.param.coords._names:
@@ -914,7 +930,7 @@ class Time_Series_Panel(wx.Frame):
         )
 
         array.append(np.array(["OCOG"]*nber_meas))
-        array.append(np.array([None]*nber_meas))
+        array.append(np.array(["NA"]*nber_meas))
         array.append(np.sum(mask, axis=1).data[mask_cycle])
 
 
@@ -944,8 +960,8 @@ class Time_Series_Panel(wx.Frame):
 
 
         hydroweb_header_fields={ "basin_name" : "",
-                "river_name" : "",
-                "virtual_station_id" : f"{latpos_flag}{lonpos_flag}"}
+                "river_name" : "",}
+               # "virtual_station_id" : f"{latpos_flag}{lonpos_flag}"}
         mean_lon = f"{float(lonpos):.4f}"
         mean_lat = f"{float(latpos):.4f}"
         processor_date = time.strftime("%Y-%m-%d %H:%M:%S %Z")
@@ -978,9 +994,9 @@ class Time_Series_Panel(wx.Frame):
                 self.parent.set_env_var()
 
         hydroweb_header=[
-        [f"#BASIN:: {hydroweb_header_fields['basin_name']}"],
-        [f"#RIVER:: {hydroweb_header_fields['river_name']}"],
-        [f"#ID:: {hydroweb_header_fields['virtual_station_id']}"],
+        [f"#BASIN:: {hydroweb_header_fields['basin_name'].upper()}"],
+        [f"#RIVER:: {hydroweb_header_fields['river_name'].upper()}"],
+        ["#ID:: "], #{hydroweb_header_fields['virtual_station_id']}"],
         ["#TRIBUTARY OF:: TO BE SPECIFIED"],
         ["#APPROX. WIDTH OF REACH (m):: TO BE SPECIFIED"],
         ["#SURFACE OF UPSTREAM WATERSHED (km2):: NA"],
@@ -1029,20 +1045,20 @@ class Time_Series_Panel(wx.Frame):
 
         ref_dist = "####"
 
-        if self.data_sel_config["track"] == "Tracks":
-            default_filaname = (
-                f"R_{hydroweb_header_fields['basin_name']}_"
-                f"{hydroweb_header_fields['river_name']}_"
-                f"KM{ref_dist}_AlTiS_TimeSeries_" 
-                + self.data_sel_config["mission"] + "_Tracks"
-            )
-        else:
-            default_filaname = (
-                f"R_{hydroweb_header_fields['basin_name']}_"
-                f"{hydroweb_header_fields['river_name']}_KM{ref_dist}_AlTiS_TimeSeries_"
-                + self.data_sel_config["mission"]
-                + "_{:04d}".format(int(self.data_sel_config["track"]))
-            )
+#        if self.data_sel_config["track"] == "Tracks":
+#            default_filaname = (
+#                f"R_{hydroweb_header_fields['basin_name'].upper()}_"
+#                f"{hydroweb_header_fields['river_name'].upper()}_"
+#                f"KM{ref_dist}_AlTiS_TimeSeries_" 
+#                + self.data_sel_config["mission"] + "_Tracks"
+#            )
+#        else:
+        default_filaname = (
+                f"R_{hydroweb_header_fields['basin_name'].upper()}_"
+                f"{hydroweb_header_fields['river_name'].upper()}_KM{ref_dist}")     #_AlTiS_TimeSeries_"
+#                + self.data_sel_config["mission"]
+#                + "_{:04d}".format(int(self.data_sel_config["track"]))
+#            )
 
         if self.data_sel_config["hydroweb_dir"] == "" :
             self.data_sel_config["hydroweb_dir"] = self.data_sel_config["data_dir"]
@@ -1051,7 +1067,7 @@ class Time_Series_Panel(wx.Frame):
             self,
             message="Export as HydroWeb Time Series (ASCII file)",
             defaultDir=self.data_sel_config["hydroweb_dir"],
-            defaultFile=default_filaname + "_" + latpos_flag,
+            defaultFile=default_filaname,   # + "_" + latpos_flag,
             wildcard="TXT files (*.txt)|*.txt",
             style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
         ) as fileDialog:

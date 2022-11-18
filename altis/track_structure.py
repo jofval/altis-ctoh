@@ -66,15 +66,15 @@ class GDR_altis(object):
         
         
         
-        if mission_config_file is None:
-            mission_file_cfg = pkg_resources.resource_filename(
-                "altis", "../etc/products_config.yaml"
-            )
-        else:
-            if os.path.isfile(mission_config_file):
-                mission_file_cfg = mission_config_file
-            else:
-                raise Exception("Mission configuration file not found.")
+#        if mission_config_file is None:
+#            mission_file_cfg = pkg_resources.resource_filename(
+#                "altis", "../etc/products_config.yaml"
+#            )
+#        else:
+#            if os.path.isfile(mission_config_file):
+#                mission_file_cfg = mission_config_file
+#            else:
+#                raise Exception("Mission configuration file not found.")
 
         altisgdr=False
         with xr.open_dataset(filename) as ds:
@@ -99,6 +99,10 @@ class GDR_altis(object):
 
             self.data_val = xr.open_dataset(filename)
             cycle = self.data_val.cycle
+            if hasattr(self.data_val,'mission_name_code'):
+                self.mission_name_code = self.data_val.mission_name_code
+            else:
+                self.mission_name_code = self.data_val.mission
             lon = self.data_val[self.lon_hf_name].data
             lat = self.data_val[self.lat_hf_name].data
             
@@ -242,6 +246,7 @@ class Track(object):
     def __init__(
         self,
         mission,
+        mission_name_code,
         surf_type,
         data_directory,
         file_list,
@@ -255,6 +260,7 @@ class Track(object):
                 - Calcul des ranges
         """
         self.mission = mission
+        self.mission_name_code = mission_name_code
         self.surf_type = surf_type
 
         if mission_config_file is None:
@@ -269,6 +275,7 @@ class Track(object):
 
         # Appel de la fonction "utils" afin de charger les parametres prés définit
         param_config = __config_load__(mission, mission_config_file)
+
         #        self.norm_index_hf_name = param_config['param']['norm_index_hf']
         self.time_hf_name = param_config["param"]["time_hf"]
         self.time_lf_name = param_config["param"]["time_lf"]
@@ -1071,6 +1078,7 @@ class Track(object):
         dataset_merge.attrs["start_date"] = startdate
         dataset_merge.attrs["end_date"] = enddate
         dataset_merge.attrs["mission"] = self.mission
+        dataset_merge.attrs["mission_name_code"] = self.mission_name_code
         dataset_merge.attrs["processor"] = "altisgdr"
         
 

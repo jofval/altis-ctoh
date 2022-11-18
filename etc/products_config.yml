@@ -15,8 +15,8 @@ Topex_CASH :
     # Filename regular expression (DO NOT TOUCH!)
     #---------------------------------------------------------------------------
     # GDR file patern 
-
-    filename_pattern : .*tpx_cash_(?P<cycle>\d{3})_(?P<track>\d{4})_\d{4}[01]\d[0-3]\d.nc
+    
+    filename_pattern : .*(?P<mission>tpx)_(?P<supplier>cash)_(?P<cycle>\d{3})_(?P<track>\d{4})_\d{4}[01]\d[0-3]\d.nc
 
     #---------------------------------------------------------------------------
     # Retracker to compute surface height
@@ -94,7 +94,7 @@ Topex_CASH :
 # Jason-1 GDR-E
 ################################################################################
 Jason-1_GDR-E :
-    filename_pattern : .*P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    filename_pattern : .*(?P<mission>JA1)_GP[S|N]_2P(?P<baseline_collection>e|E)P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
 
     retracker :
         - ice1
@@ -157,7 +157,7 @@ Jason-2_GDR-D :
     #---------------------------------------------------------------------------
     # GDR file patern 
 
-    filename_pattern : .*JA2_GP[SN]_2PdP(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    filename_pattern : .*(?P<mission>JA2])_GP[S|N]_2P(?P<baseline_collection>d|D)P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
 
     #---------------------------------------------------------------------------
     # Retracker to compute surface height
@@ -240,7 +240,7 @@ Jason-2_GDR-D :
 ################################################################################
 Jason-3_GDR-F:
 
-    filename_pattern : .*P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    filename_pattern : .*(?P<mission>JA3)_GP[S|N]_2P(?P<baseline_collection>f|F)P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
 
     retracker :
         - ice1
@@ -312,7 +312,7 @@ Jason-3_GDR-F:
 # envisat.v21
 ################################################################################
 envisat_v21 :
-    filename_pattern : .*_(?P<cycle>\d{3})_(?P<track>\d{4})_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1.nc 
+    filename_pattern : .*(?P<mission>ENV)_(?P<cycle>\d{3})_(?P<track>\d{4})_RA2_.*_2PRF-P\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_.*A\d{3}_00.*N1.nc 
 
     retracker :
         - ice1
@@ -375,7 +375,7 @@ envisat_v21 :
 ################################################################################
 envisat_v30 :
 
-    filename_pattern : .*ENV_RA_2_MWS____\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}_(?P<cycle>\d{3})_(?P<track>\d{4})____[A-Z0-9]{3}_[A-Z]_[A-Z]{2}_\d{3}.nc
+    filename_pattern : .*(?P<mission>ENV)_RA_2_MWS____\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}_(?P<cycle>\d{3})_(?P<track>\d{4})____[A-Z0-9]{3}_[A-Z]_[A-Z]{2}_\d{3}.nc
 
     retracker :
         - ice1
@@ -453,7 +453,7 @@ envisat_v30 :
 # ers2 CTOH
 ################################################################################
 ers2_ctoh :
-    filename_pattern : .*P(?P<cycle>\d{3})_(?P<track>\d{4})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    filename_pattern : .*(?P<mission>E2)_(?P<supplier>CTOH)_GPN_2P01_P(?P<cycle>\d{3})_(?P<track>\d{4})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
 
     retracker :
         - ice1
@@ -516,8 +516,8 @@ ers2_ctoh :
 ################################################################################
 Saral_GDR-F:
     
-    filename_pattern : .*2PfP(?P<cycle>\d{3})_(?P<track>\d{4})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d.CNES\.nc
-    
+    filename_pattern : .*(?P<mission>SRL)_GP[S|N]_2P(?P<baseline_collection>f|F)P(?P<cycle>\d{3})_(?P<track>\d{4})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d.CNES\.nc
+
     retracker :
         - ice1
         - ice2
@@ -581,8 +581,8 @@ Saral_GDR-F:
 #s3lanOT : &s3
 Sentinel-3A&B_land: 
 
-    filename_pattern : .*_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_.*T.*_.*_C(?P<cycle>\d{3})_P(?P<track>\d{3})_L.*_.*_NT_.*\.nc
-    
+    filename_pattern : .*(?P<mission>S3A|S3B)_SR_2_(?P<supplier>LAN|WAT)____\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_.*T.*_.*_C(?P<cycle>\d{3})_P(?P<track>\d{3})_L.*_.*_NT_.*\.nc
+
     retracker :
         - ice1
         - ice2
@@ -686,9 +686,7 @@ Sentinel-3A&B_land:
 ## Cryosat2 ESA Version C GOP product (OCEAN)
 #################################################################################
 cryosat2-gop :
-    filename_pattern : .*_GOP_\d{3}_(?P<track>\d{5})_C(?P<cycle>\d{3})_\d.nc
-    
-    #AlTiS_CS_LTA__GOP_001_00290_C001_1.nc
+    filename_pattern : .*(?P<mission>CS)_(?P<processing_workflow>[A-Z_]{4})_(?p<product_type>GOP)_(?P<cycle>\d{3})_(?P<pass>\d{5})_(?P<baseline_collection>C\d{3})_(\d).nc
 
     retracker :
         - ice1
@@ -757,8 +755,9 @@ cryosat2-gop :
 ## Cryosat2 ESA Version D ICE product (LAND)
 #################################################################################
 cryosat2-ice :
-    filename_pattern : .*_GDR_(?P<cycle>\d{3})_(?P<track>\d{5})_[A-Z]\d{3}_\d.nc
-    
+    filename_pattern : .*(?P<mission>CS)_(?P<processing_workflow>[A-Z_]{4})_(?p<product_type>ICE)_(?P<cycle>\d{3})_(?P<pass>\d{5})_(?P<baseline_collection>D\d{3})_(\d).nc
+        #.*_GDR_(?P<cycle>\d{3})_(?P<track>\d{5})_[A-Z]\d{3}_\d.nc
+
     retracker :
         - tracker-1
         - tracker-2
@@ -828,7 +827,7 @@ cryosat2-ice :
 ################################################################################
 Sentinel-6_LRM:
 
-    filename_pattern : .*_S6A_P4_2__LR_STD__(NT|ST)_(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d\_F\d{2}.nc
+    filename_pattern : .*(?P<mission>S6A)_(P4_2)__(?P<mode>LR)_(STD)__(NT|ST)_(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d\_F\d{2}.nc
 
     retracker :
         - ice1
@@ -899,7 +898,7 @@ Sentinel-6_LRM:
 ################################################################################
 Sentinel-6_SAR:
 
-    filename_pattern : .*_S6A_P4_2__HR_STD__(NT|ST)_(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d\_F\d{2}.nc
+    filename_pattern : .*.*(?P<mission>S6A)_(P4_2)__(?P<mode>HR)_(STD)__(NT|ST)_(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d\_F\d{2}.nc
 
     retracker :
         - ice1
