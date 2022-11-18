@@ -80,7 +80,7 @@ from altis.connection_check import check_internet,check_altis_version
 
 from altis.para_detection import hough_transform  # , hough_transform_linear
 
-from altis._version import __version__  # , __revision__
+from altis._version import __version__  #,__revision__
 
 import wx
 
@@ -1910,8 +1910,8 @@ class Main_Window(wx.Frame):
                 if load_data_args.ShowModal() == wx.ID_OK:
                     #   print("ShowModal == wx.ID_OK")
                     self.load_data_process(event, load_data_args.data_sel_config)
-                else:
-                    print("Cancel")
+#                else:
+#                    print("Cancel")
 
     def load_data_process(self, event, load_data_args):
         """

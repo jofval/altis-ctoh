@@ -700,6 +700,9 @@ class Time_Series_Panel(wx.Frame):
             hydroweb_header_fields['country'] = self.data_sel_config['country']
 
             hydroweb_header_fields = self.hydroweb_control_dialog(hydroweb_header_fields)
+
+            if hydroweb_header_fields is None:
+                return None
             
             if ((hydroweb_header_fields['basin_name'] == "")
                 or (hydroweb_header_fields['lake_name'] == "")):
@@ -974,7 +977,10 @@ class Time_Series_Panel(wx.Frame):
             hydroweb_header_fields['river_name'] = self.data_sel_config['river_name']
 
             hydroweb_header_fields = self.hydroweb_control_dialog(hydroweb_header_fields)
-            
+
+            if hydroweb_header_fields is None:
+                return None
+   
             if ((hydroweb_header_fields['basin_name'] == "")
                 or (hydroweb_header_fields['river_name'] == "")):
                 msg = (f"Basin and river name have to be field !"
@@ -1374,8 +1380,12 @@ class Export_HydroWeb_file_format_Window(wx.Dialog):
 
         #self.rbox.Bind(wx.EVT_RADIOBOX,self.onRadioBox) 
         btn_ok.Bind(wx.EVT_BUTTON, self.onOk)
+#        btn_cancel.Bind(wx.EVT_BUTTON, self.onCancel)
 
     def onOk(self, event):
         
         self.hydroweb_file_format = self.rbox.GetStringSelection()
         event.Skip()
+
+
+
