@@ -25,15 +25,15 @@ def check_internet(url):
 def check_altis_version(current_version):
     url = 'https://gitlab.com/ctoh/altis/-/raw/main/version.txt?inline=false'
     timeout = 5
-    pattern_regex_version_gitlabweb = (r".*(?P<version>V[\d]{1,3}.[\d]{1,3}.[\d]{1,3})-(?P<git_post>[\d]{1,3})-(?P<gir_version>[a-z,0-9]{8})")
-    pattern_regex_version_local = (r".*(?P<version>V[\d]{1,3}.[\d]{1,3}.[\d]{1,3}).*")  #.post(?P<git_post>[\d]{1,3})")    #-(?P<gir_version>[a-z,0-9]{8})")
+    pattern_regex_version_gitlabweb = (r".*[V|v](?P<version>[\d]{1,3}.[\d]{1,3}.[\d]{1,3})-(?P<git_post>[\d]{1,3})-(?P<gir_version>[a-z,0-9]{8})")
+    pattern_regex_version_local = (r".*(?P<version>[\d]{1,3}.[\d]{1,3}.[\d]{1,3}).*")  #.post(?P<git_post>[\d]{1,3})")    #-(?P<gir_version>[a-z,0-9]{8})")
     pattern_gitlabweb = re.compile(pattern_regex_version_gitlabweb)
     pattern_local = re.compile(pattern_regex_version_local)
     
     latest_version = requests.get(url, timeout=timeout).text
     match_latest_version = pattern_gitlabweb.search(latest_version)
     match_current_version = pattern_local.search(current_version)
-    
+    print (latest_version,current_version)    
     if match_latest_version is not None:
         if match_latest_version.groupdict()["version"] == match_current_version.groupdict()["version"]:
             return True, match_latest_version.groupdict()["version"]
