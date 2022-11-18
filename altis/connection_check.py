@@ -33,7 +33,7 @@ def check_altis_version(current_version):
     latest_version = requests.get(url, timeout=timeout).text
     match_latest_version = pattern_gitlabweb.search(latest_version)
     match_current_version = pattern_local.search(current_version)
-    print (latest_version,current_version)    
+    
     if match_latest_version is not None:
         if match_latest_version.groupdict()["version"] == match_current_version.groupdict()["version"]:
             return True, match_latest_version.groupdict()["version"]
