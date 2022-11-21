@@ -157,7 +157,7 @@ Jason-2_GDR-D :
     #---------------------------------------------------------------------------
     # GDR file patern 
 
-    filename_pattern : .*(?P<mission>JA2])_GP[S|N]_2P(?P<baseline_collection>d|D)P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
+    filename_pattern : .*(?P<mission>JA2)_GP[S|N]_2P(?P<baseline_collection>d|D)P(?P<cycle>\d{3})_(?P<track>\d{3})_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\d_[0-2]\d[0-5]\d[0-5]\d\.nc
 
     #---------------------------------------------------------------------------
     # Retracker to compute surface height
