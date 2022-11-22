@@ -40,14 +40,14 @@ The products are available for the altimetry missions below :
 | Jason-3 |	ja3_b_cnes_f_sgdr | 300 - | 2022/04/25 to now | GDR-F | [interleaved Jason orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_RefOrbit_J3J2J1TP_Tracks_GoogleEarth_V3.kmz)|
 | Sentinel-3A | s3a_a_lan_%_sgdr | 5 -  | 2016/06/15 to now | LAND IPF-06.10, IPF-06.14 | [nominal sentinel-3A orbit](https://sentinel.esa.int/documents/247904/685098/Sentinel-3-Relative-Ground-Tracks) |
 | Sentinel-3B | s3b_b_lan_%_sgdr |	20 - | 2018/08/15 to now | LAND IPF-06.10, IPF-06.14 | [nominal sentinel-3B orbit](https://sentinel.esa.int/documents/247904/685098/Sentinel-3-Relative-Ground-Tracks) |
-| Sentinel-6A LRM | s6a_a_lrm_%_gdr | 4 -  | 2021/05/21 to now | Baseline F06 | [nominal Jason orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_RefOrbit_J3J2J1TP_Tracks_GoogleEarth_V3.kmz)|
-| Sentinel-6A SAR |	s6a_a_sar_%_gdr | 4 - | 2021/05/21 to now | Baseline F06 | [nominal Jason orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_RefOrbit_J3J2J1TP_Tracks_GoogleEarth_V3.kmz)|                   
+| Sentinel-6A LRM | s6a_a_lrm_%_gdr | 4 -  | 2021/05/21 to now | Baseline F06 and F07 | [nominal Jason orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_RefOrbit_J3J2J1TP_Tracks_GoogleEarth_V3.kmz)|
+| Sentinel-6A SAR |	s6a_a_sar_%_gdr | 4 - | 2021/05/21 to now | Baseline F06 and F07 | [nominal Jason orbit](https://www.aviso.altimetry.fr/fileadmin/documents/data/tools/Visu_RefOrbit_J3J2J1TP_Tracks_GoogleEarth_V3.kmz)|                   
 
 
 **Additional information about altimetric products (product handbooks) are available [here](https://groupes.renater.fr/wiki/ctoh_news).**
 
 
-The products are updated for ongoing altimetry missions.
+The products are updated for ongoing altimetry missions
 
 ## Reference
 - Frappart, Frédéric, Fabien Blarel, Ibrahim Fayad, Muriel Bergé-Nguyen, Jean-François Crétaux, Song Shu, Joël Schregenberger, and Nicolas Baghdadi. 2021. "Evaluation of the Performances of Radar and Lidar Altimetry Missions for Water Level Retrievals in Mountainous Environment: The Case of the Swiss Lakes" Remote Sensing 13, no. 11: 2196. https://doi.org/10.3390/rs13112196 
