@@ -581,7 +581,7 @@ Saral_GDR-F:
 #s3lanOT : &s3
 Sentinel-3A&B_land: 
 
-    filename_pattern : .*(?P<mission>S3A|S3B)_SR_2_(?P<supplier>LAN|WAT)____\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_.*T.*_.*_C(?P<cycle>\d{3})_P(?P<track>\d{3})_L.*_.*_NT_.*\.nc
+    filename_pattern : .*(?P<mission>S3A|S3B)_SR_2_(?P<supplier>LAN|WAT)____\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_\d{4}[01]\d[0-3]\dT[0-2]\d[0-5]\d[0-5]\d_.*T.*_.*_C(?P<cycle>\d{3})_P(?P<track>\d{3})_.*_.*_NT_.*\.nc
 
     retracker :
         - ice1
