@@ -302,18 +302,11 @@ class Time_Series_Panel(wx.Frame):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            self.median_param = self.common_data.param.where(self.mask).median(
-                dim=self.dim_index
-            )  # ,skipna=True)
-            self.med_abs_dev_param = med_abs_dev(
-                self.common_data.param.where(self.mask), self.dim_index
-            )  # ,skipna=True)
-            self.mean_param = self.common_data.param.where(self.mask).mean(
-                dim=self.dim_index
-            )  # ,skipna=True)
-            self.std_param = self.common_data.param.where(self.mask).std(
-                dim=self.dim_index
-            )  # ,skipna=True)
+            self.median_param = param_values.median(dim=self.dim_index)
+            self.med_abs_dev_param = med_abs_dev(param_values, self.dim_index)
+            self.mean_param = param_values.mean(dim=self.dim_index)  # ,skipna=True)
+            self.std_param = param_values.std(dim=self.dim_index)
+
             self.abcisse = np.array(
                 self.common_data.param.coords["date"].where(self.mask.any(axis=1))
             )
