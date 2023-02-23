@@ -287,6 +287,12 @@ class Time_Series_Panel(wx.Frame):
         else:
             self.param_units = self.common_data.param.units
 
+        if self.param_units.lower() == "db":
+            print(" >>> Values in dB units are converted to natural values to compute the time series...")
+            param_values = np.power(10,(self.common_data.param.where(self.mask)/10))
+        else:
+            param_values = self.common_data.param.where(self.mask)
+
         if "gdr_index" in self.common_data.param.dims:
             self.dim_index = "gdr_index"
             self.dim_cycle = "cycle_index"
@@ -317,6 +323,13 @@ class Time_Series_Panel(wx.Frame):
             self.param_sel = self.common_data.tr[self.common_data.param_name].where(
                 self.mask
             )
+        if self.param_units.lower() == "db":
+            print(" >>> ... And converted again to express the result in dB units.")
+            self.med_abs_dev_param = 10 * np.log10(1+(self.med_abs_dev_param/self.median_param))
+            self.median_param = 10 * np.log10(self.median_param)
+            self.std_param = 10 * np.log10(1+(self.std_param/self.mean_param))
+            self.mean_param = 10 * np.log10(self.mean_param)
+
 
     def draw(self):
 
