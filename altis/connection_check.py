@@ -16,9 +16,9 @@ def check_internet(url):
     try:
         _ = requests.get(url, timeout=timeout)
         return True
-    except requests.ConnectionError:
+    except requests.ConnectionError as ce:
         return False
-    except requests.exceptions.InvalidSchema:
+    except requests.exceptions.InvalidSchema as ivs:
         return False
 
 

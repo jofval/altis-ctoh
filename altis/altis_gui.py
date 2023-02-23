@@ -278,10 +278,12 @@ class Main_Window(wx.Frame):
                         if mssg_dlg.ShowModal() == wx.ID_OK:
                             return True               
 
-
                     print(msg)
             else:
                 print("AlTiS version check has failed!")
+        else:
+            print("AlTiS update version NOT checked. The network is not available.")
+
 
     def InitUI(self):
         """
